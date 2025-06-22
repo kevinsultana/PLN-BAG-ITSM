@@ -22,7 +22,7 @@ export default function Footer() {
           Jl. Casablanca Raya Kav.88, Jakarta Selatan 12870
         </p>
       </div>
-      <div className="self-end mr-4 flex flex-col items-center gap-2">
+      <div className="self-end mr-14 flex flex-col items-center gap-2">
         <h1>Social Media</h1>
         <div>
           <ul className="flex gap-4">

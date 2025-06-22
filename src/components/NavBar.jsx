@@ -3,11 +3,11 @@ import React from "react";
 import Image from "next/image";
 import logoNavbar from "../assets/logoNavbar.png";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { FaChevronDown } from "react-icons/fa6";
 
 export default function NavBar() {
-  const router = useRouter(); // Initialize router
+  const pathname = usePathname();
 
   const date = new Date();
   const formattedDate = date.toLocaleDateString("id-ID", {
@@ -19,17 +19,13 @@ export default function NavBar() {
     minute: "numeric",
   });
 
-  // Helper function to check if the current page matches the link
   const getLinkClassName = (path) => {
-    return router.pathname === path
-      ? "text-blue-500 font-bold" // Apply a style for active page
-      : "text-gray-700"; // Default style for other pages
+    return pathname === path ? "text-blue-500 font-bold" : "text-gray-700";
   };
 
   return (
     <div>
-      {/* Navbar */}
-      <div className="flex bg-white px-14 py-6 justify-between items-center">
+      <div className="flex bg-white px-14 py-6 justify-between items-center relative">
         <Image
           src={logoNavbar}
           alt="Logo"
@@ -43,14 +39,35 @@ export default function NavBar() {
                 Beranda
               </Link>
             </li>
-            <li>
-              <Link href="/helpdesk" className={getLinkClassName("/helpdesk")}>
+
+            {/* Dropdown Helpdesk */}
+            <li className="relative group">
+              <div className="flex gap-2 items-center cursor-pointer">
                 Helpdesk
-                <span>
-                  <FaChevronDown />
-                </span>
-              </Link>
+                <FaChevronDown />
+              </div>
+              <div className="absolute top-6 hidden group-hover:block bg-white p-4 shadow-md z-10 min-w-[160px] rounded-xl">
+                <ul>
+                  <li className="py-2">
+                    <Link
+                      href="/create-ticket"
+                      className={getLinkClassName("/create-ticket")}
+                    >
+                      Buat Tiket
+                    </Link>
+                  </li>
+                  <li className="py-2">
+                    <Link
+                      href="/list-ticket"
+                      className={getLinkClassName("/list-ticket")}
+                    >
+                      Urutan Tiket
+                    </Link>
+                  </li>
+                </ul>
+              </div>
             </li>
+
             <li>
               <Link href="/formulir" className={getLinkClassName("/formulir")}>
                 Formulir
@@ -77,7 +94,6 @@ export default function NavBar() {
           </ul>
         </div>
 
-        {/* Optionally, display the current date */}
         <div>
           <p>{formattedDate + " WIB"}</p>
         </div>
