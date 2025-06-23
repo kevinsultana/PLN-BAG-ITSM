@@ -4,7 +4,7 @@ import React from "react";
 
 export default function faq() {
   return (
-    <div>
+    <div className="flex flex-col h-screen">
       <NavBar />
       <Footer />
     </div>
