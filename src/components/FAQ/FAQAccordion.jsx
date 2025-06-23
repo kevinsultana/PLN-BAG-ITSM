@@ -5,26 +5,60 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const faqData = [
   {
-    question: "Lorem Ipsum",
+    question: "Bagaimana cara membuat tiket permintaan bantuan?",
     answer:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s...",
+      "Anda dapat membuat tiket dengan masuk ke portal Helpdesk IT, kemudian klik tombol 'Buat Tiket' dan lengkapi formulir yang tersedia dengan informasi detail mengenai masalah Anda.",
   },
   {
-    question: "Lorem Ipsum",
-    answer: "Jawaban untuk pertanyaan kedua akan ditampilkan di sini.",
+    question: "Berapa lama waktu respons untuk tiket yang saya ajukan?",
+    answer:
+      "Waktu respons tergantung pada tingkat prioritas tiket. Untuk prioritas tinggi (seperti gangguan sistem utama), tim IT akan merespons dalam waktu maksimal 1 jam. Untuk prioritas normal, maksimal 1 hari kerja.",
   },
   {
-    question: "Lorem Ipsum",
-    answer: "Ini adalah konten jawaban untuk pertanyaan ketiga.",
+    question: "Bagaimana cara mengetahui status tiket saya?",
+    answer:
+      "Setelah tiket dibuat, Anda dapat memantau statusnya melalui dashboard tiket. Anda akan menerima notifikasi email setiap kali ada pembaruan status.",
   },
   {
-    question: "Lorem Ipsum",
-    answer: "Penjelasan atau jawaban untuk pertanyaan keempat.",
+    question: "Apakah saya bisa menambahkan informasi setelah tiket dibuat?",
+    answer:
+      "Ya, Anda bisa membuka tiket Anda di sistem dan menambahkan komentar atau lampiran jika diperlukan.",
+  },
+  {
+    question: "Apa yang harus saya lakukan jika lupa nomor tiket saya?",
+    answer:
+      "Silakan masuk ke akun Anda di sistem helpdesk. Semua tiket yang Anda buat akan tampil di halaman dashboard Anda.",
+  },
+  {
+    question: "Masalah apa saja yang bisa dilaporkan lewat tiket helpdesk?",
+    answer:
+      "Anda bisa melaporkan berbagai masalah seperti komputer/laptop bermasalah, software tidak berfungsi, permintaan akses sistem, email tidak bisa digunakan, atau permintaan instalasi aplikasi.",
+  },
+  {
+    question: "Bisakah saya mengubah prioritas tiket setelah dibuat?",
+    answer:
+      "Perubahan prioritas dapat dilakukan oleh tim IT berdasarkan evaluasi terhadap dampak masalah. Jika Anda merasa masalah semakin mendesak, tambahkan komentar di tiket untuk memberi penjelasan tambahan.",
+  },
+  {
+    question: "Kapan tiket dianggap selesai?",
+    answer:
+      "Tiket dianggap selesai setelah tim IT menyelesaikan masalah dan Anda telah mengonfirmasi bahwa solusi sudah sesuai. Jika tidak ada respons dalam 2 hari setelah solusi diberikan, tiket akan otomatis ditutup.",
+  },
+  {
+    question: "Apakah saya bisa membuka kembali tiket yang sudah ditutup?",
+    answer:
+      "Ya, Anda dapat membuka kembali tiket yang sudah ditutup dalam waktu 7 hari jika masalah belum sepenuhnya terselesaikan.",
+  },
+  {
+    question:
+      "Siapa yang bisa saya hubungi jika ada masalah dengan sistem helpdesk?",
+    answer:
+      "Silakan hubungi administrator IT atau kirim email ke helpdesk@namaperusahaan.com jika Anda mengalami kendala dalam mengakses sistem helpdesk.",
   },
 ];
 
 export default function FAQAccordion() {
-  const [openIndex, setOpenIndex] = useState(0);
+  const [openIndex, setOpenIndex] = useState(null);
 
   const toggleIndex = (index) => {
     setOpenIndex(index === openIndex ? null : index);
