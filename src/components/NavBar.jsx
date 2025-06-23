@@ -1,13 +1,14 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import logoNavbar from "../assets/logoNavbar.png";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FaChevronDown } from "react-icons/fa6";
+import { FaChevronDown, FaChevronUp } from "react-icons/fa6";
 
 export default function NavBar() {
   const pathname = usePathname();
+  const [isHelpdeskOpen, setIsHelpdeskOpen] = useState(false);
 
   const date = new Date();
   const formattedDate = date.toLocaleDateString("id-ID", {
@@ -41,12 +42,23 @@ export default function NavBar() {
             </li>
 
             {/* Dropdown Helpdesk */}
-            <li className="relative group">
-              <div className="flex gap-2 items-center cursor-pointer">
+            <li
+              className="relative group"
+              onMouseEnter={() => setIsHelpdeskOpen(true)}
+              onMouseLeave={() => setIsHelpdeskOpen(false)}
+            >
+              <div
+                className="flex gap-2 items-center cursor-pointer"
+                onClick={() => setIsHelpdeskOpen(!isHelpdeskOpen)}
+              >
                 Helpdesk
-                <FaChevronDown />
+                {isHelpdeskOpen ? <FaChevronUp /> : <FaChevronDown />}
               </div>
-              <div className="absolute top-6 hidden group-hover:block bg-white p-4 shadow-md z-10 min-w-[160px] rounded-xl">
+              <div
+                className={`absolute top-6 ${
+                  isHelpdeskOpen ? "block" : "hidden"
+                } group-hover:block bg-white p-4 shadow-md z-10 min-w-[160px] rounded-xl`}
+              >
                 <ul>
                   <li className="py-2">
                     <Link
