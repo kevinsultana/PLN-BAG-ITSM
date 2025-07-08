@@ -116,7 +116,7 @@ const initialTickets = [
   },
 ];
 
-export default function TicketTable() {
+export default function TicketTable({ onRowClick }) {
   const [tickets, setTickets] = React.useState(initialTickets);
   const [orderBy, setOrderBy] = React.useState("no");
   const [order, setOrder] = React.useState("asc");
@@ -168,7 +168,11 @@ export default function TicketTable() {
           </TableHead>
           <TableBody>
             {paginatedTickets.map((row, index) => (
-              <TableRow key={index}>
+              <TableRow
+                key={index}
+                className="hover:bg-gray-100 trasnition duration-300 cursor-pointer"
+                onClick={() => onRowClick(row)}
+              >
                 <TableCell className="border border-gray-200">
                   {(page - 1) * rowsPerPage + index + 1}
                 </TableCell>

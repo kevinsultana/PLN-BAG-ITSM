@@ -1,10 +1,25 @@
+"use client";
+
 import MainLayout from "@/components/Layout/MainLayout";
 import React from "react";
 import { FaPlus } from "react-icons/fa";
 import TableHelpDesk from "@/components/HelpDesk/TableHelpDesk";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function page() {
+  const router = useRouter();
+
+  const handleClick = (i) => {
+    const query = new URLSearchParams({
+      kode: i.kode,
+      deskripsi: i.deskripsi,
+      requester: i.requester,
+      tanggal: i.tanggal,
+      status: i.status,
+    }).toString();
+    router.push(`/helpdesk/details/?${query}`);
+  };
   return (
     <div className="bg-slate-100 h-full">
       <MainLayout>
@@ -21,7 +36,7 @@ export default function page() {
                 <h3>New</h3>
               </Link>
             </div>
-            <TableHelpDesk />
+            <TableHelpDesk onRowClick={(i) => handleClick(i)} />
           </div>
         </div>
       </MainLayout>

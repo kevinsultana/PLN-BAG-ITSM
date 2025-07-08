@@ -13,11 +13,16 @@ import { BiPhoneCall } from "react-icons/bi";
 export default function SideBar({ show }) {
   const pathname = usePathname();
 
-  const getLinkClassName = (path) => {
-    return pathname === path
+  const getLinkClassName = (paths) => {
+    const isActive = Array.isArray(paths)
+      ? paths.some((p) => pathname.startsWith(p))
+      : pathname === paths;
+
+    return isActive
       ? "text-[#65C7D5] font-bold flex items-center gap-2"
       : "text-gray-700 flex items-center gap-2";
   };
+
   return (
     <div
       className={`w-1/6 bg-white transition-all duration-300 ease-in-out relative ${
@@ -36,7 +41,11 @@ export default function SideBar({ show }) {
           <li>
             <Link
               href="/helpdesk"
-              className={getLinkClassName("/helpdesk" && "/helpdesk/new")}
+              className={getLinkClassName([
+                "/helpdesk",
+                "/helpdesk/new",
+                "/helpdesk/details",
+              ])}
             >
               <LuTicket />
               Helpdesk

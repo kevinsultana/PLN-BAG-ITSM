@@ -5,7 +5,7 @@ import SideBar from "../SideBar";
 import Footer from "../Footer";
 
 export default function MainLayout({ children }) {
-  const [showSideBar, setShowSideBar] = useState(false);
+  const [showSideBar, setShowSideBar] = useState(true);
 
   useEffect(() => {
     if (window.innerWidth < 1024) {
