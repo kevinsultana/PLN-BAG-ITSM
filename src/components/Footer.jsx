@@ -16,7 +16,7 @@ export default function Footer() {
           width="auto"
           className="w-20 h-12 object-contain"
         />
-        <p>
+        <p className="text-sm">
           Gedung Prudential Centre <br />
           Lantai 11 unit A B C D E Kota Kasablanka <br />
           Jl. Casablanca Raya Kav.88, Jakarta Selatan 12870
