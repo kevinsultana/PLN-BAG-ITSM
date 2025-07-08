@@ -15,7 +15,7 @@ export default function SideBar({ show }) {
 
   const getLinkClassName = (path) => {
     return pathname === path
-      ? "text-blue-500 font-bold flex items-center gap-2"
+      ? "text-[#65C7D5] font-bold flex items-center gap-2"
       : "text-gray-700 flex items-center gap-2";
   };
   return (
@@ -34,7 +34,10 @@ export default function SideBar({ show }) {
           </li>
 
           <li>
-            <Link href="/helpdesk" className={getLinkClassName("/helpdesk")}>
+            <Link
+              href="/helpdesk"
+              className={getLinkClassName("/helpdesk" && "/helpdesk/new")}
+            >
               <LuTicket />
               Helpdesk
             </Link>
