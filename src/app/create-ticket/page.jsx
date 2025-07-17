@@ -1,14 +1,13 @@
 import CreateTicket from "@/components/CreateTicket/CreateTicket";
-import Footer from "@/components/Footer";
-import NavBar from "@/components/NavBar";
+import MainLayout from "@/components/Layout/MainLayout";
 import React from "react";
 
 export default function page() {
   return (
     <div className="flex flex-col h-screen">
-      <NavBar />
-      <CreateTicket />
-      <Footer />
+      <MainLayout>
+        <CreateTicket />
+      </MainLayout>
     </div>
   );
 }

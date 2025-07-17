@@ -1,14 +1,13 @@
 import FAQAccordion from "@/components/FAQ/FAQAccordion";
-import Footer from "@/components/Footer";
-import NavBar from "@/components/NavBar";
+import MainLayout from "@/components/Layout/MainLayout";
 import React from "react";
 
 export default function faq() {
   return (
     <div className="flex flex-col h-screen">
-      <NavBar />
-      <FAQAccordion />
-      <Footer />
+      <MainLayout>
+        <FAQAccordion />
+      </MainLayout>
     </div>
   );
 }

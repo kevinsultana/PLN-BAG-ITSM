@@ -1,6 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
 export default function DetailPage() {
   const searchParams = useSearchParams();
@@ -11,23 +12,25 @@ export default function DetailPage() {
   const status = searchParams.get("status");
 
   return (
-    <div className="p-4">
-      <h1 className="text-xl font-bold">Detail Tiket</h1>
-      <p>
-        <strong>Kode:</strong> {kode}
-      </p>
-      <p>
-        <strong>Deskripsi:</strong> {deskripsi}
-      </p>
-      <p>
-        <strong>Requester:</strong> {requester}
-      </p>
-      <p>
-        <strong>Tanggal:</strong> {tanggal}
-      </p>
-      <p>
-        <strong>Status:</strong> {status}
-      </p>
-    </div>
+    <Suspense fallback={<div>Loading...</div>}>
+      <div className="p-4">
+        <h1 className="text-xl font-bold">Detail Tiket</h1>
+        <p>
+          <strong>Kode:</strong> {kode}
+        </p>
+        <p>
+          <strong>Deskripsi:</strong> {deskripsi}
+        </p>
+        <p>
+          <strong>Requester:</strong> {requester}
+        </p>
+        <p>
+          <strong>Tanggal:</strong> {tanggal}
+        </p>
+        <p>
+          <strong>Status:</strong> {status}
+        </p>
+      </div>
+    </Suspense>
   );
 }

@@ -70,7 +70,7 @@ export default function SideBar({ show }) {
               className={getLinkClassName("/contact-us")}
             >
               <BiPhoneCall />
-              Hubungi Kami
+              Hubungi Helpdesk
             </Link>
           </li>
           <li>
