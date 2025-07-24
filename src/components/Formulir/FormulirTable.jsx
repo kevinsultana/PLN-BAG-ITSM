@@ -32,16 +32,15 @@ const formList = [
   },
 ];
 
-export default function FormulirTable() {
+export default function FormulirTable({ handleOpenForm }) {
+  const handleOnClickForm = (item) => {
+    handleOpenForm(item.id);
+  };
   return (
-    <div className="bg-slate-100 py-6 px-14 h-full ">
-      <div className="bg-white rounded-xl pb-6">
-        <div className="flex justify-between items-center p-5 pb-4">
-          <h1 className="text-2xl font-bold">Formulir</h1>
-          <p className="text-sm text-slate-500">
-            Beranda / <span className="text-gray-700">Form List</span>
-          </p>
-        </div>
+    <div className="bg-slate-100 py-6 px-14 h-full space-y-6">
+      <h1 className="text-2xl font-bold">Formulir</h1>
+      <div className="bg-white rounded-xl p-4 space-y-4">
+        <h1 className="text-lg">List Formulir</h1>
 
         <div className="px-5">
           <table className="table-fixed w-full text-left border border-gray-200 rounded-xl overflow-hidden shadow">
@@ -61,7 +60,10 @@ export default function FormulirTable() {
                   <td className="px-4 py-3">{index + 1}.</td>
                   <td className="px-4 py-3">{item.name}</td>
                   <td className="px-4 py-3 text-center">
-                    <button className="bg-cyan-400 text-white px-4 py-1 rounded-full text-sm hover:bg-cyan-500 transition">
+                    <button
+                      onClick={() => handleOnClickForm(item)}
+                      className="bg-cyan-400 text-white px-4 py-1 rounded-full text-sm hover:bg-cyan-500 transition"
+                    >
                       Buka &rsaquo;
                     </button>
                   </td>

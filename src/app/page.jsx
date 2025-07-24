@@ -6,6 +6,7 @@ import HomeContactUs from "@/components/Home/HomeContactUs";
 import IntegrationService from "@/components/Home/IntegrationService";
 import NavigateServices from "@/components/Home/NavigateServices";
 import MainLayout from "@/components/Layout/MainLayout";
+import ListTicketTable from "@/components/Home/ListTicketTable";
 
 export default function Page() {
   const applicationRef = useRef(null);
@@ -24,7 +25,8 @@ export default function Page() {
           <h1 className="text-2xl font-bold mb-6">Beranda</h1>
           <HeroImg />
           <HomeContactUs />
-          <NavigateServices
+          <ListTicketTable />
+          {/* <NavigateServices
             onApplicationClick={() => scrollToSection(applicationRef)}
             onIntegrationClick={() => scrollToSection(integrationRef)}
           />
@@ -33,7 +35,7 @@ export default function Page() {
           </div>
           <div ref={integrationRef}>
             <IntegrationService />
-          </div>
+          </div> */}
         </div>
       </MainLayout>
     </div>
