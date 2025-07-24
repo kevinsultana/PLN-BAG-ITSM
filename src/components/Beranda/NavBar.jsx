@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import logoNavbar from "../assets/logoNavbar.png";
+import logoNavbar from "../../assets/logoNavbar.png";
 import { FaBell, FaUser } from "react-icons/fa6";
 import { HiOutlineMenuAlt2 } from "react-icons/hi";
 

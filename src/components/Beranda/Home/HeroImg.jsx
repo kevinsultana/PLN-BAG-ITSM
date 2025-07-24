@@ -1,6 +1,6 @@
 import Image from "next/image";
 import React from "react";
-import HeroImge from "../../assets/heroImg.png";
+import HeroImge from "../../../assets/heroImg.png";
 
 export default function HeroImg() {
   return (

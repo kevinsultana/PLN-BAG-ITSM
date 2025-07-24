@@ -1,13 +1,13 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React, { useState } from "react";
+import React from "react";
 import {
   RiHome4Line,
   RiFileEditLine,
   RiQuestionAnswerLine,
 } from "react-icons/ri";
-import { LuTicket, LuClipboardList } from "react-icons/lu";
+import { LuClipboardList } from "react-icons/lu";
 import { BiPhoneCall } from "react-icons/bi";
 
 export default function SideBar({ show }) {
@@ -15,7 +15,13 @@ export default function SideBar({ show }) {
 
   const getLinkClassName = (paths) => {
     const isActive = Array.isArray(paths)
-      ? paths.some((p) => pathname.startsWith(p))
+      ? paths.some((p) =>
+          p.includes("[")
+            ? pathname.startsWith(p.split("/[")[0])
+            : pathname === p
+        )
+      : paths.includes("[")
+      ? pathname.startsWith(paths.split("/[")[0])
       : pathname === paths;
 
     return isActive
@@ -32,7 +38,14 @@ export default function SideBar({ show }) {
       <div className="ml-8 my-3">
         <ul className="flex flex-col gap-6">
           <li>
-            <Link href="/" className={getLinkClassName("/")}>
+            <Link
+              href="/beranda"
+              className={getLinkClassName([
+                "/beranda",
+                "/beranda/new-ticket",
+                "/beranda/ticket-details/[no]",
+              ])}
+            >
               <RiHome4Line />
               Beranda
             </Link>
@@ -40,41 +53,36 @@ export default function SideBar({ show }) {
 
           <li>
             <Link
-              href="/helpdesk"
-              className={getLinkClassName([
-                "/helpdesk",
-                "/helpdesk/new",
-                "/helpdesk/details",
-              ])}
+              href="/beranda/formulir"
+              className={getLinkClassName("/beranda/formulir")}
             >
-              <LuTicket />
-              Helpdesk
-            </Link>
-          </li>
-
-          <li>
-            <Link href="/formulir" className={getLinkClassName("/formulir")}>
               <RiFileEditLine />
               Formulir
             </Link>
           </li>
           <li>
-            <Link href="/dokumen" className={getLinkClassName("/dokumen")}>
+            <Link
+              href="/beranda/dokumen"
+              className={getLinkClassName("/beranda/dokumen")}
+            >
               <LuClipboardList />
               Dokumen
             </Link>
           </li>
           <li>
             <Link
-              href="/contact-us"
-              className={getLinkClassName("/contact-us")}
+              href="/beranda/contact-us"
+              className={getLinkClassName("/beranda/contact-us")}
             >
               <BiPhoneCall />
               Hubungi Helpdesk
             </Link>
           </li>
           <li>
-            <Link href="/faq" className={getLinkClassName("/faq")}>
+            <Link
+              href="/beranda/faq"
+              className={getLinkClassName("/beranda/faq")}
+            >
               <RiQuestionAnswerLine />
               FAQ
             </Link>

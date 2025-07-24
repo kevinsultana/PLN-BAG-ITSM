@@ -1,5 +1,5 @@
-import FAQAccordion from "@/components/FAQ/FAQAccordion";
-import MainLayout from "@/components/Layout/MainLayout";
+import FAQAccordion from "@/components/Beranda/FAQ/FAQAccordion";
+import MainLayout from "@/components/Beranda/Layout/MainLayout";
 import React from "react";
 
 export default function faq() {

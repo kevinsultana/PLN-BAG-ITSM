@@ -151,7 +151,7 @@ export default function ListTicketTable({ onRowClick }) {
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-bold">List Tiket</h2>
         <Link
-          href="/helpdesk/new"
+          href="/beranda/new-ticket"
           className="flex items-center gap-2 px-4 py-2.5 bg-[#65C7D5] text-white rounded-2xl text-sm"
         >
           <FaPlus />

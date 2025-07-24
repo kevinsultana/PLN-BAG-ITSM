@@ -1,6 +1,7 @@
 "use client";
-import FormulirTable from "@/components/Formulir/FormulirTable";
-import MainLayout from "@/components/Layout/MainLayout";
+
+import FormulirTable from "@/components/Beranda/Formulir/FormulirTable";
+import MainLayout from "@/components/Beranda/Layout/MainLayout";
 import React from "react";
 
 export default function page() {

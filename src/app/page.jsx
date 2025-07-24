@@ -1,43 +1,15 @@
-"use client";
-import React, { useRef } from "react";
-import ApplicationService from "@/components/Home/ApplicationService";
-import HeroImg from "@/components/Home/HeroImg";
-import HomeContactUs from "@/components/Home/HomeContactUs";
-import IntegrationService from "@/components/Home/IntegrationService";
-import NavigateServices from "@/components/Home/NavigateServices";
-import MainLayout from "@/components/Layout/MainLayout";
-import ListTicketTable from "@/components/Home/ListTicketTable";
+import Link from "next/link";
+import React from "react";
 
-export default function Page() {
-  const applicationRef = useRef(null);
-  const integrationRef = useRef(null);
-
-  const scrollToSection = (ref) => {
-    if (ref.current) {
-      ref.current.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
+export default function page() {
   return (
-    <div className="bg-slate-100 h-full">
-      <MainLayout>
-        <div className="flex flex-col py-6 px-14">
-          <h1 className="text-2xl font-bold mb-6">Beranda</h1>
-          <HeroImg />
-          <HomeContactUs />
-          <ListTicketTable />
-          {/* <NavigateServices
-            onApplicationClick={() => scrollToSection(applicationRef)}
-            onIntegrationClick={() => scrollToSection(integrationRef)}
-          />
-          <div ref={applicationRef}>
-            <ApplicationService />
-          </div>
-          <div ref={integrationRef}>
-            <IntegrationService />
-          </div> */}
-        </div>
-      </MainLayout>
+    <div className="flex flex-col gap-6 w-screen h-screen justify-center items-center">
+      <button className="bg-cyan-400 cursor-pointer p-4 text-white">
+        <Link href="/beranda">Beranda side</Link>
+      </button>
+      <button className="bg-cyan-400 cursor-pointer p-4 text-white">
+        <Link href="/helpdesk">Heldesk Side</Link>
+      </button>
     </div>
   );
 }

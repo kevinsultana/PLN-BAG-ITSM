@@ -1,6 +1,6 @@
 import Image from "next/image";
 import React from "react";
-import logoFooter from "../assets/footer.png";
+import logoFooter from "../../assets/footer.png";
 import { FaFacebookSquare } from "react-icons/fa";
 import { RiInstagramFill } from "react-icons/ri";
 import { FaSquareXTwitter } from "react-icons/fa6";
