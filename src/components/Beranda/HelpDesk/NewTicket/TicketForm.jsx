@@ -1,5 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
+import { toast } from "sonner";
 
 export default function TicketForm() {
   const [form, setForm] = useState({
@@ -92,11 +93,14 @@ export default function TicketForm() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!validate()) return;
+    if (!validate()) {
+      toast.error("lengkapi data di bawah ini");
+      return;
+    }
     const formData = new FormData();
     Object.entries(form).forEach(([key, val]) => formData.append(key, val));
     console.log("Submitted Data:", Object.fromEntries(formData.entries()));
-    alert("Tiket berhasil dikirim!");
+    toast.success("Tiket berhasil dikirim!");
   };
 
   const handleClearFile = () => {
