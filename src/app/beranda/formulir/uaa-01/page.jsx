@@ -10,7 +10,7 @@ export default function page() {
       <MainLayout>
         <div className="bg-slate-100 py-6 px-14 h-full">
           <h1 className="text-2xl font-bold mb-4">Formulir</h1>
-          <div className="bg-white rounded-xl p-4 space-y-4">
+          <div className="bg-white rounded-xl p-4">
             <form className="bg-white rounded-xl shadow p-6 space-y-6 text-sm text-gray-700">
               <div className="flex justify-between items-start">
                 <div>

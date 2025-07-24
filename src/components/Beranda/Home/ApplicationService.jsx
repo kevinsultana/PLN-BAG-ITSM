@@ -67,7 +67,7 @@ export default function ApplicationService() {
     },
   ];
   return (
-    <div className="p-5 bg-white flex flex-col gap-7 ">
+    <div className="p-5 bg-white flex flex-col gap-7 rounded-2xl">
       <p className="text-xl font-bold text-black">BAG Application Services</p>
       <div className="grid grid-rows-4 grid-cols-3 gap-x-4 gap-y-8">
         {dataApps.map((item, index) => (

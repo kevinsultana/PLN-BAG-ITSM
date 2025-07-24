@@ -1,4 +1,5 @@
 import React from "react";
+import { FaChevronRight } from "react-icons/fa6";
 import { IoMdMore } from "react-icons/io";
 
 export default function CardBag({ item }) {
@@ -13,10 +14,9 @@ export default function CardBag({ item }) {
             <p className="text-base font-bold">{item.title}</p>
           </div>
           <button>
-            <IoMdMore className="text-2xl" />
+            <FaChevronRight className="text-lg" />
           </button>
         </div>
-        <p className="text-sm ">{item.desc}</p>
       </div>
     </div>
   );
