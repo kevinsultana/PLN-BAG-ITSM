@@ -4,7 +4,7 @@ import HeroImg from "@/components/Beranda/Home/HeroImg";
 import HomeContactUs from "@/components/Beranda/Home/HomeContactUs";
 import MainLayout from "@/components/Beranda/Layout/MainLayout";
 import ListTicketTable from "@/components/Beranda/Home/ListTicketTable";
-import Link from "next/link";
+
 import { useRouter } from "next/navigation";
 
 export default function Page() {

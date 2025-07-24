@@ -4,37 +4,44 @@ import React from "react";
 const formList = [
   {
     id: 1,
+    path: "uaa-01",
     name: "[UAA-01] Formulir Permintaan Pembuatan User Account Aplikasi",
   },
   {
     id: 2,
+    path: "uaa-02",
     name: "[UAA-02] Formulir Permintaan Reset Akun User Aplikasi",
   },
   {
     id: 3,
+    path: "uaa-03",
     name: "[UAA-03] Formulir Permintaan Perubahan Otorisasi Aplikasi",
   },
   {
     id: 4,
+    path: "uaa-04",
     name: "[UAA-04] Formulir Permintaan Penghapusan User Account Aplikasi",
   },
   {
     id: 5,
+    path: "pakta-integritas",
     name: "Pakta Integritas",
   },
   {
     id: 6,
+    path: "serah-terima-laptop",
     name: "Serah Terima Laptop",
   },
   {
     id: 7,
+    path: "formulir-permintaan-integrasi-aplikasi-baru",
     name: "Formulir Permintaan Integrasi Aplikasi Baru",
   },
 ];
 
 export default function FormulirTable({ handleOpenForm }) {
   const handleOnClickForm = (item) => {
-    handleOpenForm(item.id);
+    handleOpenForm(item.path);
   };
   return (
     <div className="bg-slate-100 py-6 px-14 h-full space-y-6">
