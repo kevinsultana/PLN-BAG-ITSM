@@ -1,17 +1,24 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React from "react";
+import React, { useState } from "react";
 import {
   RiHome4Line,
   RiFileEditLine,
   RiQuestionAnswerLine,
+  RiArrowDownSLine,
+  RiArrowUpSLine,
+  RiFileList2Line,
+  RiUser3Line,
+  RiBuildingLine,
+  RiSettings3Line,
 } from "react-icons/ri";
 import { LuClipboardList } from "react-icons/lu";
 import { BiPhoneCall } from "react-icons/bi";
 
 export default function SidebarAgent({ show }) {
   const pathname = usePathname();
+  const [openDropdown, setOpenDropdown] = useState(null);
 
   const getLinkClassName = (paths) => {
     const isActive = Array.isArray(paths)
@@ -24,9 +31,16 @@ export default function SidebarAgent({ show }) {
       ? pathname.startsWith(paths.split("/[")[0])
       : pathname === paths;
 
+    // Untuk item submenu, jika parent dropdown aktif dan submenu aktif, maka tambahkan class
+    // Ini memastikan highlight tetap ada bahkan saat submenu terbuka
+    // Kita juga bisa tambahkan ini untuk item utama dropdown jika ingin tetap terhighlight saat dibuka
     return isActive
       ? "text-[#65C7D5] font-bold flex items-center gap-2"
       : "text-gray-700 flex items-center gap-2";
+  };
+
+  const toggleDropdown = (menuName) => {
+    setOpenDropdown(openDropdown === menuName ? null : menuName);
   };
 
   return (
@@ -36,56 +50,233 @@ export default function SidebarAgent({ show }) {
       }`}
     >
       <div className="ml-8 my-3">
-        <ul className="flex flex-col gap-6">
+        <ul className="flex flex-col gap-3">
           <li>
-            <Link
-              href="/beranda"
-              className={getLinkClassName([
-                "/beranda",
-                "/beranda/new-ticket",
-                "/beranda/ticket-details/[no]",
-              ])}
-            >
+            <Link href="/helpdesk" className={getLinkClassName(["/helpdesk"])}>
               <RiHome4Line />
-              Beranda
+              Helpdesk
             </Link>
           </li>
 
+          {/* Tiket Dropdown */}
           <li>
-            <Link
-              href="/beranda/formulir"
-              className={getLinkClassName("/beranda/formulir")}
+            <div
+              className={`flex items-center justify-between cursor-pointer ${
+                // Tambahkan class untuk item utama dropdown jika aktif atau dropdownnya terbuka
+                openDropdown === "tiket" ||
+                pathname.startsWith("/helpdesk/tiket")
+                  ? "text-[#65C7D5] font-bold"
+                  : "text-gray-700"
+              }`}
+              onClick={() => toggleDropdown("tiket")}
             >
-              <RiFileEditLine />
-              Formulir
-            </Link>
+              <div className="flex items-center gap-2">
+                <RiFileEditLine />
+                Tiket
+              </div>
+              {openDropdown === "tiket" ? (
+                <RiArrowUpSLine className="mr-4" />
+              ) : (
+                <RiArrowDownSLine className="mr-4" />
+              )}
+            </div>
+            {/* Animasi untuk submenu */}
+            <ul
+              className={`ml-8 mt-2 flex flex-col gap-2 overflow-hidden transition-all duration-300 ease-in-out ${
+                openDropdown === "tiket"
+                  ? "max-h-96 opacity-100"
+                  : "max-h-0 opacity-0" // max-h-96 adalah nilai arbitrer, sesuaikan jika perlu
+              }`}
+            >
+              <li>
+                <Link
+                  href="/helpdesk/tiket/saya"
+                  className={getLinkClassName("/helpdesk/tiket/saya")}
+                >
+                  Tiket Saya
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/helpdesk/tiket/semua"
+                  className={getLinkClassName("/helpdesk/tiket/semua")}
+                >
+                  Semua Tiket
+                </Link>
+              </li>
+            </ul>
           </li>
+
+          {/* Reporting Dropdown */}
+          <li>
+            <div
+              className={`flex items-center justify-between cursor-pointer ${
+                openDropdown === "reporting" ||
+                pathname.startsWith("/reporting")
+                  ? "text-[#65C7D5] font-bold"
+                  : "text-gray-700"
+              }`}
+              onClick={() => toggleDropdown("reporting")}
+            >
+              <div className="flex items-center gap-2">
+                <RiFileList2Line />
+                Reporting
+              </div>
+              {openDropdown === "reporting" ? (
+                <RiArrowUpSLine className="mr-4" />
+              ) : (
+                <RiArrowDownSLine className="mr-4" />
+              )}
+            </div>
+            <ul
+              className={`ml-8 mt-2 flex flex-col gap-2 overflow-hidden transition-all duration-300 ease-in-out ${
+                openDropdown === "reporting"
+                  ? "max-h-96 opacity-100"
+                  : "max-h-0 opacity-0"
+              }`}
+            >
+              <li>
+                <Link
+                  href="/reporting/data-a"
+                  className={getLinkClassName("/reporting/data-a")}
+                >
+                  Tiket Analysis
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/reporting/data-b"
+                  className={getLinkClassName("/reporting/data-b")}
+                >
+                  SLA Status Analysis
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/reporting/data-b"
+                  className={getLinkClassName("/reporting/data-b")}
+                >
+                  CR Tracking
+                </Link>
+              </li>
+            </ul>
+          </li>
+
           <li>
             <Link
               href="/beranda/dokumen"
               className={getLinkClassName("/beranda/dokumen")}
             >
               <LuClipboardList />
-              Dokumen
+              Dokumen aplikasi
             </Link>
           </li>
+
           <li>
             <Link
-              href="/beranda/contact-us"
-              className={getLinkClassName("/beranda/contact-us")}
+              href="/beranda/dokumen"
+              className={getLinkClassName("/beranda/dokumen")}
             >
-              <BiPhoneCall />
-              Hubungi Helpdesk
+              <RiUser3Line />
+              User
             </Link>
           </li>
+
           <li>
             <Link
-              href="/beranda/faq"
-              className={getLinkClassName("/beranda/faq")}
+              href="/beranda/dokumen"
+              className={getLinkClassName("/beranda/dokumen")}
             >
-              <RiQuestionAnswerLine />
-              FAQ
+              <RiBuildingLine />
+              BPO
             </Link>
+          </li>
+
+          {/* Konfigurasi Dropdown */}
+          <li>
+            <div
+              className={`flex items-center justify-between cursor-pointer ${
+                openDropdown === "konfigurasi" ||
+                pathname.startsWith("/konfigurasi")
+                  ? "text-[#65C7D5] font-bold"
+                  : "text-gray-700"
+              }`}
+              onClick={() => toggleDropdown("konfigurasi")}
+            >
+              <div className="flex items-center gap-2">
+                <RiSettings3Line />
+                Konfigurasi
+              </div>
+              {openDropdown === "konfigurasi" ? (
+                <RiArrowUpSLine className="mr-4" />
+              ) : (
+                <RiArrowDownSLine className="mr-4" />
+              )}
+            </div>
+            <ul
+              className={`ml-8 mt-2 flex flex-col gap-2 overflow-hidden transition-all duration-300 ease-in-out ${
+                openDropdown === "konfigurasi"
+                  ? "max-h-96 opacity-100"
+                  : "max-h-0 opacity-0"
+              }`}
+            >
+              <li>
+                <Link
+                  href="/konfigurasi/umum"
+                  className={getLinkClassName("/konfigurasi/umum")}
+                >
+                  Team Member
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/konfigurasi/umum"
+                  className={getLinkClassName("/konfigurasi/umum")}
+                >
+                  Status Tiket
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/konfigurasi/umum"
+                  className={getLinkClassName("/konfigurasi/umum")}
+                >
+                  SLA Policy
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/konfigurasi/umum"
+                  className={getLinkClassName("/konfigurasi/umum")}
+                >
+                  Tipe Tiket
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/konfigurasi/umum"
+                  className={getLinkClassName("/konfigurasi/umum")}
+                >
+                  Aplikasi
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/konfigurasi/umum"
+                  className={getLinkClassName("/konfigurasi/umum")}
+                >
+                  Feature Aplikasi
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/konfigurasi/umum"
+                  className={getLinkClassName("/konfigurasi/umum")}
+                >
+                  Helpdesk Info
+                </Link>
+              </li>
+            </ul>
           </li>
         </ul>
       </div>
