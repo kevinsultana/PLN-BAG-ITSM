@@ -1,4 +1,4 @@
-import TicketForm from "@/components/Beranda/HelpDesk/NewTicket/TicketForm";
+import TicketForm from "@/components/Beranda/Ticket/NewTicket/TicketForm";
 import MainLayout from "@/components/Beranda/Layout/MainLayout";
 import React from "react";
 

@@ -1,4 +1,5 @@
 "use client";
+import CKEditorWrapper from "@/components/CKEditorWrapper";
 import { useState, useRef, useEffect } from "react";
 
 export default function DetailTicketForm() {
@@ -21,6 +22,10 @@ export default function DetailTicketForm() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+  };
+
+  const handleChangeDeskripsiTiket = (name, value) => {
     setForm({ ...form, [name]: value });
   };
 
@@ -206,7 +211,7 @@ export default function DetailTicketForm() {
           <label className="font-semibold text-sm">
             Deskripsi Tiket<span className="text-red-500">*</span>
           </label>
-          <textarea
+          {/* <textarea
             name="deskripsiTiket"
             value={form.deskripsiTiket}
             onChange={handleChange}
@@ -214,6 +219,10 @@ export default function DetailTicketForm() {
               errors.deskripsiTiket ? "border-red-500" : ""
             }`}
             placeholder="Deskripsi masalah..."
+          /> */}
+          <CKEditorWrapper
+            value={form.deskripsiTiket}
+            onChange={(i) => handleChangeDeskripsiTiket("deskripsiTiket", i)}
           />
         </div>
 
