@@ -56,7 +56,7 @@ export default function CKEditorWrapper({ value, onChange }) {
             "undo",
             "redo",
           ],
-          placeholder: "Deskripsi masalah...",
+          placeholder: "Deskripsi Tiket...",
         }}
       />
     </div>
