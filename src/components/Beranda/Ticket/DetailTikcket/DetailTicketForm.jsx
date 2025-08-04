@@ -1,6 +1,10 @@
 "use client";
-import CKEditorWrapper from "@/components/CKEditorWrapper";
 import { useState, useRef, useEffect } from "react";
+import dynamic from "next/dynamic";
+
+const CKEditorWrapper = dynamic(() => import("@/components/CKEditorWrapper"), {
+  ssr: false,
+});
 
 export default function DetailTicketForm() {
   const [form, setForm] = useState({
@@ -211,15 +215,6 @@ export default function DetailTicketForm() {
           <label className="font-semibold text-sm">
             Deskripsi Tiket<span className="text-red-500">*</span>
           </label>
-          {/* <textarea
-            name="deskripsiTiket"
-            value={form.deskripsiTiket}
-            onChange={handleChange}
-            className={`input h-32 ${
-              errors.deskripsiTiket ? "border-red-500" : ""
-            }`}
-            placeholder="Deskripsi masalah..."
-          /> */}
           <CKEditorWrapper
             value={form.deskripsiTiket}
             onChange={(i) => handleChangeDeskripsiTiket("deskripsiTiket", i)}
@@ -258,10 +253,12 @@ export default function DetailTicketForm() {
 
           {preview && (
             <div className="mt-3 relative w-fit">
-              <img
+              <Image
                 src={preview}
                 alt="Preview"
                 className="max-h-48 rounded border"
+                width={192}
+                height={192}
               />
               <button
                 type="button"

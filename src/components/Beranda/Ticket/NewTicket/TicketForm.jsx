@@ -1,4 +1,5 @@
 "use client";
+import CKEditorWrapper from "@/components/CKEditorWrapper";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 
@@ -24,6 +25,12 @@ export default function TicketForm() {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
   };
+
+  const handleChangeDeskripsiTiket = (input) => {
+    setForm({ ...form, deskripsiTiket: input });
+  };
+
+  console.log(form);
 
   const validateImage = (file) => {
     if (!file.type.startsWith("image/"))
@@ -209,7 +216,13 @@ export default function TicketForm() {
         <label className="font-semibold text-sm">
           Deskripsi Tiket<span className="text-red-500">*</span>
         </label>
-        <textarea
+        <CKEditorWrapper
+          onChange={(e) => {
+            handleChangeDeskripsiTiket(e);
+          }}
+          value={form.deskripsiTiket}
+        />
+        {/* <textarea
           name="deskripsiTiket"
           value={form.deskripsiTiket}
           onChange={handleChange}
@@ -217,7 +230,7 @@ export default function TicketForm() {
             errors.deskripsiTiket ? "border-red-500" : ""
           }`}
           placeholder="Deskripsi masalah..."
-        />
+        /> */}
       </div>
 
       <div className="flex flex-col gap-2 md:col-span-2">

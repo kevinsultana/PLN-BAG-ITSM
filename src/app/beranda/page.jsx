@@ -10,8 +10,8 @@ import { useRouter } from "next/navigation";
 export default function Page() {
   const router = useRouter();
 
-  const handleRowClick = (item) => {
-    router.push(`/beranda/ticket-details/${item.no}`);
+  const handleRowClick = (item, index) => {
+    router.push(`/beranda/ticket-details/${index}`, { state: item });
   };
   return (
     <div className="bg-slate-100 h-full">

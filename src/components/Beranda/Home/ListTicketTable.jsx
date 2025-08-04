@@ -18,6 +18,8 @@ import TimelapseIcon from "@mui/icons-material/Timelapse";
 import CancelIcon from "@mui/icons-material/Cancel";
 import Link from "next/link";
 import { FaPlus } from "react-icons/fa";
+import { useState } from "react";
+import { useMemo } from "react";
 
 const statusIcon = (status) => {
   switch (status) {
@@ -37,92 +39,101 @@ const statusIcon = (status) => {
 // Dummy data
 const initialTickets = [
   {
-    no: 1,
-    kode: "TK00001 - Reset Password",
-    deskripsi: "Email reset password belum diterima",
-    requester: "Jordi Amat",
-    tanggal: "11/10/2025 - 11:58 WIB",
+    ticket_id: " SCRQ – ERP MM – 29/07/2025 - 001",
+    ticket_name: " Permintaan Akses User VP Niaga pada modul ERP MM ",
+    ticket_detail: "User meminta akses ke layanan internal pada modul ERP MM.",
+    created_by: "Nadia Salsabila",
+    created_date: "2025-07-25 08:45:00",
+    status: "Open",
+  },
+  {
+    ticket_id: " SCRQ – ERP MM – 29/07/2025 - 002",
+    ticket_name: "Reset Password Email",
+    ticket_detail:
+      "Permintaan reset password email untuk akun Budi Santoso pada ERP MM.",
+    created_by: "Budi Santoso",
+    created_date: "2025-07-26 10:30:00",
+    status: "In Progress",
+  },
+  {
+    ticket_id: " INFR – ERP e-Procurement – 29/07/2025 - 001 ",
+    ticket_name: " Permintaan Pembuatan Vendor Baru dengan status DPT Active ",
+    ticket_detail:
+      "Pembuatan vendor baru atas nama PT INDAH JAYA sampai ke status DPT Active.",
+    created_by: "Siti Nurhaliza",
+    created_date: "2025-07-27 13:15:00",
     status: "Resolved",
   },
   {
-    no: 2,
-    kode: "TK00002 - Penambahan Produk",
-    deskripsi: "Tolong tambahkan produk A dengan ...",
-    requester: "Dimas Rama",
-    tanggal: "11/10/2025 - 11:58 WIB",
-    status: "In Progress",
-  },
-  {
-    no: 3,
-    kode: "TK00003 - Pembuatan Akun Baru",
-    deskripsi: "Mohon buatkan akun user atas nama ...",
-    requester: "Niken Carla",
-    tanggal: "11/10/2025 - 11:58 WIB",
-    status: "Waiting",
-  },
-  {
-    no: 4,
-    kode: "TK00004 - Email Tender Tidak Muncul",
-    deskripsi: "Email pada tender PT/00017/2025 ...",
-    requester: "Doni Marco",
-    tanggal: "11/10/2025 - 11:58 WIB",
+    ticket_id: " INFR – HRIS – 29/07/2025 - 002",
+    ticket_name: "Perbaiki Riwayat Cuti pada Employe dengan NIK BAG12345",
+    ticket_detail:
+      "Tolong ubah jatah cuti pada employee BAG12345, dimana saat ini user terkait belum melakukan cuti sama sekali.",
+    created_by: "Rizky Hidayat",
+    created_date: "2025-07-27 14:50:00",
     status: "Closed",
   },
   {
-    no: 5,
-    kode: "TK00005 - Vendor Bill Tidak Match",
-    deskripsi: "Vendor bill dengan nomor VB/BAg/01 ...",
-    requester: "Doni Marco",
-    tanggal: "11/10/2025 - 11:58 WIB",
-    status: "In Progress",
-  },
-  {
-    no: 6,
-    kode: "TK00005 - Login Error",
-    deskripsi: "Tidak bisa login ke sistem",
-    requester: "Ana Putri",
-    tanggal: "12/10/2025 - 10:45 WIB",
+    ticket_id: " INSP – ERP FM – 29/07/2025 - 001",
+    ticket_name: "Vendor Bill tidak bisa berstatus PAID",
+    ticket_detail:
+      "Seluruh vendor bill saat ini tidak bisa diubah statusnya menjadi PAID.",
+    created_by: "Yuli Andriani",
+    created_date: "2025-07-28 09:00:00",
     status: "Waiting",
   },
   {
-    no: 7,
-    kode: "TK00007 - Bug Laporan",
-    deskripsi: "Laporan tidak bisa diunduh",
-    requester: "Budi Setiawan",
-    tanggal: "13/10/2025 - 08:22 WIB",
+    ticket_id: " INFR – ERP e-Procurement – 29/07/2025 - 001 ",
+    ticket_name: " Permintaan Pembuatan Vendor Baru dengan status DPT Active ",
+    ticket_detail:
+      "Pembuatan vendor baru atas nama PT INDAH JAYA sampai ke status DPT Active.",
+    created_by: "Siti Nurhaliza",
+    created_date: "2025-07-27 13:15:00",
     status: "Resolved",
   },
   {
-    no: 8,
-    kode: "TK00008 - Koneksi Lambat",
-    deskripsi: "Akses sangat lambat di pagi hari",
-    requester: "Cici Andini",
-    tanggal: "13/10/2025 - 09:30 WIB",
+    ticket_id: " SCRQ – ERP MM – 29/07/2025 - 001",
+    ticket_name: " Permintaan Akses User VP Niaga pada modul ERP MM ",
+    ticket_detail: "User meminta akses ke layanan internal pada modul ERP MM.",
+    created_by: "Nadia Salsabila",
+    created_date: "2025-07-25 08:45:00",
+    status: "Open",
+  },
+  {
+    ticket_id: " SCRQ – ERP MM – 29/07/2025 - 002",
+    ticket_name: "Reset Password Email",
+    ticket_detail:
+      "Permintaan reset password email untuk akun Budi Santoso pada ERP MM.",
+    created_by: "Budi Santoso",
+    created_date: "2025-07-26 10:30:00",
     status: "In Progress",
   },
   {
-    no: 9,
-    kode: "TK00009 - Tambah Role User",
-    deskripsi: "Mohon tambah role manager",
-    requester: "Eko Saputra",
-    tanggal: "14/10/2025 - 14:12 WIB",
-    status: "Closed",
+    ticket_id: " INSP – ERP FM – 29/07/2025 - 001",
+    ticket_name: "Vendor Bill tidak bisa berstatus PAID",
+    ticket_detail:
+      "Seluruh vendor bill saat ini tidak bisa diubah statusnya menjadi PAID.",
+    created_by: "Yuli Andriani",
+    created_date: "2025-07-28 09:00:00",
+    status: "Waiting",
   },
+
   {
-    no: 10,
-    kode: "TK00010 - Tambah Role User",
-    deskripsi: "Mohon tambah role manager",
-    requester: "Eko Saputra",
-    tanggal: "14/10/2025 - 14:12 WIB",
+    ticket_id: " INFR – HRIS – 29/07/2025 - 002",
+    ticket_name: "Perbaiki Riwayat Cuti pada Employe dengan NIK BAG12345",
+    ticket_detail:
+      "Tolong ubah jatah cuti pada employee BAG12345, dimana saat ini user terkait belum melakukan cuti sama sekali.",
+    created_by: "Rizky Hidayat",
+    created_date: "2025-07-27 14:50:00",
     status: "Closed",
   },
 ];
 
 export default function ListTicketTable({ onRowClick }) {
-  const [tickets, setTickets] = React.useState(initialTickets);
-  const [orderBy, setOrderBy] = React.useState("no");
-  const [order, setOrder] = React.useState("asc");
-  const [page, setPage] = React.useState(1);
+  const [tickets, setTickets] = useState(initialTickets);
+  const [orderBy, setOrderBy] = useState("no");
+  const [order, setOrder] = useState("asc");
+  const [page, setPage] = useState(1);
   const rowsPerPage = 5;
 
   const handleSort = (property) => {
@@ -131,7 +142,7 @@ export default function ListTicketTable({ onRowClick }) {
     setOrderBy(property);
   };
 
-  const sortedTickets = React.useMemo(() => {
+  const sortedTickets = useMemo(() => {
     return [...tickets].sort((a, b) => {
       const aVal = a[orderBy];
       const bVal = b[orderBy];
@@ -141,7 +152,7 @@ export default function ListTicketTable({ onRowClick }) {
     });
   }, [tickets, orderBy, order]);
 
-  const paginatedTickets = React.useMemo(() => {
+  const paginatedTickets = useMemo(() => {
     const start = (page - 1) * rowsPerPage;
     return sortedTickets.slice(start, start + rowsPerPage);
   }, [sortedTickets, page]);
@@ -183,22 +194,22 @@ export default function ListTicketTable({ onRowClick }) {
               <TableRow
                 key={index}
                 className="hover:bg-gray-100 trasnition duration-300 cursor-pointer"
-                onClick={() => onRowClick(row)}
+                onClick={() => onRowClick(row, index)}
               >
                 <TableCell className="border border-gray-200">
                   {(page - 1) * rowsPerPage + index + 1}
                 </TableCell>
                 <TableCell className="border border-gray-200">
-                  {row.kode}
+                  {row.ticket_id}
                 </TableCell>
                 <TableCell className="border border-gray-200">
-                  {row.deskripsi}
+                  {row.ticket_detail}
                 </TableCell>
                 <TableCell className="border border-gray-200">
-                  {row.requester}
+                  {row.created_by}
                 </TableCell>
                 <TableCell className="border border-gray-200">
-                  {row.tanggal}
+                  {row.created_date}
                 </TableCell>
                 <TableCell className="border border-gray-200">
                   <div className="flex items-center gap-2">
