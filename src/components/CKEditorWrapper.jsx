@@ -1,5 +1,3 @@
-// src/components/CKEditorWrapper.jsx
-
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -9,7 +7,6 @@ export default function CKEditorWrapper({ value, onChange }) {
   const [editor, setEditor] = useState(null);
 
   useEffect(() => {
-    // Memuat CKEditor hanya di sisi klien setelah komponen terpasang
     const loadEditor = async () => {
       if (typeof window !== "undefined" && editorRef.current && !editor) {
         try {
