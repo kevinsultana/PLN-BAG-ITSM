@@ -2,7 +2,7 @@ import MainLayout from "@/components/Beranda/Layout/MainLayout";
 import React from "react";
 
 const TicketForm = dynamic(
-  () => import("@/components/Beranda/Home/TicketForm"),
+  () => import("@/components/Beranda/Ticket/NewTicket/TicketForm"),
   {
     ssr: false,
     loading: () => <p>Memuat formulir...</p>,
