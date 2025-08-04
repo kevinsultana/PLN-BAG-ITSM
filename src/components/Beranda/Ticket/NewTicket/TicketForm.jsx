@@ -1,7 +1,7 @@
 "use client";
-import CKEditorWrapper from "@/components/CKEditorWrapper";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
+import CKEditorWrapper from "@/components/CKEditorWrapper";
 
 export default function TicketForm() {
   const [form, setForm] = useState({

@@ -1,6 +1,13 @@
-import TicketForm from "@/components/Beranda/Ticket/NewTicket/TicketForm";
 import MainLayout from "@/components/Beranda/Layout/MainLayout";
 import React from "react";
+
+const TicketForm = dynamic(
+  () => import("@/components/Beranda/Home/TicketForm"),
+  {
+    ssr: false,
+    loading: () => <p>Memuat formulir...</p>,
+  }
+);
 
 export default function page() {
   return (
