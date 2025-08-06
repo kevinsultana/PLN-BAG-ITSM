@@ -21,6 +21,26 @@ export default function TicketForm() {
   const fileInputRef = useRef(null);
   const dropAreaRef = useRef(null);
 
+  const dataNamaAplikasi = [
+    { name: "ERP MM", value: "ERP MM" },
+    { name: "ERP FM", value: "ERP FM" },
+    { name: "HRIS", value: "HRIS" },
+    { name: "e-Procurement", value: "e-Procurement" },
+    { name: "ShipTracking", value: "ShipTracking" },
+    { name: "Bag Daily", value: "Bag Daily" },
+    { name: "Fuel Monitoring", value: "Fuel Monitoring" },
+  ];
+
+  const dataNamaDivisi = [
+    { name: "Accounting", value: "Accounting" },
+    { name: "HCM Umum", value: "HCM Umum" },
+    { name: "Niaga", value: "Niaga" },
+    { name: "Treasury", value: "Treasury" },
+    { name: "IT", value: "IT" },
+    { name: "Pengadaan", value: "Pengadaan" },
+    { name: "Satuan Audit Internal", value: "Satuan Audit Internal" },
+  ];
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
@@ -109,13 +129,18 @@ export default function TicketForm() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!validate()) {
-      toast.error("lengkapi data di bawah ini");
+      toast.error("lengkapi data di bawah ini", {
+        description: "Silahkan lengkapi data di bawah ini",
+      });
       return;
     }
     const formData = new FormData();
     Object.entries(form).forEach(([key, val]) => formData.append(key, val));
-    console.log("Submitted Data:", Object.fromEntries(formData.entries()));
-    toast.success("Tiket berhasil dikirim!");
+    // console.log("Submitted Data:", Object.fromEntries(formData.entries()));
+    toast.success("Tiket berhasil dibuat!", {
+      description: "Tiket id : SCRQ – ERP HRIS – 09/01/202025 – 001",
+      duration: 5000,
+    });
   };
 
   const handleClearFile = () => {
@@ -157,8 +182,11 @@ export default function TicketForm() {
           className={`input ${errors.application_name ? "border-red-500" : ""}`}
         >
           <option value="">Pilih Aplikasi</option>
-          <option value="Sistem Absensi">Sistem Absensi</option>
-          <option value="Dashboard SDM">Dashboard SDM</option>
+          {dataNamaAplikasi.map((item, index) => (
+            <option key={index} value={item.value}>
+              {item.name}
+            </option>
+          ))}
         </select>
       </div>
 
@@ -173,8 +201,11 @@ export default function TicketForm() {
           className={`input ${errors.division_name ? "border-red-500" : ""}`}
         >
           <option value="">Pilih Divisi</option>
-          <option value="IT">IT</option>
-          <option value="Keuangan">Keuangan</option>
+          {dataNamaDivisi.map((item, index) => (
+            <option key={index} value={item.value}>
+              {item.name}
+            </option>
+          ))}
         </select>
       </div>
 
