@@ -54,7 +54,10 @@ export default function SideBar({ show }) {
           <li>
             <Link
               href="/beranda/formulir"
-              className={getLinkClassName("/beranda/formulir")}
+              className={getLinkClassName([
+                "/beranda/formulir",
+                "/beranda/formulir/[no]",
+              ])}
             >
               <RiFileEditLine />
               Formulir
