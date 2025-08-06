@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 
-export default function CKEditorWrapper({ value, onChange }) {
+export default function CKEditorWrapper({ value, onChange, className }) {
   const editorRef = useRef(null);
   const [editor, setEditor] = useState(null);
 
@@ -34,7 +34,7 @@ export default function CKEditorWrapper({ value, onChange }) {
   }
 
   return (
-    <div>
+    <div className={className}>
       <editor.CKEditor
         editor={editor.ClassicEditor}
         data={value}

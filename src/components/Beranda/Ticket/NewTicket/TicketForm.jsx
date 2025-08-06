@@ -5,13 +5,13 @@ import CKEditorWrapper from "@/components/CKEditorWrapper";
 
 export default function TicketForm() {
   const [form, setForm] = useState({
-    namaLengkap: "",
-    namaDivisi: "",
+    created_name: "",
+    division_name: "",
     email: "",
-    whatsapp: "",
-    namaAplikasi: "",
-    subjekTiket: "",
-    deskripsiTiket: "",
+    whatsapp_number: "",
+    application_name: "",
+    ticket_subject: "",
+    ticket_description: "",
     lampiran: null,
   });
 
@@ -27,10 +27,8 @@ export default function TicketForm() {
   };
 
   const handleChangeDeskripsiTiket = (input) => {
-    setForm({ ...form, deskripsiTiket: input });
+    setForm({ ...form, ticket_description: input });
   };
-
-  console.log(form);
 
   const validateImage = (file) => {
     if (!file.type.startsWith("image/"))
@@ -86,14 +84,24 @@ export default function TicketForm() {
 
   const validate = () => {
     const newErrors = {};
+
     for (const [key, val] of Object.entries(form)) {
-      if (
+      if (key === "ticket_description") {
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = val;
+        const plainText = tempDiv.innerText.trim();
+
+        if (!plainText) {
+          newErrors[key] = true;
+        }
+      } else if (
         (typeof val === "string" && !val.trim()) ||
         (key === "lampiran" && !val)
       ) {
         newErrors[key] = true;
       }
     }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -130,10 +138,10 @@ export default function TicketForm() {
         </label>
         <input
           type="text"
-          name="namaLengkap"
-          value={form.namaLengkap}
+          name="created_name"
+          value={form.created_name}
           onChange={handleChange}
-          className={`input ${errors.namaLengkap ? "border-red-500" : ""}`}
+          className={`input ${errors.created_name ? "border-red-500" : ""}`}
           placeholder="Nama Lengkap"
         />
       </div>
@@ -143,10 +151,10 @@ export default function TicketForm() {
           Nama Aplikasi<span className="text-red-500">*</span>
         </label>
         <select
-          name="namaAplikasi"
-          value={form.namaAplikasi}
+          name="application_name"
+          value={form.application_name}
           onChange={handleChange}
-          className={`input ${errors.namaAplikasi ? "border-red-500" : ""}`}
+          className={`input ${errors.application_name ? "border-red-500" : ""}`}
         >
           <option value="">Pilih Aplikasi</option>
           <option value="Sistem Absensi">Sistem Absensi</option>
@@ -159,10 +167,10 @@ export default function TicketForm() {
           Nama Divisi<span className="text-red-500">*</span>
         </label>
         <select
-          name="namaDivisi"
-          value={form.namaDivisi}
+          name="division_name"
+          value={form.division_name}
           onChange={handleChange}
-          className={`input ${errors.namaDivisi ? "border-red-500" : ""}`}
+          className={`input ${errors.division_name ? "border-red-500" : ""}`}
         >
           <option value="">Pilih Divisi</option>
           <option value="IT">IT</option>
@@ -176,10 +184,10 @@ export default function TicketForm() {
         </label>
         <input
           type="text"
-          name="subjekTiket"
-          value={form.subjekTiket}
+          name="ticket_subject"
+          value={form.ticket_subject}
           onChange={handleChange}
-          className={`input ${errors.subjekTiket ? "border-red-500" : ""}`}
+          className={`input ${errors.ticket_subject ? "border-red-500" : ""}`}
           placeholder="Contoh: Reset Password Email"
         />
       </div>
@@ -204,10 +212,10 @@ export default function TicketForm() {
         </label>
         <input
           type="text"
-          name="whatsapp"
-          value={form.whatsapp}
+          name="whatsapp_number"
+          value={form.whatsapp_number}
           onChange={handleChange}
-          className={`input ${errors.whatsapp ? "border-red-500" : ""}`}
+          className={`input ${errors.whatsapp_number ? "border-red-500" : ""}`}
           placeholder="08xxxxxxxxxx"
         />
       </div>
@@ -220,17 +228,11 @@ export default function TicketForm() {
           onChange={(e) => {
             handleChangeDeskripsiTiket(e);
           }}
-          value={form.deskripsiTiket}
-        />
-        {/* <textarea
-          name="deskripsiTiket"
-          value={form.deskripsiTiket}
-          onChange={handleChange}
-          className={`input h-32 ${
-            errors.deskripsiTiket ? "border-red-500" : ""
+          value={form.ticket_description}
+          className={`border ${
+            errors.ticket_description ? "border-red-500" : "border-slate-400"
           }`}
-          placeholder="Deskripsi masalah..."
-        /> */}
+        />
       </div>
 
       <div className="flex flex-col gap-2 md:col-span-2">
