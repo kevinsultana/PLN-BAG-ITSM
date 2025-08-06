@@ -15,13 +15,11 @@ export default function page() {
               <div className="flex justify-between items-start">
                 <div>
                   <p className="font-bold">Kode:</p>
-                  <p className="font-semibold">UAA-01</p>
+                  <p className="font-semibold">UAA-03</p>
                 </div>
                 <div className="text-center">
                   <p className="font-semibold">FORMULIR PERMINTAAN</p>
-                  <p className="text-xs mt-1">
-                    PEMBUATAN USER ACCOUNT APLIKASI
-                  </p>
+                  <p className="text-xs mt-1">PERUBAHAN OTORISASI APLIKASI</p>
                 </div>
                 <Image
                   src={logoKop}
@@ -50,12 +48,12 @@ export default function page() {
               </div>
 
               <p className="text-xs text-gray-600">
-                User Account akan dinonaktifkan jika tidak digunakan selama 3
-                bulan, mutasi, pensiun atau permintaan dari manager terkait
+                Apabila permintaan pembuatan User Account karena mutasi, mohon
+                melampirkan Surat Pernyataan (seperti contoh terlampir)
               </p>
 
               <div>
-                <Label text="Alasan Pembuatan User Account" required />
+                <Label text="Alasan Perubahan Otorisasi" required />
                 <textarea
                   className="w-full border border-gray-300 rounded p-2 mt-1"
                   rows={3}

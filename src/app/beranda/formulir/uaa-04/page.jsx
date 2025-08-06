@@ -15,12 +15,12 @@ export default function page() {
               <div className="flex justify-between items-start">
                 <div>
                   <p className="font-bold">Kode:</p>
-                  <p className="font-semibold">UAA-01</p>
+                  <p className="font-semibold">UAA-04</p>
                 </div>
                 <div className="text-center">
                   <p className="font-semibold">FORMULIR PERMINTAAN</p>
                   <p className="text-xs mt-1">
-                    PEMBUATAN USER ACCOUNT APLIKASI
+                    PENGHAPUSAN USER ACCOUNT APLIKASI
                   </p>
                 </div>
                 <Image
@@ -42,36 +42,24 @@ export default function page() {
                 <Input label="Lokasi" required />
                 <Input label="Nomor Induk Pegawai" required />
                 <Input label="Nama Lengkap" required />
-                <Input label="Email Korporat" placeholder="Company@gmail.com" />
+                {/* <Input label="Email Korporat" placeholder="Company@gmail.com" /> */}
                 <Input label="Jabatan" required />
                 <Input label="Phone/Ext/HP" required adminOnly />
                 <Input label="Unit/Bidang/Bagian" />
-                <Input label="User Account" required adminOnly />
+                <Input label="User Account" required adminOnly full />
               </div>
 
               <p className="text-xs text-gray-600">
                 User Account akan dinonaktifkan jika tidak digunakan selama 3
-                bulan, mutasi, pensiun atau permintaan dari manager terkait
+                bulan, mutasi, pensiun atau permintaan dari manager terkait.
               </p>
 
               <div>
-                <Label text="Alasan Pembuatan User Account" required />
+                <Label text="Alasan Penghapusan User Account" required />
                 <textarea
                   className="w-full border border-gray-300 rounded p-2 mt-1"
                   rows={3}
                 />
-              </div>
-
-              <div>
-                <Label text="Role Yang Akan Diassign Ke User" required />
-                <div className="space-y-2">
-                  {[...Array(3)].map((_, i) => (
-                    <div key={i} className="grid grid-cols-2 gap-4">
-                      <Input label="Nama Lengkap" />
-                      <Input label="Role" />
-                    </div>
-                  ))}
-                </div>
               </div>
 
               <div className="border rounded p-4">
