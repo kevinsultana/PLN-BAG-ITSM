@@ -1,22 +1,21 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import dynamic from "next/dynamic";
+import CKEditorWrapper from "@/components/CKEditorWrapper";
+import { useTheme } from "@emotion/react";
 
-const CKEditorWrapper = dynamic(() => import("@/components/CKEditorWrapper"), {
-  ssr: false,
-});
-
-export default function DetailTicketForm() {
+export default function DetailTicketForm({ data }) {
   const [form, setForm] = useState({
-    namaLengkap: "",
-    namaDivisi: "",
-    email: "",
-    whatsapp: "",
-    namaAplikasi: "",
-    subjekTiket: "",
-    deskripsiTiket: "",
-    lampiran: null,
+    namaLengkap: data.ticket_detail.created_name,
+    namaDivisi: data.ticket_detail.division_name,
+    email: data.ticket_detail.email,
+    whatsapp: data.ticket_detail.whatsapp_number,
+    namaAplikasi: data.ticket_detail.application_name,
+    subjekTiket: data.ticket_detail.ticket_subject,
+    deskripsiTiket: data.ticket_detail.ticket_description,
+    lampiran: "",
   });
+  const [catatanTiket, setCatatanTiket] = useState("");
 
   const [fileName, setFileName] = useState("");
   const [preview, setPreview] = useState(null);
@@ -115,6 +114,16 @@ export default function DetailTicketForm() {
     fileInputRef.current.value = null;
   };
 
+  function formatDateTimeDMY(dateInput) {
+    const date = new Date(dateInput);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    const hour = String(date.getHours()).padStart(2, "0");
+    const minute = String(date.getMinutes()).padStart(2, "0");
+    return `${day}/${month}/${year} ${hour}:${minute}`;
+  }
+
   return (
     <div className="flex flex-col gap-6 bg-white">
       <form
@@ -123,6 +132,7 @@ export default function DetailTicketForm() {
       >
         <h2 className="md:col-span-2 text-lg font-semibold">Detail Tiket</h2>
 
+        {/* nama lengkap */}
         <div className="flex flex-col gap-2">
           <label className="font-semibold text-sm">
             Nama Lengkap<span className="text-red-500">*</span>
@@ -134,9 +144,11 @@ export default function DetailTicketForm() {
             onChange={handleChange}
             className={`input ${errors.namaLengkap ? "border-red-500" : ""}`}
             placeholder="Nama Lengkap"
+            readOnly
           />
         </div>
 
+        {/* nama aplikasi */}
         <div className="flex flex-col gap-2">
           <label className="font-semibold text-sm">
             Nama Aplikasi<span className="text-red-500">*</span>
@@ -146,13 +158,16 @@ export default function DetailTicketForm() {
             value={form.namaAplikasi}
             onChange={handleChange}
             className={`input ${errors.namaAplikasi ? "border-red-500" : ""}`}
+            disabled
           >
             <option value="">Pilih Aplikasi</option>
             <option value="Sistem Absensi">Sistem Absensi</option>
             <option value="Dashboard SDM">Dashboard SDM</option>
+            <option value="e-Procurement">e-Procurement</option>
           </select>
         </div>
 
+        {/* nama divisi */}
         <div className="flex flex-col gap-2">
           <label className="font-semibold text-sm">
             Nama Divisi<span className="text-red-500">*</span>
@@ -162,6 +177,7 @@ export default function DetailTicketForm() {
             value={form.namaDivisi}
             onChange={handleChange}
             className={`input ${errors.namaDivisi ? "border-red-500" : ""}`}
+            disabled
           >
             <option value="">Pilih Divisi</option>
             <option value="IT">IT</option>
@@ -169,6 +185,7 @@ export default function DetailTicketForm() {
           </select>
         </div>
 
+        {/* subjek tiket */}
         <div className="flex flex-col gap-2">
           <label className="font-semibold text-sm">
             Subjek Tiket<span className="text-red-500">*</span>
@@ -180,9 +197,11 @@ export default function DetailTicketForm() {
             onChange={handleChange}
             className={`input ${errors.subjekTiket ? "border-red-500" : ""}`}
             placeholder="Contoh: Reset Password Email"
+            readOnly
           />
         </div>
 
+        {/* email */}
         <div className="flex flex-col gap-2">
           <label className="font-semibold text-sm">
             Email<span className="text-red-500">*</span>
@@ -194,9 +213,26 @@ export default function DetailTicketForm() {
             onChange={handleChange}
             className={`input ${errors.email ? "border-red-500" : ""}`}
             placeholder="user@gmail.com"
+            readOnly
           />
         </div>
 
+        {/* deskripsi */}
+        <div className="flex flex-col gap-2 row-span-2">
+          <label className="font-semibold text-sm">
+            Deskripsi Tiket<span className="text-red-500">*</span>
+          </label>
+          {/* <CKEditorWrapper
+            value={form.deskripsiTiket}
+            onChange={(i) => handleChangeDeskripsiTiket("deskripsiTiket", i)}
+          /> */}
+          <div
+            className="input h-full"
+            dangerouslySetInnerHTML={{ __html: form.deskripsiTiket }}
+          ></div>
+        </div>
+
+        {/* no whatsapp */}
         <div className="flex flex-col gap-2">
           <label className="font-semibold text-sm">
             No. Whatsapp<span className="text-red-500">*</span>
@@ -208,20 +244,12 @@ export default function DetailTicketForm() {
             onChange={handleChange}
             className={`input ${errors.whatsapp ? "border-red-500" : ""}`}
             placeholder="08xxxxxxxxxx"
+            readOnly
           />
         </div>
 
-        <div className="flex flex-col gap-2 md:col-span-2">
-          <label className="font-semibold text-sm">
-            Deskripsi Tiket<span className="text-red-500">*</span>
-          </label>
-          <CKEditorWrapper
-            value={form.deskripsiTiket}
-            onChange={(i) => handleChangeDeskripsiTiket("deskripsiTiket", i)}
-          />
-        </div>
-
-        <div className="flex flex-col gap-2 md:col-span-2">
+        {/* lampiran */}
+        <div className="flex flex-col gap-2">
           <label className="font-semibold text-sm">
             Lampiran{" "}
             <span className="text-sm text-gray-500">
@@ -270,33 +298,42 @@ export default function DetailTicketForm() {
             </div>
           )}
         </div>
+      </form>
 
+      {/* catatan tiket */}
+      <div className="px-6 mb-4 space-y-4">
+        <h1 className="text-xl font-semibold">Catatan Tiket</h1>
+        <CKEditorWrapper
+          placeholder={"Tulis catatan disini"}
+          value={catatanTiket}
+          onChange={(e) => {
+            setCatatanTiket(e);
+          }}
+        />
         <div className="md:col-span-2">
-          <button
-            type="submit"
-            className="bg-[#65C7D5] hover:bg-[#4FB3C1] text-white font-semibold px-6 py-2 rounded"
-          >
+          <button className="bg-[#65C7D5] hover:bg-[#4FB3C1] text-white font-semibold px-6 py-2 rounded">
             Submit
           </button>
         </div>
-      </form>
-      <div className="border-t border-slate-200 bg-white mb-2" />
+      </div>
+
+      {/* history */}
+      <div className="border-t-4 border-slate-200 bg-white mb-2" />
       <div className="px-6 mb-4">
         <div className="border border-slate-200 rounded-2xl p-5 flex flex-col gap-4">
-          <div className="space-y-2">
-            <h1 className="font-bold text-black">
-              John Doe -{" "}
-              <span className="font-light text-black/50">5 Menit lalu</span>
-            </h1>
-            <p>Sampai saat ini, email reset password belum masuk</p>
-          </div>
-          <div className="space-y-2">
-            <h1 className="font-bold text-yellow-700">
-              Service Helpdesk -{" "}
-              <span className="font-light text-black/50">6 Menit lalu</span>
-            </h1>
-            <p>Silahkan dicek kembali</p>
-          </div>
+          {data.comment_thread
+            .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+            .map((item, index) => (
+              <div key={index} className="space-y-2">
+                <h1 className="font-bold text-black">
+                  {item.comment_by} -{" "}
+                  <span className="font-light text-black/50">
+                    {formatDateTimeDMY(item.timestamp)}
+                  </span>
+                </h1>
+                <p>{item.message}</p>
+              </div>
+            ))}
         </div>
       </div>
     </div>

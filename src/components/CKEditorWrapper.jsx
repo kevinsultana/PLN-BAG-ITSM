@@ -2,7 +2,12 @@
 
 import React, { useState, useEffect, useRef } from "react";
 
-export default function CKEditorWrapper({ value, onChange, className }) {
+export default function CKEditorWrapper({
+  value,
+  onChange,
+  className,
+  placeholder = "Deskripsi Tiket...",
+}) {
   const editorRef = useRef(null);
   const [editor, setEditor] = useState(null);
 
@@ -56,7 +61,7 @@ export default function CKEditorWrapper({ value, onChange, className }) {
             "undo",
             "redo",
           ],
-          placeholder: "Deskripsi Tiket...",
+          placeholder: placeholder,
         }}
       />
     </div>
