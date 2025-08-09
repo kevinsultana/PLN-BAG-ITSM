@@ -1,5 +1,5 @@
 "use client";
-import DetailTicketForm from "@/components/Beranda/Ticket/DetailTikcket/DetailTicketForm";
+import DetailTicketForm from "@/components/Beranda/Ticket/DetailTicket/DetailTicketForm";
 import MainLayout from "@/components/Beranda/Layout/MainLayout";
 import { useParams } from "next/navigation";
 import React from "react";
