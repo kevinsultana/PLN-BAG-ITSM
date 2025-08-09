@@ -1,8 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import dynamic from "next/dynamic";
+import Image from "next/image";
 import CKEditorWrapper from "@/components/CKEditorWrapper";
-import { useTheme } from "@emotion/react";
 
 export default function DetailTicketForm({ data }) {
   const [form, setForm] = useState({
@@ -25,10 +24,6 @@ export default function DetailTicketForm({ data }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
-  };
-
-  const handleChangeDeskripsiTiket = (name, value) => {
     setForm({ ...form, [name]: value });
   };
 
