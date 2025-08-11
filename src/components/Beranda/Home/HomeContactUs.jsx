@@ -25,25 +25,25 @@ export default function HomeContactUs() {
     window.location.href = phoneUrl;
   };
 
+  const iconButtonClass =
+    "rounded-full p-2 bg-[#65C7D5]/10 hover:bg-[#65C7D5]/20 cursor-pointer transition-all duration-300";
+
   return (
     <div className="bg-white py-6 px-5 flex items-center gap-4">
-      <h2 className="text-black font-normal text-sm">
+      <h2 className="text-black text-sm font-normal">
         Pengguna Dapat Menghubungi Service Helpdesk :
       </h2>
-      <button className="rounded-full p-2 bg-[#65C7D514] hover:bg-sky-100 cursor-pointer transition-all duration-300 ">
-        <IoMailOpen onClick={onClickMail} className="text-[#65C7D5] text-2xl" />
+      <button className={iconButtonClass} onClick={onClickMail}>
+        <IoMailOpen className="text-[#65C7D5] text-2xl" />
       </button>
-      <button className="rounded-full p-2 bg-[#65C7D514] hover:bg-sky-100 cursor-pointer transition-all duration-300">
-        <BiWorld onClick={onClickWebsite} className="text-[#65C7D5] text-2xl" />
+      <button className={iconButtonClass} onClick={onClickWebsite}>
+        <BiWorld className="text-[#65C7D5] text-2xl" />
       </button>
-      <button className="rounded-full p-2 bg-[#65C7D514] hover:bg-sky-100 cursor-pointer transition-all duration-300">
-        <RiWhatsappFill
-          onClick={onClickWhatsapp}
-          className="text-[#65C7D5] text-2xl"
-        />
+      <button className={iconButtonClass} onClick={onClickWhatsapp}>
+        <RiWhatsappFill className="text-[#65C7D5] text-2xl" />
       </button>
-      <button className="rounded-full p-2 bg-[#65C7D514] hover:bg-sky-100 cursor-pointer transition-all duration-300">
-        <IoCall onClick={onClickCall} className="text-[#65C7D5] text-xl" />
+      <button className={iconButtonClass} onClick={onClickCall}>
+        <IoCall className="text-[#65C7D5] text-xl" />
       </button>
     </div>
   );

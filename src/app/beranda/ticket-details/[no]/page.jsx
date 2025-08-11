@@ -4,7 +4,7 @@ import MainLayout from "@/components/Beranda/Layout/MainLayout";
 import { useParams } from "next/navigation";
 import React from "react";
 
-export default function page() {
+export default function Page() {
   const params = useParams();
   const ticketNo = params.no;
 
@@ -66,9 +66,9 @@ export default function page() {
   };
 
   return (
-    <div className="bg-slate-100 min-h-screen h-full">
+    <div className="bg-slate-100 min-h-screen">
       <MainLayout>
-        <div className="flex flex-col gap-6 py-6 px-10">
+        <div className="flex flex-col gap-6 py-6 px-14">
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold">Beranda</h1>
             <button className="text-white bg-sky-400 px-4 py-2 rounded-2xl">
