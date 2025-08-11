@@ -65,13 +65,10 @@ export default function FAQAccordion() {
   };
 
   return (
-    <div className="bg-slate-100 py-6 px-14 h-full">
+    <div className="bg-slate-100 ">
       <div className="bg-white rounded-xl pb-6">
         <div className="flex justify-between items-center p-5 pb-4">
-          <h1 className="text-2xl font-bold">FAQ</h1>
-          <p className="text-sm text-slate-500">
-            Beranda / <span className="text-gray-700">FAQ</span>
-          </p>
+          <h1 className="text-xl ">List FAQ</h1>
         </div>
 
         <div className="px-5 divide-y divide-gray-200">
