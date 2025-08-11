@@ -2,23 +2,23 @@ import React from "react";
 import { FaChevronRight } from "react-icons/fa6";
 import { HiOutlineDocumentSearch } from "react-icons/hi";
 
-export default function ErpCrmTable() {
+export default function ErpMmTable() {
   const formList = [
     {
       id: 1,
-      name: "User Matrix ERP CRM",
+      name: "User Matrix ERP MM",
     },
     {
       id: 2,
-      name: "Dokumen Konfigurasi ERP CRM",
+      name: "Dokumen Konfigurasi ERP MM",
     },
     {
       id: 3,
-      name: "Dokumen SOP ERP CRM",
+      name: "Dokumen SOP ERP MM",
     },
     {
       id: 4,
-      name: "Dokumen Shipment ERP CRM",
+      name: "Dokumen Shipment ERP MM",
     },
   ];
 
@@ -32,7 +32,7 @@ export default function ErpCrmTable() {
             <thead className="bg-gray-100">
               <tr>
                 <th className="w-12 px-4 py-3">No.</th>
-                <th className="px-4 py-3">ERP CRM</th>
+                <th className="px-4 py-3">ERP MM</th>
                 <th className="w-40 px-4 py-3 text-center"></th>
               </tr>
             </thead>
