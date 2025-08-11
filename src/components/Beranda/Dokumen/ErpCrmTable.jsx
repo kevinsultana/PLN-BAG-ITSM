@@ -1,6 +1,8 @@
 import React from "react";
+import { FaChevronRight } from "react-icons/fa6";
+import { HiOutlineDocumentSearch } from "react-icons/hi";
 
-export default function DocumentTable() {
+export default function ErpCrmTable() {
   const formList = [
     {
       id: 1,
@@ -29,14 +31,9 @@ export default function DocumentTable() {
   ];
 
   return (
-    <div className="bg-slate-100 py-6 px-14 h-full ">
-      <div className="bg-white rounded-xl pb-6">
-        <div className="flex justify-between items-center p-5 pb-4">
-          <h1 className="text-2xl font-bold">Dokumen</h1>
-          <p className="text-sm text-slate-500">
-            Beranda / <span className="text-gray-700">Dokumen</span>
-          </p>
-        </div>
+    <div className="bg-slate-100 space-y-6">
+      <div className="bg-white rounded-xl p-4 space-y-4">
+        <h1 className="text-lg">List Dokumen</h1>
 
         <div className="px-5">
           <table className="table-fixed w-full text-left border border-gray-200 rounded-xl overflow-hidden shadow">
@@ -44,7 +41,7 @@ export default function DocumentTable() {
               <tr>
                 <th className="w-12 px-4 py-3">No.</th>
                 <th className="px-4 py-3">ERP CRM</th>
-                <th className="w-32 px-4 py-3 text-center">Aksi</th>
+                <th className="w-40 px-4 py-3 text-center"></th>
               </tr>
             </thead>
             <tbody>
@@ -56,9 +53,22 @@ export default function DocumentTable() {
                   <td className="px-4 py-3">{index + 1}.</td>
                   <td className="px-4 py-3">{item.name}</td>
                   <td className="px-4 py-3 text-center">
-                    <button className="bg-cyan-400 text-white px-4 py-1 rounded-full text-sm hover:bg-cyan-500 transition">
-                      Download
-                    </button>
+                    {item.file ? (
+                      <a
+                        href={item.file}
+                        download
+                        className="flex items-center gap-2 w-fit text-black px-4 py-1 rounded-full text-sm hover:bg-cyan-500 transition"
+                      >
+                        <HiOutlineDocumentSearch className="text-xl" />
+                      </a>
+                    ) : (
+                      <button
+                        // onClick={() => handleOnClickForm(item)}
+                        className="flex items-center gap-2 text-black px-4 py-1 rounded-full text-sm hover:bg-cyan-500 transition"
+                      >
+                        <HiOutlineDocumentSearch className="text-xl" />
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}

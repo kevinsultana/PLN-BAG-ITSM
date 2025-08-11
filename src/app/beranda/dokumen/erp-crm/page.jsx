@@ -1,22 +1,14 @@
-"use client";
-import ApplicationService from "@/components/Beranda/Home/ApplicationService";
+import ErpCrmTable from "@/components/Beranda/Dokumen/ErpCrmTable";
 import MainLayout from "@/components/Beranda/Layout/MainLayout";
 import React from "react";
-import { useRouter } from "next/navigation";
 
 export default function page() {
-  const router = useRouter();
-
-  const handleNavigateTo = (path) => {
-    router.push(`/beranda/dokumen/${path}`);
-  };
-
   return (
     <div className="flex flex-col">
       <MainLayout>
         <div className="bg-slate-100 py-6 px-14 h-full space-y-4">
           <h1 className="text-2xl font-bold">Dokumen</h1>
-          <ApplicationService handleNavigate={handleNavigateTo} />
+          <ErpCrmTable />
         </div>
       </MainLayout>
     </div>

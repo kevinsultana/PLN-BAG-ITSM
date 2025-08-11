@@ -2,9 +2,12 @@ import React from "react";
 import { FaChevronRight } from "react-icons/fa6";
 import { IoMdMore } from "react-icons/io";
 
-export default function CardBag({ item }) {
+export default function CardBag({ item, handleOnClick }) {
   return (
-    <div className="flex flex-col justify-between bg-white border-2 shadow-xl p-5 border-slate-200  rounded-2xl">
+    <div
+      onClick={handleOnClick}
+      className="flex flex-col justify-between bg-white border-2 shadow-xl p-5 border-slate-200  rounded-2xl cursor-pointer"
+    >
       <div className="flex flex-col gap-6">
         <div className="flex justify-between">
           <div className="flex gap-4 items-center">

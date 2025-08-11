@@ -56,7 +56,7 @@ export default function SideBar({ show }) {
               href="/beranda/formulir"
               className={getLinkClassName([
                 "/beranda/formulir",
-                "/beranda/formulir/[no]",
+                "/beranda/formulir/[]",
               ])}
             >
               <RiFileEditLine />
@@ -66,7 +66,10 @@ export default function SideBar({ show }) {
           <li>
             <Link
               href="/beranda/dokumen"
-              className={getLinkClassName("/beranda/dokumen")}
+              className={getLinkClassName([
+                "/beranda/dokumen",
+                "/beranda/dokumen/[]",
+              ])}
             >
               <LuClipboardList />
               Dokumen

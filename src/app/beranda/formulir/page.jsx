@@ -10,6 +10,7 @@ export default function page() {
   const handleNavigate = (path) => {
     router.push(`/beranda/formulir/${path}`);
   };
+
   return (
     <div className="flex flex-col">
       <MainLayout>
