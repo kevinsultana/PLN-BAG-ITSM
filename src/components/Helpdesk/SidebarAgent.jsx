@@ -131,24 +131,24 @@ export default function SidebarAgent({ show }) {
             >
               <li>
                 <Link
-                  href="/reporting/data-a"
-                  className={getLinkClassName("/reporting/data-a")}
+                  href="/reporting/ticket-analysis"
+                  className={getLinkClassName("/reporting/ticket-analysis")}
                 >
                   Tiket Analysis
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/reporting/data-b"
-                  className={getLinkClassName("/reporting/data-b")}
+                  href="/reporting/SLA-status"
+                  className={getLinkClassName("/reporting/SLA-status")}
                 >
                   SLA Status Analysis
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/reporting/data-b"
-                  className={getLinkClassName("/reporting/data-b")}
+                  href="/reporting/CR-tracking"
+                  className={getLinkClassName("/reporting/CR-tracking")}
                 >
                   CR Tracking
                 </Link>
@@ -158,8 +158,8 @@ export default function SidebarAgent({ show }) {
 
           <li>
             <Link
-              href="/beranda/dokumen"
-              className={getLinkClassName("/beranda/dokumen")}
+              href="/helpdesk/apps-document"
+              className={getLinkClassName("/helpdesk/apps-document")}
             >
               <LuClipboardList />
               Dokumen aplikasi
@@ -168,8 +168,8 @@ export default function SidebarAgent({ show }) {
 
           <li>
             <Link
-              href="/beranda/dokumen"
-              className={getLinkClassName("/beranda/dokumen")}
+              href="/helpdesk/dokumen"
+              className={getLinkClassName("/helpdesk/dokumen")}
             >
               <RiUser3Line />
               User
@@ -178,8 +178,8 @@ export default function SidebarAgent({ show }) {
 
           <li>
             <Link
-              href="/beranda/dokumen"
-              className={getLinkClassName("/beranda/dokumen")}
+              href="/helpdesk/dokumen"
+              className={getLinkClassName("/helpdesk/dokumen")}
             >
               <RiBuildingLine />
               BPO

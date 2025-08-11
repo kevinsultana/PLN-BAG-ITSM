@@ -1,5 +1,6 @@
 import { Toaster } from "sonner";
 import "./globals.css";
+import { TicketDataProvider } from "@/context/TicketDataContext";
 
 export const metadata = {
   title: "Dashboard ITSM",
@@ -11,7 +12,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={`antialiased`}>
         <Toaster richColors position="top-center" />
-        {children}
+        <TicketDataProvider>{children}</TicketDataProvider>
       </body>
     </html>
   );
