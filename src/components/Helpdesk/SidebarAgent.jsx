@@ -30,10 +30,6 @@ export default function SidebarAgent({ show }) {
       : paths.includes("[")
       ? pathname.startsWith(paths.split("/[")[0])
       : pathname === paths;
-
-    // Untuk item submenu, jika parent dropdown aktif dan submenu aktif, maka tambahkan class
-    // Ini memastikan highlight tetap ada bahkan saat submenu terbuka
-    // Kita juga bisa tambahkan ini untuk item utama dropdown jika ingin tetap terhighlight saat dibuka
     return isActive
       ? "text-[#65C7D5] font-bold flex items-center gap-2"
       : "text-gray-700 flex items-center gap-2";
@@ -62,8 +58,6 @@ export default function SidebarAgent({ show }) {
           <li>
             <div
               className={`flex items-center justify-between cursor-pointer ${
-                // Tambahkan class untuk item utama dropdown jika aktif atau dropdownnya terbuka
-                openDropdown === "tiket" ||
                 pathname.startsWith("/helpdesk/tiket")
                   ? "text-[#65C7D5] font-bold"
                   : "text-gray-700"
@@ -90,16 +84,16 @@ export default function SidebarAgent({ show }) {
             >
               <li>
                 <Link
-                  href="/helpdesk/tiket/saya"
-                  className={getLinkClassName("/helpdesk/tiket/saya")}
+                  href="/helpdesk/tiket/my-ticket"
+                  className={getLinkClassName("/helpdesk/tiket/my-ticket")}
                 >
                   Tiket Saya
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/helpdesk/tiket/semua"
-                  className={getLinkClassName("/helpdesk/tiket/semua")}
+                  href="/helpdesk/tiket/all-ticket"
+                  className={getLinkClassName("/helpdesk/tiket/all-ticket")}
                 >
                   Semua Tiket
                 </Link>
@@ -113,7 +107,7 @@ export default function SidebarAgent({ show }) {
               className={`flex items-center justify-between cursor-pointer ${
                 openDropdown === "reporting" ||
                 pathname.startsWith("/reporting")
-                  ? "text-[#65C7D5] font-bold"
+                  ? "text-gray-700"
                   : "text-gray-700"
               }`}
               onClick={() => toggleDropdown("reporting")}
@@ -198,7 +192,7 @@ export default function SidebarAgent({ show }) {
               className={`flex items-center justify-between cursor-pointer ${
                 openDropdown === "konfigurasi" ||
                 pathname.startsWith("/konfigurasi")
-                  ? "text-[#65C7D5] font-bold"
+                  ? "text-gray-700"
                   : "text-gray-700"
               }`}
               onClick={() => toggleDropdown("konfigurasi")}
