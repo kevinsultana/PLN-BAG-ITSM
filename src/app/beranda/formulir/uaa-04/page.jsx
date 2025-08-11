@@ -4,11 +4,11 @@ import React from "react";
 import logoKop from "../../../../assets/logoNavbar.png";
 import Image from "next/image";
 
-export default function page() {
+export default function Page() {
   return (
-    <div className="flex flex-col h-full">
+    <div className="bg-slate-100 min-h-screen">
       <MainLayout>
-        <div className="bg-slate-100 py-6 px-14 h-auto">
+        <div className="flex flex-col py-6 px-14 h-auto">
           <h1 className="text-2xl font-bold mb-4">Formulir</h1>
           <div className="bg-white rounded-xl p-4">
             <form className="bg-white rounded-xl shadow p-6 space-y-6 text-sm text-gray-700">

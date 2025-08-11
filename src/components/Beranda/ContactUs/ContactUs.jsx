@@ -11,7 +11,7 @@ import {
 
 export default function ContactUs() {
   return (
-    <div className="bg-slate-100 py-6 px-14 h-full space-y-4">
+    <div className="space-y-4">
       <h1 className="text-2xl font-bold">Hubungi Helpdesk</h1>
       <div className="bg-white rounded-lg shadow-md p-4">
         {/* Jam Operasional */}

@@ -4,7 +4,7 @@ import MainLayout from "@/components/Beranda/Layout/MainLayout";
 import { useRouter } from "next/navigation";
 import React from "react";
 
-export default function page() {
+export default function Page() {
   const router = useRouter();
 
   const handleNavigate = (path) => {
@@ -12,9 +12,12 @@ export default function page() {
   };
 
   return (
-    <div className="flex flex-col">
+    <div className="bg-slate-100 min-h-screen">
       <MainLayout>
-        <FormulirTable handleOpenForm={handleNavigate} />
+        <div className="flex flex-col py-6 px-14">
+          <h1 className="text-2xl font-bold mb-4">Formulir</h1>
+          <FormulirTable handleOpenForm={handleNavigate} />
+        </div>
       </MainLayout>
     </div>
   );
