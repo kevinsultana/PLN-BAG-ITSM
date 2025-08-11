@@ -15,10 +15,10 @@ export const TicketDataProvider = ({ children }) => {
   );
 };
 
-// export const useTicketData = () => {
-//   const context = useContext(TicketDataContext);
-//   // if (!context) {
-//   //   throw new Error("useTicketData harus dipakai di dalam TicketDataProvider");
-//   // }
-//   return context;
-// };
+export const useTicketData = () => {
+  const context = useContext(TicketDataContext);
+  if (!context) {
+    throw new Error("useTicketData must be used within a TicketDataProvider");
+  }
+  return context;
+};

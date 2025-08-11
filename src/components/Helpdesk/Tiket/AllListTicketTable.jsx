@@ -1,5 +1,6 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useMemo, useState } from "react";
+import Link from "next/link";
 import {
   Table,
   TableBody,
@@ -10,83 +11,144 @@ import {
   Paper,
   TableSortLabel,
   Pagination,
+  Checkbox,
 } from "@mui/material";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import HourglassTopIcon from "@mui/icons-material/HourglassTop";
 import TimelapseIcon from "@mui/icons-material/Timelapse";
 import CancelIcon from "@mui/icons-material/Cancel";
-import Link from "next/link";
 import { FaPlus } from "react-icons/fa";
 
-// Mapping status ke ikon
-const statusIcon = (status) => {
-  switch (status) {
-    case "Resolved":
-      return <CheckCircleOutlineIcon className="text-green-500" />;
-    case "In Progress":
-      return <TimelapseIcon className="text-yellow-500" />;
-    case "Waiting":
-      return <HourglassTopIcon className="text-blue-500" />;
-    case "Closed":
-      return <CancelIcon className="text-gray-400" />;
-    default:
-      return null;
-  }
-};
-
-// Kolom tabel: label & properti data
-const columns = [
-  { label: "Kode", key: "ticket_id" },
-  { label: "Deskripsi", key: "ticket_detail" },
-  { label: "Requester", key: "created_by" },
-  { label: "Tanggal", key: "created_date" },
-  { label: "Status", key: "status" },
-];
-
-// Data dummy
 const initialTickets = [
   {
-    ticket_id: "SCRQ – ERP MM – 29/07/2025 - 001",
-    ticket_detail: "User meminta akses ke modul ERP MM.",
-    created_by: "Nadia Salsabila",
-    created_date: "2025-07-25 08:45:00",
-    status: "Open",
-  },
-  {
-    ticket_id: "SCRQ – ERP MM – 29/07/2025 - 002",
-    ticket_detail: "Reset password email untuk akun Budi Santoso.",
-    created_by: "Budi Santoso",
-    created_date: "2025-07-26 10:30:00",
+    id: 1,
+    priority: "Tinggi",
+    subject: "Permintaan akses ERP",
+    application: "ERP FM",
+    assign_team: "Func - Adam",
+    requester: "Raka Pratama",
+    sla_deadline: "2025-08-05 17:00:00",
     status: "In Progress",
   },
   {
-    ticket_id: "INFR – ERP e-Proc – 29/07/2025 - 001",
-    ticket_detail: "Vendor baru PT INDAH JAYA status DPT Active.",
-    created_by: "Siti Nurhaliza",
-    created_date: "2025-07-27 13:15:00",
+    id: 2,
+    priority: "Rendah",
+    subject: "Akses approval PO hilang",
+    application: "ERP CRM",
+    assign_team: "",
+    requester: "Dian Sari",
+    sla_deadline: "",
+    status: "Open",
+  },
+  {
+    id: 3,
+    priority: "Kritis",
+    subject: "Modul e-Proc error saat submit",
+    application: "e-Procurement",
+    assign_team: "Tech - Yola",
+    requester: "Budi Santoso",
+    sla_deadline: "2025-08-04T10:00:00",
     status: "Resolved",
   },
   {
-    ticket_id: "INFR – HRIS – 29/07/2025 - 002",
-    ticket_detail: "Ubah jatah cuti employee BAG12345.",
-    created_by: "Rizky Hidayat",
-    created_date: "2025-07-27 14:50:00",
-    status: "Closed",
+    id: 4,
+    priority: "Sedang",
+    subject: "Butuh data laporan vendor",
+    application: "ERP CRM",
+    assign_team: "",
+    requester: "Lestari Wulandari",
+    sla_deadline: "",
+    status: "Open",
   },
   {
-    ticket_id: "INSP – ERP FM – 29/07/2025 - 001",
-    ticket_detail: "Vendor bill tidak bisa diubah menjadi PAID.",
-    created_by: "Yuli Andriani",
-    created_date: "2025-07-28 09:00:00",
-    status: "Waiting",
+    id: 5,
+    priority: "Tinggi",
+    subject: "Tidak bisa login e-Proc",
+    application: "e-Procurement",
+    assign_team: "Tech - Yola",
+    requester: "Irfan Hidayat",
+    sla_deadline: "2025-08-05T12:00:00",
+    status: "In Progress",
   },
 ];
 
+const priorityStyle = {
+  Kritis: { dot: "bg-red-500", text: "text-red-600", bg: "bg-red-50" },
+  Tinggi: { dot: "bg-orange-500", text: "text-orange-600", bg: "bg-orange-50" },
+  Sedang: { dot: "bg-yellow-500", text: "text-yellow-600", bg: "bg-yellow-50" },
+  Rendah: { dot: "bg-green-500", text: "text-green-600", bg: "bg-green-50" },
+};
+
+const priorityOrder = { Kritis: 4, Tinggi: 3, Sedang: 2, Rendah: 1, "": 0 };
+
+const StatusPill = ({ status }) => {
+  let icon = null;
+  switch (status) {
+    case "Resolved":
+      icon = <CheckCircleOutlineIcon fontSize="small" />;
+      break;
+    case "In Progress":
+      icon = <TimelapseIcon fontSize="small" />;
+      break;
+    case "Waiting":
+      icon = <HourglassTopIcon fontSize="small" />;
+      break;
+    case "Closed":
+      icon = <CancelIcon fontSize="small" />;
+      break;
+    default:
+      icon = <HourglassTopIcon fontSize="small" />;
+  }
+  return (
+    <span className="inline-flex items-center gap-2 rounded-full bg-gray-100 text-gray-700 px-3 py-1 text-sm">
+      {icon} {status}
+    </span>
+  );
+};
+
+const PriorityBadge = ({ value }) => {
+  if (!value) return <span className="text-gray-400">-</span>;
+  const s = priorityStyle[value] || priorityStyle.Rendah;
+  return (
+    <span
+      className={`inline-flex items-center gap-2 ${s.bg} ${s.text} px-3 py-1 rounded-full text-sm font-medium`}
+    >
+      <span className={`inline-block h-2.5 w-2.5 rounded-full ${s.dot}`} />
+      {value}
+    </span>
+  );
+};
+
+const normalizeDate = (str) => {
+  if (!str) return null;
+  const isoLike = str.includes("T") ? str : str.replace(" ", "T");
+  const d = new Date(isoLike);
+  return isNaN(d.getTime()) ? null : d;
+};
+
+const formatSLA = (str) => {
+  const d = normalizeDate(str);
+  if (!d) return "-";
+  const tanggal = d.toLocaleDateString("id-ID", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+  const jam = d.toLocaleTimeString("id-ID", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+  return `${tanggal} - ${jam} WIB`;
+};
+
 export default function AllListTicketTable({ onRowClick }) {
-  const [tickets, setTickets] = useState(initialTickets);
-  const [orderBy, setOrderBy] = useState("ticket_id");
+  const [tickets] = useState(initialTickets);
+  const [orderBy, setOrderBy] = useState("id");
   const [order, setOrder] = useState("asc");
   const [page, setPage] = useState(1);
+  const [selectedIds, setSelectedIds] = useState(new Set());
   const rowsPerPage = 5;
 
   const handleSort = (property) => {
@@ -95,89 +157,217 @@ export default function AllListTicketTable({ onRowClick }) {
     setOrderBy(property);
   };
 
+  const getComparable = (row, key) => {
+    if (key === "priority") return priorityOrder[row.priority] ?? 0;
+    if (key === "sla_deadline") {
+      const d = normalizeDate(row.sla_deadline);
+      return d ? d.getTime() : Number.POSITIVE_INFINITY;
+    }
+    const v = row[key];
+    if (typeof v === "number") return v;
+    return (v || "").toString().toLowerCase();
+  };
+
   const sortedTickets = useMemo(() => {
-    return [...tickets].sort((a, b) => {
-      const aVal = a[orderBy]?.toString().toLowerCase();
-      const bVal = b[orderBy]?.toString().toLowerCase();
-      if (aVal < bVal) return order === "asc" ? -1 : 1;
-      if (aVal > bVal) return order === "asc" ? 1 : -1;
+    const data = [...tickets];
+    data.sort((a, b) => {
+      const av = getComparable(a, orderBy);
+      const bv = getComparable(b, orderBy);
+      if (av < bv) return order === "asc" ? -1 : 1;
+      if (av > bv) return order === "asc" ? 1 : -1;
       return 0;
     });
+    return data;
   }, [tickets, orderBy, order]);
 
+  const totalPages = Math.ceil(sortedTickets.length / rowsPerPage);
   const paginatedTickets = useMemo(() => {
     const start = (page - 1) * rowsPerPage;
     return sortedTickets.slice(start, start + rowsPerPage);
   }, [sortedTickets, page]);
 
+  const pageIds = paginatedTickets.map((t) => t.id);
+  const allPageChecked = pageIds.every((id) => selectedIds.has(id));
+  const indeterminate =
+    !allPageChecked && pageIds.some((id) => selectedIds.has(id));
+
+  const toggleSelectAllPage = (checked) => {
+    const copy = new Set(selectedIds);
+    if (checked) pageIds.forEach((id) => copy.add(id));
+    else pageIds.forEach((id) => copy.delete(id));
+    setSelectedIds(copy);
+  };
+  const toggleSelectRow = (id) => {
+    const copy = new Set(selectedIds);
+    copy.has(id) ? copy.delete(id) : copy.add(id);
+    setSelectedIds(copy);
+  };
+
   return (
-    <div className="p-5 bg-white">
+    <div className="p-6 bg-white rounded-2xl border border-gray-200">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold">List Tiket Saya</h2>
+        <h2 className="text-xl font-bold">List Semua Tiket</h2>
         <Link
           href="/beranda/new-ticket"
-          className="flex items-center gap-2 px-4 py-2.5 bg-[#65C7D5] text-white rounded-2xl text-sm"
+          className="flex items-center gap-2 px-4 py-2.5 bg-[#65C7D5] text-white rounded-2xl text-sm hover:opacity-90"
         >
           <FaPlus />
-          <h3>New</h3>
+          <span>New</span>
         </Link>
       </div>
 
-      <TableContainer component={Paper} className="rounded-lg">
+      <TableContainer
+        component={Paper}
+        className="rounded-2xl shadow-sm border border-gray-100"
+      >
         <Table>
           <TableHead>
-            <TableRow className="bg-gray-100">
-              <TableCell>No</TableCell>
-              {columns.map((col) => (
-                <TableCell key={col.key}>
-                  <TableSortLabel
-                    active={orderBy === col.key}
-                    direction={orderBy === col.key ? order : "asc"}
-                    onClick={() => handleSort(col.key)}
-                  >
-                    {col.label}
-                  </TableSortLabel>
-                </TableCell>
-              ))}
+            <TableRow className="bg-gray-50">
+              <TableCell padding="checkbox">
+                <Checkbox
+                  checked={allPageChecked}
+                  indeterminate={indeterminate}
+                  onChange={(e) => toggleSelectAllPage(e.target.checked)}
+                />
+              </TableCell>
+
+              <TableCell sortDirection={orderBy === "id" ? order : false}>
+                <TableSortLabel
+                  active={orderBy === "id"}
+                  direction={orderBy === "id" ? order : "asc"}
+                  onClick={() => handleSort("id")}
+                >
+                  ID
+                </TableSortLabel>
+              </TableCell>
+
+              <TableCell sortDirection={orderBy === "priority" ? order : false}>
+                <TableSortLabel
+                  active={orderBy === "priority"}
+                  direction={orderBy === "priority" ? order : "asc"}
+                  onClick={() => handleSort("priority")}
+                >
+                  Priority
+                </TableSortLabel>
+              </TableCell>
+
+              <TableCell sortDirection={orderBy === "subject" ? order : false}>
+                <TableSortLabel
+                  active={orderBy === "subject"}
+                  direction={orderBy === "subject" ? order : "asc"}
+                  onClick={() => handleSort("subject")}
+                >
+                  Subjek
+                </TableSortLabel>
+              </TableCell>
+
+              <TableCell
+                sortDirection={orderBy === "application" ? order : false}
+              >
+                <TableSortLabel
+                  active={orderBy === "application"}
+                  direction={orderBy === "application" ? order : "asc"}
+                  onClick={() => handleSort("application")}
+                >
+                  Aplikasi
+                </TableSortLabel>
+              </TableCell>
+
+              <TableCell
+                sortDirection={orderBy === "assign_team" ? order : false}
+              >
+                <TableSortLabel
+                  active={orderBy === "assign_team"}
+                  direction={orderBy === "assign_team" ? order : "asc"}
+                  onClick={() => handleSort("assign_team")}
+                >
+                  Assign Team
+                </TableSortLabel>
+              </TableCell>
+
+              <TableCell
+                sortDirection={orderBy === "requester" ? order : false}
+              >
+                <TableSortLabel
+                  active={orderBy === "requester"}
+                  direction={orderBy === "requester" ? order : "asc"}
+                  onClick={() => handleSort("requester")}
+                >
+                  Requester
+                </TableSortLabel>
+              </TableCell>
+
+              <TableCell
+                sortDirection={orderBy === "sla_deadline" ? order : false}
+              >
+                <TableSortLabel
+                  active={orderBy === "sla_deadline"}
+                  direction={orderBy === "sla_deadline" ? order : "asc"}
+                  onClick={() => handleSort("sla_deadline")}
+                >
+                  SLA Deadline
+                </TableSortLabel>
+              </TableCell>
+
+              <TableCell>Status</TableCell>
             </TableRow>
           </TableHead>
 
           <TableBody>
-            {paginatedTickets.map((row, index) => (
+            {paginatedTickets.map((row) => (
               <TableRow
-                key={index}
-                className="hover:bg-gray-100 transition duration-300 cursor-pointer"
-                onClick={() => onRowClick?.(row, index)}
+                key={row.id}
+                hover
+                className="cursor-pointer"
+                onClick={() => onRowClick?.(row)}
               >
-                <TableCell className="border border-gray-200">
-                  {(page - 1) * rowsPerPage + index + 1}
+                <TableCell
+                  padding="checkbox"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Checkbox
+                    checked={selectedIds.has(row.id)}
+                    onChange={() => toggleSelectRow(row.id)}
+                  />
                 </TableCell>
-                <TableCell className="border border-gray-200">
-                  {row.ticket_id}
+
+                <TableCell className="text-gray-800">{row.id}</TableCell>
+
+                <TableCell>
+                  <PriorityBadge value={row.priority} />
                 </TableCell>
-                <TableCell className="border border-gray-200">
-                  {row.ticket_detail}
+
+                <TableCell className="text-gray-800">{row.subject}</TableCell>
+
+                <TableCell className="text-gray-800">
+                  {row.application}
                 </TableCell>
-                <TableCell className="border border-gray-200">
-                  {row.created_by}
+
+                <TableCell className="text-gray-800">
+                  {row.assign_team || <span className="text-gray-400">-</span>}
                 </TableCell>
-                <TableCell className="border border-gray-200">
-                  {row.created_date}
+
+                <TableCell className="text-gray-800">{row.requester}</TableCell>
+
+                <TableCell className="text-gray-800">
+                  {formatSLA(row.sla_deadline)}
                 </TableCell>
-                <TableCell className="border border-gray-200">
-                  <div className="flex items-center gap-2">
-                    {statusIcon(row.status)}
-                    <span>{row.status}</span>
-                  </div>
+
+                <TableCell>
+                  <StatusPill status={row.status} />
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
 
-        <div className="flex justify-end p-4">
+        <div className="flex items-center justify-between px-4 py-3">
+          <div className="text-sm text-gray-600">
+            Page <span className="font-medium">{page}</span> of{" "}
+            <span className="font-medium">{totalPages || 1}</span>
+          </div>
           <Pagination
-            count={Math.ceil(tickets.length / rowsPerPage)}
+            count={totalPages}
             page={page}
             onChange={(e, value) => setPage(value)}
             sx={{
@@ -190,9 +380,7 @@ export default function AllListTicketTable({ onRowClick }) {
                 color: "#fff !important",
                 borderColor: "#65C7D5 !important",
               },
-              "& .MuiPaginationItem-ellipsis": {
-                color: "#65C7D5",
-              },
+              "& .MuiPaginationItem-ellipsis": { color: "#65C7D5" },
             }}
           />
         </div>
