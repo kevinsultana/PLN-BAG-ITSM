@@ -1,23 +1,23 @@
 import React from "react";
 import { HiOutlineDocumentSearch } from "react-icons/hi";
 
-export default function ErpFmTable() {
+export default function FuelMentoringTable() {
   const formList = [
     {
       id: 1,
-      name: "User Matrix ERP FM",
+      name: "User Matrix Fuel Mentoring",
     },
     {
       id: 2,
-      name: "Dokumen Konfigurasi ERP FM",
+      name: "Dokumen Konfigurasi Fuel Mentoring",
     },
     {
       id: 3,
-      name: "Dokumen SOP ERP FM",
+      name: "Dokumen SOP Fuel Mentoring",
     },
     {
       id: 4,
-      name: "Dokumen Shipment ERP FM",
+      name: "Dokumen Shipment Fuel Mentoring",
     },
   ];
 
@@ -31,7 +31,7 @@ export default function ErpFmTable() {
             <thead className="bg-gray-100">
               <tr>
                 <th className="w-12 px-4 py-3">No.</th>
-                <th className="px-4 py-3">ERP FM</th>
+                <th className="px-4 py-3">Fuel Mentoring</th>
                 <th className="w-40 px-4 py-3 text-center"></th>
               </tr>
             </thead>

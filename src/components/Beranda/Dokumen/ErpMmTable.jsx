@@ -1,5 +1,4 @@
 import React from "react";
-import { FaChevronRight } from "react-icons/fa6";
 import { HiOutlineDocumentSearch } from "react-icons/hi";
 
 export default function ErpMmTable() {
