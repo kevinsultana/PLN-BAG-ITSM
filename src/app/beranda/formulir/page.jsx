@@ -11,7 +11,7 @@ export default function page() {
     router.push(`/beranda/formulir/${path}`);
   };
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col">
       <MainLayout>
         <FormulirTable handleOpenForm={handleNavigate} />
       </MainLayout>

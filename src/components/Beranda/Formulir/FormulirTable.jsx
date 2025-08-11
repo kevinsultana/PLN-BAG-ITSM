@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { FaChevronRight } from "react-icons/fa6";
 
 const formList = [
   {
@@ -26,23 +27,26 @@ const formList = [
     id: 5,
     path: "pakta-integritas",
     name: "Pakta Integritas",
+    action: "Download",
+    file: "/docs/Pakta-Integritas.docx",
   },
   {
     id: 6,
     path: "serah-terima-laptop",
     name: "Serah Terima Laptop",
-  },
-  {
-    id: 7,
-    path: "formulir-permintaan-integrasi-aplikasi-baru",
-    name: "Formulir Permintaan Integrasi Aplikasi Baru",
+    action: "Download",
+    file: "/docs/Serah-Terima-Laptop.docx",
   },
 ];
 
 export default function FormulirTable({ handleOpenForm }) {
   const handleOnClickForm = (item) => {
-    handleOpenForm(item.path);
+    // item tanpa file = buka form biasa
+    if (!item.file) {
+      handleOpenForm(item.path);
+    }
   };
+
   return (
     <div className="bg-slate-100 py-6 px-14 h-full space-y-6">
       <h1 className="text-2xl font-bold">Formulir</h1>
@@ -55,7 +59,7 @@ export default function FormulirTable({ handleOpenForm }) {
               <tr>
                 <th className="w-12 px-4 py-3">No.</th>
                 <th className="px-4 py-3">Formulir Akun Pengguna</th>
-                <th className="w-32 px-4 py-3 text-center">Aksi</th>
+                <th className="w-40 px-4 py-3 text-center">Aksi</th>
               </tr>
             </thead>
             <tbody>
@@ -67,12 +71,24 @@ export default function FormulirTable({ handleOpenForm }) {
                   <td className="px-4 py-3">{index + 1}.</td>
                   <td className="px-4 py-3">{item.name}</td>
                   <td className="px-4 py-3 text-center">
-                    <button
-                      onClick={() => handleOnClickForm(item)}
-                      className="bg-cyan-400 text-white px-4 py-1 rounded-full text-sm hover:bg-cyan-500 transition"
-                    >
-                      Buka &rsaquo;
-                    </button>
+                    {item.file ? (
+                      <a
+                        href={item.file}
+                        download
+                        className="flex items-center gap-2 w-fit bg-cyan-400 text-white px-4 py-1 rounded-full text-sm hover:bg-cyan-500 transition"
+                      >
+                        {item.action || "Download"}
+                        <FaChevronRight className="text-xs" />
+                      </a>
+                    ) : (
+                      <button
+                        onClick={() => handleOnClickForm(item)}
+                        className="flex items-center gap-2 bg-cyan-400 text-white px-4 py-1 rounded-full text-sm hover:bg-cyan-500 transition"
+                      >
+                        {item.action ? item.action : "Buka"}
+                        <FaChevronRight className="text-xs" />
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
