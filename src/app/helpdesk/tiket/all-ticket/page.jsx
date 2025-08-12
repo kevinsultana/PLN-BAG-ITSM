@@ -18,7 +18,9 @@ export default function Page() {
     <div className="bg-slate-100 h-full">
       <HelpdeskLayout>
         <h1 className="text-2xl font-bold mb-6">Semua Tiket</h1>
-        <AllListTicketTable onRowClick={handleNavigateToDetails} />
+        <AllListTicketTable
+          onRowClick={(item, index) => handleNavigateToDetails(item, index)}
+        />
       </HelpdeskLayout>
     </div>
   );
