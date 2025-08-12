@@ -1,5 +1,5 @@
 "use client";
-import HelpdeskInfoTable from "@/components/Helpdesk/Config/HelpdeskInfo/HelpdeskInfoTable";
+import HelpdeskInfoTable from "@/components/Helpdesk/config/HelpdeskInfo/HelpdeskInfoTable";
 import HelpdeskLayout from "@/components/Helpdesk/layout/HelpdeskLayout";
 import { useRouter } from "next/navigation";
 import React from "react";

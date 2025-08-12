@@ -1,5 +1,5 @@
 "use client";
-import AppFeatureTable from "@/components/Helpdesk/Config/AppFeature/AppFeatureTable";
+import AppFeatureTable from "@/components/Helpdesk/config/AppFeature/AppFeatureTable";
 import HelpdeskLayout from "@/components/Helpdesk/layout/HelpdeskLayout";
 import { useRouter } from "next/navigation";
 import React from "react";

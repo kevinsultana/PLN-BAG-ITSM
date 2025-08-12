@@ -1,4 +1,4 @@
-import CreateHelpdeskInfoForm from "@/components/Helpdesk/Config/HelpdeskInfo/CreateHelpdeskInfoForm";
+import CreateHelpdeskInfoForm from "@/components/Helpdesk/config/HelpdeskInfo/CreateHelpdeskInfoForm";
 import HelpdeskLayout from "@/components/Helpdesk/layout/HelpdeskLayout";
 import React from "react";
 

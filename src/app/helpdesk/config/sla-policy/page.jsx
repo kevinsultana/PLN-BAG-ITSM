@@ -1,5 +1,5 @@
 "use client";
-import SlaPolicyTable from "@/components/Helpdesk/Config/SlaPolicy/SlaPolicyTable";
+import SlaPolicyTable from "@/components/Helpdesk/config/SlaPolicy/SlaPolicyTable";
 import HelpdeskLayout from "@/components/Helpdesk/layout/HelpdeskLayout";
 import { useRouter } from "next/navigation";
 import React from "react";

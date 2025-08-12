@@ -1,4 +1,4 @@
-import CreateTeamMemberForm from "@/components/Helpdesk/Config/TeamMember/CreateTeamMemberForm";
+import CreateTeamMemberForm from "@/components/Helpdesk/config/TeamMember/CreateTeamMemberForm";
 import HelpdeskLayout from "@/components/Helpdesk/layout/HelpdeskLayout";
 import React from "react";
 

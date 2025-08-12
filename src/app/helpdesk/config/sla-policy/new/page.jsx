@@ -1,4 +1,4 @@
-import CreateSlaPolicyForm from "@/components/Helpdesk/Config/SlaPolicy/CreateSlaPolicyForm";
+import CreateSlaPolicyForm from "@/components/Helpdesk/config/SlaPolicy/CreateSlaPolicyForm";
 import HelpdeskLayout from "@/components/Helpdesk/layout/HelpdeskLayout";
 import React from "react";
 

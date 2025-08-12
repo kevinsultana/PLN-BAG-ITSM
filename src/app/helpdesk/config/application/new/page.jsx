@@ -1,4 +1,4 @@
-import CreateApplicationForm from "@/components/Helpdesk/Config/Aplikasi/CreateApplicationForm";
+import CreateApplicationForm from "@/components/Helpdesk/config/Aplikasi/CreateApplicationForm";
 import HelpdeskLayout from "@/components/Helpdesk/layout/HelpdeskLayout";
 import React from "react";
 

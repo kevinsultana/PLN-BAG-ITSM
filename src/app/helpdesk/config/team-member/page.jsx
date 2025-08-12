@@ -1,5 +1,5 @@
 "use client";
-import TeamMemberTable from "@/components/Helpdesk/Config/TeamMember/TeamMemberTable";
+import TeamMemberTable from "@/components/Helpdesk/config/TeamMember/TeamMemberTable";
 import HelpdeskLayout from "@/components/Helpdesk/layout/HelpdeskLayout";
 import { useRouter } from "next/navigation";
 import React from "react";
