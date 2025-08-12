@@ -232,8 +232,8 @@ export default function SidebarAgent({ show }) {
               </li>
               <li>
                 <Link
-                  href="/helpdesk/config/umum"
-                  className={getLinkClassName("/helpdesk/config/umum")}
+                  href="/helpdesk/config/sla-policy"
+                  className={getLinkClassName("/helpdesk/config/sla-policy")}
                 >
                   SLA Policy
                 </Link>
