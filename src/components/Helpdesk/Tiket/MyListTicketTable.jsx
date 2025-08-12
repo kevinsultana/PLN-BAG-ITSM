@@ -314,12 +314,12 @@ export default function MyListTicketTable({ onRowClick }) {
           </TableHead>
 
           <TableBody>
-            {paginatedTickets.map((row) => (
+            {paginatedTickets.map((row, index) => (
               <TableRow
                 key={row.id}
                 hover
                 className="cursor-pointer"
-                onClick={() => onRowClick?.(row)}
+                onClick={() => onRowClick(row, index)}
               >
                 <TableCell
                   padding="checkbox"

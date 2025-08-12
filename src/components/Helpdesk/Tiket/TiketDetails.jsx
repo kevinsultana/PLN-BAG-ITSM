@@ -24,7 +24,7 @@ export default function TiketDetails({ data }) {
     return `${time} ${dateStr}`;
   }
   return (
-    <div className="bg-white rounded-xl p-4">
+    <div key={data.id} className="bg-white rounded-xl p-4">
       {/* top section */}
       <h1 className="text-black text-base font-bold">Detail Tiket</h1>
       <div className="flex items-center justify-between">
