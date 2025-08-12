@@ -95,7 +95,7 @@ export default function TeamMemberTable({ onClickNew }) {
   const totalPages = Math.ceil(sortedAndFilteredMembers.length / rowsPerPage);
 
   return (
-    <div className="p-6 bg-white rounded-2xl border border-gray-200">
+    <div className="p-6 mt-4 bg-white rounded-2xl border border-gray-200">
       <div className="flex flex-col gap-4 mb-4">
         <h2 className="text-xl font-bold">Team Member</h2>
         <div className="flex justify-between items-center gap-4">

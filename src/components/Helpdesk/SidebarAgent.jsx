@@ -41,7 +41,7 @@ export default function SidebarAgent({ show }) {
 
   return (
     <div
-      className={`w-1/6 bg-white transition-all duration-300 ease-in-out relative ${
+      className={`w-1/6 bg-white transition-all duration-300 ease-in-out relative  ${
         show ? "translate-x-0" : "-translate-x-full"
       }`}
     >
@@ -240,8 +240,8 @@ export default function SidebarAgent({ show }) {
               </li>
               <li>
                 <Link
-                  href="/helpdesk/config/umum"
-                  className={getLinkClassName("/helpdesk/config/umum")}
+                  href="/helpdesk/config/ticket-type"
+                  className={getLinkClassName("/helpdesk/config/ticket-type")}
                 >
                   Tipe Tiket
                 </Link>

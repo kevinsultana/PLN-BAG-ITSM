@@ -16,9 +16,9 @@ export default function HelpdeskLayout({ children }) {
   }, []);
 
   return (
-    <div>
+    <div className="h-fit">
       <NavbarAgent onClick={() => setShowSideBar(!showSideBar)} />
-      <div className="flex h-full">
+      <div className="flex min-h-150">
         <SidebarAgent show={showSideBar} />
         <div
           className={`transition-all p-6 duration-300 ease-in-out w-full ${
