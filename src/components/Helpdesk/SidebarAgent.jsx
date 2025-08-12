@@ -191,8 +191,8 @@ export default function SidebarAgent({ show }) {
             <div
               className={`flex items-center justify-between cursor-pointer ${
                 openDropdown === "konfigurasi" ||
-                pathname.startsWith("/konfigurasi")
-                  ? "text-gray-700"
+                pathname.startsWith("/helpdesk/config")
+                  ? "text-[#65C7D5] font-bold"
                   : "text-gray-700"
               }`}
               onClick={() => toggleDropdown("konfigurasi")}
@@ -216,56 +216,56 @@ export default function SidebarAgent({ show }) {
             >
               <li>
                 <Link
-                  href="/konfigurasi/umum"
-                  className={getLinkClassName("/konfigurasi/umum")}
+                  href="/helpdesk/config/team-member"
+                  className={getLinkClassName("/helpdesk/config/team-member")}
                 >
                   Team Member
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/konfigurasi/umum"
-                  className={getLinkClassName("/konfigurasi/umum")}
+                  href="/helpdesk/config/umum"
+                  className={getLinkClassName("/helpdesk/config/umum")}
                 >
                   Status Tiket
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/konfigurasi/umum"
-                  className={getLinkClassName("/konfigurasi/umum")}
+                  href="/helpdesk/config/umum"
+                  className={getLinkClassName("/helpdesk/config/umum")}
                 >
                   SLA Policy
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/konfigurasi/umum"
-                  className={getLinkClassName("/konfigurasi/umum")}
+                  href="/helpdesk/config/umum"
+                  className={getLinkClassName("/helpdesk/config/umum")}
                 >
                   Tipe Tiket
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/konfigurasi/umum"
-                  className={getLinkClassName("/konfigurasi/umum")}
+                  href="/helpdesk/config/umum"
+                  className={getLinkClassName("/helpdesk/config/umum")}
                 >
                   Aplikasi
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/konfigurasi/umum"
-                  className={getLinkClassName("/konfigurasi/umum")}
+                  href="/helpdesk/config/umum"
+                  className={getLinkClassName("/helpdesk/config/umum")}
                 >
                   Feature Aplikasi
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/konfigurasi/umum"
-                  className={getLinkClassName("/konfigurasi/umum")}
+                  href="/helpdesk/config/umum"
+                  className={getLinkClassName("/helpdesk/config/umum")}
                 >
                   Helpdesk Info
                 </Link>
