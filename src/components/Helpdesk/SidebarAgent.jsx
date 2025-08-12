@@ -171,8 +171,8 @@ export default function SidebarAgent({ show }) {
 
           <li>
             <Link
-              href="/helpdesk/dokumen"
-              className={getLinkClassName("/helpdesk/dokumen")}
+              href="/helpdesk/user"
+              className={getLinkClassName("/helpdesk/user")}
             >
               <RiUser3Line />
               User

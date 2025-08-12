@@ -9,6 +9,7 @@ export default function Page() {
   const handleNewApplication = () => {
     router.push("/helpdesk/config/application/new");
   };
+
   return (
     <div className="bg-slate-100 h-full">
       <HelpdeskLayout>
