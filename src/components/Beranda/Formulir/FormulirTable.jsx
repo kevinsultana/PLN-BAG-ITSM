@@ -48,8 +48,7 @@ export default function FormulirTable({ handleOpenForm }) {
   };
 
   return (
-    <div className="bg-slate-100 py-6 px-14 h-full space-y-6">
-      <h1 className="text-2xl font-bold">Formulir</h1>
+    <div className="bg-slate-100 h-full space-y-6">
       <div className="bg-white rounded-xl p-4 space-y-4">
         <h1 className="text-lg">List Formulir</h1>
 
