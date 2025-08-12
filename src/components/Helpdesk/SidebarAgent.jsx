@@ -248,8 +248,8 @@ export default function SidebarAgent({ show }) {
               </li>
               <li>
                 <Link
-                  href="/helpdesk/config/umum"
-                  className={getLinkClassName("/helpdesk/config/umum")}
+                  href="/helpdesk/config/application"
+                  className={getLinkClassName("/helpdesk/config/application")}
                 >
                   Aplikasi
                 </Link>
