@@ -1,5 +1,5 @@
 "use client";
-import ApplicationTable from "@/components/Helpdesk/config/Aplikasi/ApplicationTable";
+import ApplicationTable from "@/components/Helpdesk/Config/Aplikasi/ApplicationTable";
 import HelpdeskLayout from "@/components/Helpdesk/layout/HelpdeskLayout";
 import { useRouter } from "next/navigation";
 import React from "react";

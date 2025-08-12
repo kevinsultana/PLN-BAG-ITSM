@@ -159,7 +159,10 @@ export default function SidebarAgent({ show }) {
           <li>
             <Link
               href="/helpdesk/apps-document"
-              className={getLinkClassName("/helpdesk/apps-document")}
+              className={getLinkClassName([
+                "/helpdesk/apps-document",
+                "/helpdesk/apps-document/new",
+              ])}
             >
               <LuClipboardList />
               Dokumen aplikasi

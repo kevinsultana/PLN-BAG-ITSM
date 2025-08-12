@@ -1,4 +1,4 @@
-import CreateAppFeatureForm from "@/components/Helpdesk/config/AppFeature/CreateAppFeatureForm";
+import CreateAppFeatureForm from "@/components/Helpdesk/Config/AppFeature/CreateAppFeatureForm";
 import HelpdeskLayout from "@/components/Helpdesk/layout/HelpdeskLayout";
 import React from "react";
 

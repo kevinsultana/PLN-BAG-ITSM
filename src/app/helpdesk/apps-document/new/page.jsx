@@ -1,4 +1,4 @@
-import CreateHelpdeskInfoForm from "@/components/Helpdesk/Config/HelpdeskInfo/CreateHelpdeskInfoForm";
+import CreateAppDocumentForm from "@/components/Helpdesk/AppDocument/CreateAppDocumentForm";
 import HelpdeskLayout from "@/components/Helpdesk/layout/HelpdeskLayout";
 import React from "react";
 
@@ -6,8 +6,8 @@ export default function Page() {
   return (
     <div className="bg-slate-100 h-full">
       <HelpdeskLayout>
-        <h1 className="text-2xl font-bold">Konfigurasi</h1>
-        <CreateHelpdeskInfoForm />
+        <h1 className="text-2xl font-bold">Dokumen Aplikasi</h1>
+        <CreateAppDocumentForm />
       </HelpdeskLayout>
     </div>
   );

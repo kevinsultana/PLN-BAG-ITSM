@@ -1,4 +1,4 @@
-import CreateTicketTypeForm from "@/components/Helpdesk/config/TicketType/CreateTicketTypeForm";
+import CreateTicketTypeForm from "@/components/Helpdesk/Config/TicketType/CreateTicketTypeForm";
 import HelpdeskLayout from "@/components/Helpdesk/layout/HelpdeskLayout";
 import React from "react";
 

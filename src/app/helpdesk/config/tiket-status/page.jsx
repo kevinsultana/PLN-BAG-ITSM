@@ -1,5 +1,5 @@
 "use client";
-import TicketStatusTable from "@/components/Helpdesk/config/TiketStatus/TicketStatusTable";
+import TicketStatusTable from "@/components/Helpdesk/Config/TiketStatus/TicketStatusTable";
 import HelpdeskLayout from "@/components/Helpdesk/layout/HelpdeskLayout";
 import { useRouter } from "next/navigation";
 import React from "react";
