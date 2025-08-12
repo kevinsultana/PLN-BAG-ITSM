@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import logoNavbar from "../../assets/logoNavbar.png";
 import { FaBell, FaUser } from "react-icons/fa6";
 import { HiOutlineMenuAlt2 } from "react-icons/hi";
 
@@ -33,7 +32,7 @@ export default function NavbarAgent({ onClick }) {
       <div className="flex bg-white px-10 py-3 justify-between items-center relative z-20">
         <div className="flex items-center w-52 justify-between">
           <Image
-            src={logoNavbar}
+            src="/logoNavbar.png"
             alt="Logo"
             width={120}
             height={44}

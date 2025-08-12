@@ -1,6 +1,5 @@
 import Image from "next/image";
 import React from "react";
-import logoFooter from "../../assets/footer.png";
 import { FaFacebookSquare } from "react-icons/fa";
 import { RiInstagramFill } from "react-icons/ri";
 import { FaSquareXTwitter } from "react-icons/fa6";
@@ -11,9 +10,10 @@ export default function Footer() {
     <div className="bg-white flex justify-between py-6">
       <div className="flex flex-col gap-4  ml-14">
         <Image
-          src={logoFooter}
+          src="/footer.png"
           alt="Footer"
-          width="auto"
+          width={71}
+          height={48}
           className="w-20 h-12 object-contain"
         />
         <p className="text-sm">
