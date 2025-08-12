@@ -1,7 +1,6 @@
 "use client";
 import MainLayout from "@/components/Beranda/Layout/MainLayout";
 import React from "react";
-import logoKop from "../../../../assets/logoNavbar.png";
 import Image from "next/image";
 
 export default function Page() {
@@ -24,8 +23,10 @@ export default function Page() {
                   </p>
                 </div>
                 <Image
-                  src={logoKop}
+                  src="/logoNavbar.png"
                   alt="logo"
+                  width={127}
+                  height={44}
                   className="w-28 object-contain"
                 />
               </div>

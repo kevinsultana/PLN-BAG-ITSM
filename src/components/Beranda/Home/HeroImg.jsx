@@ -1,11 +1,17 @@
 import Image from "next/image";
 import React from "react";
-import HeroImge from "../../../assets/heroImg.png";
 
 export default function HeroImg() {
   return (
     <div className="flex justify-center items-center">
-      <Image src={HeroImge} alt="Hero" className="w-full h-auto" priority />
+      <Image
+        src="/heroImg.png"
+        alt="Hero"
+        width={1328}
+        height={526}
+        className="w-full h-auto"
+        priority
+      />
     </div>
   );
 }
