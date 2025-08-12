@@ -224,8 +224,8 @@ export default function SidebarAgent({ show }) {
               </li>
               <li>
                 <Link
-                  href="/helpdesk/config/umum"
-                  className={getLinkClassName("/helpdesk/config/umum")}
+                  href="/helpdesk/config/tiket-status"
+                  className={getLinkClassName("/helpdesk/config/tiket-status")}
                 >
                   Status Tiket
                 </Link>
