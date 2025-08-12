@@ -172,7 +172,10 @@ export default function SidebarAgent({ show }) {
           <li>
             <Link
               href="/helpdesk/user"
-              className={getLinkClassName("/helpdesk/user")}
+              className={getLinkClassName([
+                "/helpdesk/user",
+                "/helpdesk/user/new",
+              ])}
             >
               <RiUser3Line />
               User
@@ -181,8 +184,11 @@ export default function SidebarAgent({ show }) {
 
           <li>
             <Link
-              href="/helpdesk/dokumen"
-              className={getLinkClassName("/helpdesk/dokumen")}
+              href="/helpdesk/bpo"
+              className={getLinkClassName([
+                "/helpdesk/bpo",
+                "/helpdesk/bpo/new",
+              ])}
             >
               <RiBuildingLine />
               BPO
