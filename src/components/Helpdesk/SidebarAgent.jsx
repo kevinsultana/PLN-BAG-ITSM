@@ -105,9 +105,8 @@ export default function SidebarAgent({ show }) {
           <li>
             <div
               className={`flex items-center justify-between cursor-pointer ${
-                openDropdown === "reporting" ||
-                pathname.startsWith("/reporting")
-                  ? "text-gray-700"
+                pathname.startsWith("/helpdesk/reporting")
+                  ? "text-[#65C7D5] font-bold"
                   : "text-gray-700"
               }`}
               onClick={() => toggleDropdown("reporting")}
@@ -131,24 +130,28 @@ export default function SidebarAgent({ show }) {
             >
               <li>
                 <Link
-                  href="/reporting/ticket-analysis"
-                  className={getLinkClassName("/reporting/ticket-analysis")}
+                  href="/helpdesk/reporting/ticket-analysis"
+                  className={getLinkClassName(
+                    "/helpdesk/reporting/ticket-analysis"
+                  )}
                 >
                   Tiket Analysis
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/reporting/SLA-status"
-                  className={getLinkClassName("/reporting/SLA-status")}
+                  href="/helpdesk/reporting/sla-status"
+                  className={getLinkClassName("/helpdesk/reporting/sla-status")}
                 >
                   SLA Status Analysis
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/reporting/CR-tracking"
-                  className={getLinkClassName("/reporting/CR-tracking")}
+                  href="/helpdesk/reporting/cr-tracking"
+                  className={getLinkClassName(
+                    "/helpdesk/reporting/cr-tracking"
+                  )}
                 >
                   CR Tracking
                 </Link>
@@ -199,7 +202,6 @@ export default function SidebarAgent({ show }) {
           <li>
             <div
               className={`flex items-center justify-between cursor-pointer ${
-                openDropdown === "konfigurasi" ||
                 pathname.startsWith("/helpdesk/config")
                   ? "text-[#65C7D5] font-bold"
                   : "text-gray-700"
