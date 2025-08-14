@@ -5,10 +5,20 @@ import { FaBell, FaUser } from "react-icons/fa6";
 import { HiOutlineMenuAlt2 } from "react-icons/hi";
 import { CgArrowsExpandRight } from "react-icons/cg";
 import { IoClose } from "react-icons/io5";
+import { useSession, signIn, signOut } from "next-auth/react";
 
 export default function NavBar({ onClick }) {
+  const { data: session, status } = useSession();
   const [showNotifications, setShowNotifications] = useState(false);
   const notifRef = useRef(null);
+
+  const handleAuthAction = () => {
+    if (session) {
+      signOut();
+    } else {
+      signIn("sso-bag");
+    }
+  };
 
   const notifications = [
     {
@@ -177,10 +187,31 @@ export default function NavBar({ onClick }) {
           </div>
 
           <FaUser className="text-xl text-gray-600" />
-          <div className="flex flex-col">
+          {/* <div className="flex flex-col">
             <h4 className="text-sm font-semibold">Pedro Gozales</h4>
             <p className="text-xs">admin</p>
+          </div> */}
+          <div className="flex flex-col">
+            {status === "loading" && <p>Loading...</p>}
+            {status === "authenticated" && (
+              <>
+                <h4 className="text-sm font-semibold">{session.user.name}</h4>
+                <p className="text-xs">{session.user.email}</p>
+              </>
+            )}
+            {status === "unauthenticated" && (
+              <>
+                <h4 className="text-sm font-semibold">Tamu</h4>
+                <p className="text-xs">belum login</p>
+              </>
+            )}
           </div>
+          <button
+            onClick={handleAuthAction}
+            className="px-4 py-2 rounded-lg text-white bg-[#65C7D5] hover:bg-[#4FB3C1] transition"
+          >
+            {status === "authenticated" ? "Logout" : "Login"}
+          </button>
         </div>
       </div>
     </div>

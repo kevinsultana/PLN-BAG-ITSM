@@ -1,6 +1,7 @@
 import { Toaster } from "sonner";
 import "./globals.css";
 import { TicketDataProvider } from "@/context/TicketDataContext";
+import SessionWrapper from "@/components/SessionWrapper";
 
 export const metadata = {
   title: "Dashboard ITSM",
@@ -12,7 +13,9 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={`antialiased`}>
         <Toaster richColors position="top-center" />
-        <TicketDataProvider>{children}</TicketDataProvider>
+        <SessionWrapper>
+          <TicketDataProvider>{children}</TicketDataProvider>
+        </SessionWrapper>
       </body>
     </html>
   );
