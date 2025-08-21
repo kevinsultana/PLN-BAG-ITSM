@@ -5,10 +5,20 @@ import { FaBell, FaUser } from "react-icons/fa6";
 import { HiOutlineMenuAlt2 } from "react-icons/hi";
 import { CgArrowsExpandRight } from "react-icons/cg";
 import { IoClose } from "react-icons/io5";
+import { signIn, signOut, useSession } from "next-auth/react";
 
 export default function NavbarAgent({ onClick }) {
+  const { data: session, status } = useSession();
   const [showNotifications, setShowNotifications] = useState(false);
   const notifRef = useRef(null);
+
+  const handleAuthAction = () => {
+    if (session) {
+      signOut();
+    } else {
+      signIn("sso-bag");
+    }
+  };
 
   const notifications = [
     {
@@ -177,10 +187,24 @@ export default function NavbarAgent({ onClick }) {
           </div>
 
           <FaUser className="text-xl text-gray-600" />
-          <div className="flex flex-col">
+          {/* <div className="flex flex-col">
             <h4 className="text-sm font-semibold">Pedro Gozales</h4>
             <p className="text-xs">admin</p>
-          </div>
+          </div> */}
+          {status === "authenticated" ? (
+            <div className="flex flex-col">
+              <h4 className="text-sm font-semibold">{session.user.name}</h4>
+              <p className="text-xs">{session.user.email}</p>
+            </div>
+          ) : (
+            <div className="flex flex-col">
+              <h4 className="text-sm font-semibold">Tamu</h4>
+              <p className="text-xs">belum login</p>
+            </div>
+          )}
+          <button onClick={handleAuthAction}>
+            {status === "authenticated" ? "Sign out" : "Sign in"}
+          </button>
         </div>
       </div>
     </div>
