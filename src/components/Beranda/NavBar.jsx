@@ -12,6 +12,8 @@ export default function NavBar({ onClick }) {
   const [showNotifications, setShowNotifications] = useState(false);
   const notifRef = useRef(null);
 
+  console.log(session, status);
+
   const handleAuthAction = () => {
     if (session) {
       signOut();
