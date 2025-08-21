@@ -17,7 +17,7 @@ export const authOptions = {
         url: `${process.env.BASE_URL}/svc-sso/oauth2/auth`,
         params: {
           scope: "openid empinfo profile email address 2fa",
-          redirect_uri: "http://localhost/redirect",
+          redirect_uri: `${process.env.NEXTAUTH_URL}/beranda`,
         },
       },
 
@@ -29,7 +29,7 @@ export const authOptions = {
           const body = new URLSearchParams();
           body.append("grant_type", "authorization_code");
           body.append("code", params.code);
-          body.append("redirect_uri", "http://localhost/redirect");
+          body.append("redirect_uri", `${process.env.NEXTAUTH_URL}/beranda`);
           body.append("client_id", provider.clientId);
           body.append("client_secret", provider.clientSecret);
           if (checks?.code_verifier)
@@ -66,6 +66,7 @@ export const authOptions = {
               Accept: "application/json",
             },
           });
+          console.log(tokens);
           const profile = await res.json();
           if (!res.ok) throw new Error(JSON.stringify(profile));
           return profile;
