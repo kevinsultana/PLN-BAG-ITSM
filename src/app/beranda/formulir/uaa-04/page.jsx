@@ -63,7 +63,7 @@ export default function Page() {
                 />
               </div>
 
-              <div className="border rounded p-4">
+              {/* <div className="border rounded p-4">
                 <Label text="Konfirmasi" />
                 <table className="w-full text-sm mt-2">
                   <thead>
@@ -103,7 +103,7 @@ export default function Page() {
                     </tr>
                   </tbody>
                 </table>
-              </div>
+              </div> */}
 
               <div className="text-xs text-gray-500 space-y-1">
                 <p>

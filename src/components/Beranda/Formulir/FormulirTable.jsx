@@ -58,7 +58,7 @@ export default function FormulirTable({ handleOpenForm }) {
               <tr>
                 <th className="w-12 px-4 py-3">No.</th>
                 <th className="px-4 py-3">Formulir Akun Pengguna</th>
-                <th className="w-40 px-4 py-3 text-center">Aksi</th>
+                <th className="w-40 px-4 py-3 text-center"></th>
               </tr>
             </thead>
             <tbody>

@@ -75,7 +75,7 @@ export default function Page() {
               {dataTiket.ticket_detail.ticket_status}
             </button>
           </div>
-          <h1 className="text-2xl font-bold">Ticket No. {ticketNo}</h1>
+          {/* <h1 className="text-2xl font-bold">Ticket No. {ticketNo}</h1> */}
           <DetailTicketForm data={dataTiket} />
         </div>
       </MainLayout>

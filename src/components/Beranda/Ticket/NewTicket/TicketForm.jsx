@@ -58,11 +58,11 @@ export default function TicketForm() {
   };
 
   const setImageFile = (file) => {
-    const error = validateImage(file);
-    if (error) {
-      alert(error);
-      return;
-    }
+    // const error = validateImage(file);
+    // if (error) {
+    //   alert(error);
+    //   return;
+    // }
     setForm({ ...form, lampiran: file });
     setFileName(file.name || "Pasted image");
     setPreview(URL.createObjectURL(file));
@@ -289,7 +289,6 @@ export default function TicketForm() {
             : "Klik, tarik atau paste gambar di sini"}
           <input
             type="file"
-            accept="image/*"
             ref={fileInputRef}
             className="hidden"
             onChange={handleFileInput}

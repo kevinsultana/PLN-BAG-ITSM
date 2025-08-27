@@ -43,11 +43,16 @@ export default function Page() {
                 <Input label="Lokasi" required />
                 <Input label="Nomor Induk Pegawai" required />
                 <Input label="Nama Lengkap" required />
-                <Input label="Email Korporat" placeholder="Company@gmail.com" />
+                <Input
+                  label="Email Korporat"
+                  placeholder="Company@gmail.com"
+                  required={true}
+                  type="email"
+                />
                 <Input label="Jabatan" required />
-                <Input label="Phone/Ext/HP" required adminOnly />
+                <Input label="Phone/Ext/HP" required type="number" />
                 <Input label="Unit/Bidang/Bagian" />
-                <Input label="User Account" required adminOnly />
+                <Input label="User Account" required />
               </div>
 
               <p className="text-xs text-gray-600">
@@ -63,7 +68,7 @@ export default function Page() {
                 />
               </div>
 
-              <div>
+              {/* <div>
                 <Label text="Role Yang Akan Diassign Ke User" required />
                 <div className="space-y-2">
                   {[...Array(3)].map((_, i) => (
@@ -115,7 +120,7 @@ export default function Page() {
                     </tr>
                   </tbody>
                 </table>
-              </div>
+              </div> */}
 
               <div className="text-xs text-gray-500 space-y-1">
                 <p>
@@ -142,7 +147,7 @@ export default function Page() {
 function Input({
   label,
   required,
-  adminOnly,
+
   full,
   type = "text",
   placeholder = "",
@@ -153,7 +158,6 @@ function Input({
         <label className="block text-xs font-semibold mb-1">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
-          {adminOnly && <span className="text-red-500 ml-1">**</span>}
         </label>
       )}
       <input

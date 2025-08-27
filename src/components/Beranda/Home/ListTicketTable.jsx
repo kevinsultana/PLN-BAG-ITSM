@@ -36,8 +36,8 @@ const statusIcon = (status) => {
 
 // Kolom tabel: label & properti data
 const columns = [
-  { label: "Kode", key: "ticket_id" },
-  { label: "Deskripsi", key: "ticket_detail" },
+  { label: "Tiket", key: "ticket_id" },
+  { label: "Deskripsi Tiket", key: "ticket_detail" },
   { label: "Requester", key: "created_by" },
   { label: "Tanggal", key: "created_date" },
   { label: "Status", key: "status" },
@@ -49,35 +49,35 @@ const initialTickets = [
     ticket_id: "SCRQ – ERP MM – 29/07/2025 - 001",
     ticket_detail: "User meminta akses ke modul ERP MM.",
     created_by: "Nadia Salsabila",
-    created_date: "2025-07-25 08:45:00",
+    created_date: "25 Juli 2025 08.45 WIB",
     status: "Open",
   },
   {
     ticket_id: "SCRQ – ERP MM – 29/07/2025 - 002",
     ticket_detail: "Reset password email untuk akun Budi Santoso.",
     created_by: "Budi Santoso",
-    created_date: "2025-07-26 10:30:00",
+    created_date: "26 Juli 2025 10.30 WIB",
     status: "In Progress",
   },
   {
     ticket_id: "INFR – ERP e-Proc – 29/07/2025 - 001",
     ticket_detail: "Vendor baru PT INDAH JAYA status DPT Active.",
     created_by: "Siti Nurhaliza",
-    created_date: "2025-07-27 13:15:00",
+    created_date: "27 Juli 2025 13.15 WIB",
     status: "Resolved",
   },
   {
     ticket_id: "INFR – HRIS – 29/07/2025 - 002",
     ticket_detail: "Ubah jatah cuti employee BAG12345.",
     created_by: "Rizky Hidayat",
-    created_date: "2025-07-27 14:50:00",
+    created_date: "27 Juli 2025 14.50 WIB",
     status: "Closed",
   },
   {
     ticket_id: "INSP – ERP FM – 29/07/2025 - 001",
     ticket_detail: "Vendor bill tidak bisa diubah menjadi PAID.",
     created_by: "Yuli Andriani",
-    created_date: "2025-07-28 09:00:00",
+    created_date: "28 Juli 2025 09.00 WIB",
     status: "Waiting",
   },
 ];
@@ -144,15 +144,14 @@ export default function ListTicketTable({ onRowClick }) {
 
           <TableBody>
             {paginatedTickets.map((row, index) => (
-              <TableRow
-                key={index}
-                className="hover:bg-gray-100 transition duration-300 cursor-pointer"
-                onClick={() => onRowClick?.(row, index)}
-              >
+              <TableRow key={index}>
                 <TableCell className="border border-gray-200">
                   {(page - 1) * rowsPerPage + index + 1}
                 </TableCell>
-                <TableCell className="border border-gray-200">
+                <TableCell
+                  onClick={() => onRowClick?.(row, index)}
+                  className="border border-gray-200 hover:underline transition-all duration-300 cursor-pointer"
+                >
                   {row.ticket_id}
                 </TableCell>
                 <TableCell className="border border-gray-200">
@@ -175,7 +174,12 @@ export default function ListTicketTable({ onRowClick }) {
           </TableBody>
         </Table>
 
-        <div className="flex justify-end p-4">
+        <div className="flex justify-between p-4">
+          <div>
+            <p className="text-sm">
+              Page {page} of {Math.ceil(tickets.length / rowsPerPage)}
+            </p>
+          </div>
           <Pagination
             count={Math.ceil(tickets.length / rowsPerPage)}
             page={page}

@@ -9,6 +9,7 @@ import {
   RiArrowRightSLine,
   RiCloseLine,
 } from "react-icons/ri";
+import FilterModalTanggal from "./FilterModalTanggal";
 
 export default function Dashboard() {
   const [currentDate, setCurrentDate] = useState("Juli, 2025");
@@ -16,6 +17,7 @@ export default function Dashboard() {
   const datePickerRef = useRef(null);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [isModalTanggalOpen, setIsModalTanggalOpen] = useState(false);
 
   const ticketSummary = [
     {
@@ -141,7 +143,7 @@ export default function Dashboard() {
         <h1 className="text-xl font-semibold text-gray-800">Dashboard</h1>
         <div
           className="flex items-center bg-white border border-gray-200 rounded-lg px-4 py-2 text-gray-700 text-sm cursor-pointer relative"
-          onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
+          onClick={() => setIsModalTanggalOpen(true)}
         >
           <RiCalendarLine className="mr-2 text-gray-500" />
           <span>{currentDate}</span>
@@ -242,7 +244,6 @@ export default function Dashboard() {
                   >
                     <div className="flex items-center cursor-pointer">
                       Prioritas
-                      <RiArrowDownSLine className="ml-1" />
                     </div>
                   </th>
                   <th
@@ -302,6 +303,10 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+      <FilterModalTanggal
+        isOpen={isModalTanggalOpen}
+        onClose={() => setIsModalTanggalOpen(false)}
+      />
     </div>
   );
 }
