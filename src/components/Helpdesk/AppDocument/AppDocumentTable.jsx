@@ -8,7 +8,6 @@ import {
   TableHead,
   TableRow,
   Paper,
-  TableSortLabel,
   Pagination,
   TextField,
   InputAdornment,
@@ -60,8 +59,6 @@ const columns = [
 
 export default function AppDocumentTable({ onClickNewDocApps }) {
   const [appDocuments, setAppDocuments] = useState(initialAppDocuments);
-  const [orderBy, setOrderBy] = useState("no");
-  const [order, setOrder] = useState("asc");
   const [page, setPage] = useState(1);
   const [rowsPerPage] = useState(5);
   const [searchTerm, setSearchTerm] = useState("");
@@ -108,15 +105,8 @@ export default function AppDocumentTable({ onClickNewDocApps }) {
       )
     );
 
-    return filteredList.sort((a, b) => {
-      const aValue = a[orderBy];
-      const bValue = b[orderBy];
-
-      if (aValue < bValue) return order === "asc" ? -1 : 1;
-      if (aValue > bValue) return order === "asc" ? 1 : -1;
-      return 0;
-    });
-  }, [appDocuments, orderBy, order, searchTerm]);
+    return filteredList;
+  }, [appDocuments, searchTerm]);
 
   const paginatedDocuments = useMemo(() => {
     const start = (page - 1) * rowsPerPage;
@@ -162,22 +152,7 @@ export default function AppDocumentTable({ onClickNewDocApps }) {
           <TableHead>
             <TableRow className="bg-gray-50">
               {columns.map((column) => (
-                <TableCell
-                  key={column.key}
-                  sortDirection={orderBy === column.key ? order : false}
-                >
-                  {column.disableSorting ? (
-                    column.label
-                  ) : (
-                    <TableSortLabel
-                      active={orderBy === column.key}
-                      direction={orderBy === column.key ? order : "asc"}
-                      onClick={() => handleSort(column.key)}
-                    >
-                      {column.label}
-                    </TableSortLabel>
-                  )}
-                </TableCell>
+                <TableCell key={column.key}>{column.label}</TableCell>
               ))}
             </TableRow>
           </TableHead>

@@ -60,7 +60,7 @@ export default function TambahAnggotaModal({ isOpen, onClose, onSubmit }) {
               {/* input name */}
               <div>
                 <label className="font-semibold text-sm block mb-1">
-                  name Lengkap <span className="text-red-500">*</span>
+                  Nama Lengkap <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"

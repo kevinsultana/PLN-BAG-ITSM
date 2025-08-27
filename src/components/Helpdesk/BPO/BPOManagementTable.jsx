@@ -113,13 +113,7 @@ export default function BPOManagementTable() {
     <div className="p-6 mt-4 bg-white rounded-2xl border border-gray-200">
       <div className="flex flex-col gap-4 mb-4">
         <h2 className="text-xl font-bold">Pengelolaan BPO</h2>
-        <div className="flex justify-between items-center gap-4">
-          <Link href="/helpdesk/bpo/new">
-            <button className="flex items-center gap-2 px-4 py-2.5 bg-[#65C7D5] text-white rounded-2xl text-sm hover:opacity-90">
-              <FaPlus />
-              <span>New</span>
-            </button>
-          </Link>
+        <div className="flex justify-end items-center gap-4">
           <TextField
             variant="outlined"
             size="small"

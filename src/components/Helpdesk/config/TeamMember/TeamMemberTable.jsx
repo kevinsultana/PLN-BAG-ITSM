@@ -58,17 +58,9 @@ const columns = [
 
 export default function TeamMemberTable({ onClickNew }) {
   const [teamMembers, setTeamMembers] = useState(initialTeamMembers);
-  const [orderBy, setOrderBy] = useState("no");
-  const [order, setOrder] = useState("asc");
   const [page, setPage] = useState(1);
   const [rowsPerPage] = useState(5);
   const [searchTerm, setSearchTerm] = useState("");
-
-  const handleSort = (property) => {
-    const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(property);
-  };
 
   const sortedAndFilteredMembers = useMemo(() => {
     let filteredList = teamMembers.filter((member) =>
@@ -77,15 +69,8 @@ export default function TeamMemberTable({ onClickNew }) {
       )
     );
 
-    return filteredList.sort((a, b) => {
-      const aValue = a[orderBy];
-      const bValue = b[orderBy];
-
-      if (aValue < bValue) return order === "asc" ? -1 : 1;
-      if (aValue > bValue) return order === "asc" ? 1 : -1;
-      return 0;
-    });
-  }, [teamMembers, orderBy, order, searchTerm]);
+    return filteredList;
+  }, [teamMembers, searchTerm]);
 
   const paginatedMembers = useMemo(() => {
     const start = (page - 1) * rowsPerPage;
@@ -131,18 +116,7 @@ export default function TeamMemberTable({ onClickNew }) {
           <TableHead>
             <TableRow className="bg-gray-50">
               {columns.map((column) => (
-                <TableCell
-                  key={column.key}
-                  sortDirection={orderBy === column.key ? order : false}
-                >
-                  <TableSortLabel
-                    active={orderBy === column.key}
-                    direction={orderBy === column.key ? order : "asc"}
-                    onClick={() => handleSort(column.key)}
-                  >
-                    {column.label}
-                  </TableSortLabel>
-                </TableCell>
+                <TableCell key={column.key}>{column.label}</TableCell>
               ))}
             </TableRow>
           </TableHead>
