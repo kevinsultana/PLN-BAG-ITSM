@@ -11,7 +11,7 @@ export default function HomeContactUs() {
   };
 
   const onClickWebsite = () => {
-    const webUrl = "URL_WEBSITE_ITSM";
+    const webUrl = "https://itsm-helpdesk.unotek.co.id/beranda";
     window.open(webUrl, "_blank");
   };
 
