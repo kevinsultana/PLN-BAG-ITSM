@@ -61,7 +61,7 @@ const columns = [
 ];
 
 export default function SlaTicketAnalysisTable() {
-  const [orderBy, setOrderBy] = useState("priority");
+  const [orderBy, setOrderBy] = useState("jumlahTicket");
   const [order, setOrder] = useState("asc");
 
   const handleSort = (property) => {
