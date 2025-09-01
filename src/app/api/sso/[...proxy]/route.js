@@ -11,8 +11,6 @@ async function handler(req) {
   // Jika path /logout, arahkan ke /auth/logout
   if (proxyPath === "/logout") {
     proxyPath = "/auth/logout";
-  } else if (proxyPath === "/me") {
-    proxyPath = "/me";
   }
 
   const proxyUrl = `${SSO_API_URL}${proxyPath}${search}`;
@@ -22,17 +20,25 @@ async function handler(req) {
   headers.set("host", new URL(SSO_API_URL).host);
   headers.delete("connection");
 
+  // Handle body dengan benar
+  let body;
+  if (req.method !== "GET" && req.method !== "HEAD") {
+    body = await req.text();
+  }
+
   try {
     const response = await fetch(proxyUrl, {
       method: req.method,
       headers: headers,
-      body:
-        req.method !== "GET" && req.method !== "HEAD" ? req.body : undefined,
-      redirect: "manual", // Penting!
+      body: body,
+      redirect: "manual",
     });
 
+    // Ambil response body sebagai arrayBuffer
+    const resBody = await response.arrayBuffer();
+
     // Buat respons baru untuk dikirim kembali ke browser
-    const res = new NextResponse(response.body, {
+    const res = new NextResponse(resBody, {
       status: response.status,
       statusText: response.statusText,
       headers: response.headers,
@@ -40,7 +46,8 @@ async function handler(req) {
 
     // Jika backend mengirim cookie baru (seperti saat login/logout), teruskan ke client
     if (response.headers.has("set-cookie")) {
-      res.headers.set("set-cookie", response.headers.get("set-cookie"));
+      const setCookie = response.headers.get("set-cookie");
+      res.headers.set("set-cookie", setCookie);
     }
 
     return res;
