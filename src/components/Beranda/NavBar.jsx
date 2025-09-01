@@ -5,10 +5,10 @@ import { FaBell, FaUser } from "react-icons/fa6";
 import { HiOutlineMenuAlt2 } from "react-icons/hi";
 import { CgArrowsExpandRight } from "react-icons/cg";
 import { IoClose } from "react-icons/io5";
-import { useAuth } from "@/context/AuthContext"; // Ganti dengan import useAuth
+import { useAuth } from "@/context/AuthContext";
 
 export default function NavBar({ onClick }) {
-  const { user, loading, login, logout } = useAuth(); // Gunakan useAuth
+  const { user, loading, login, logout } = useAuth();
   const [showNotifications, setShowNotifications] = useState(false);
   const notifRef = useRef(null);
 

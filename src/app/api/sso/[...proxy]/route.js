@@ -5,15 +5,12 @@ const SSO_API_URL = "https://itsm-helpdesk-be.unotek.co.id";
 
 async function handler(req) {
   const { pathname, search } = new URL(req.url);
-  console.log(search);
   const proxyPath = pathname.replace("/api/sso", "");
   const proxyUrl = `${SSO_API_URL}${proxyPath}${search}`;
 
-  // Salin headers dari request yang masuk, termasuk cookie
+  // Salin headers dari request yang masuk, ini akan menyertakan cookie sesi
   const headers = new Headers(req.headers);
-  // Pastikan host header sesuai dengan API tujuan
   headers.set("host", new URL(SSO_API_URL).host);
-  // Hapus header yang tidak relevan
   headers.delete("connection");
 
   try {
@@ -22,26 +19,26 @@ async function handler(req) {
       headers: headers,
       body:
         req.method !== "GET" && req.method !== "HEAD" ? req.body : undefined,
-      redirect: "manual", // Penting agar Next.js tidak mengikuti redirect secara otomatis
+      redirect: "manual", // Penting!
     });
 
-    // Buat respons baru berdasarkan respons dari backend
+    // Buat respons baru untuk dikirim kembali ke browser
     const res = new NextResponse(response.body, {
       status: response.status,
       statusText: response.statusText,
       headers: response.headers,
     });
 
-    // Jika backend mengirim cookie baru (seperti setelah login), teruskan ke client
+    // Jika backend mengirim cookie baru (seperti saat login/logout), teruskan ke client
     if (response.headers.has("set-cookie")) {
       res.headers.set("set-cookie", response.headers.get("set-cookie"));
     }
 
     return res;
   } catch (error) {
-    console.error("Proxy error:", error);
+    console.error("Kesalahan pada API Proxy:", error);
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: "Kesalahan Internal Server" },
       { status: 500 }
     );
   }
