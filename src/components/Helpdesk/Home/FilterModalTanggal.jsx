@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { RiCloseLine } from "react-icons/ri";
 import { FaCalendarAlt } from "react-icons/fa";
 
-export default function FilterModal({ isOpen, onClose }) {
+export default function FilterModalTanggal({ isOpen, onClose }) {
   const [selectedFilters, setSelectedFilters] = useState({
     kategori: "",
     periode: "Hari",
@@ -12,8 +12,6 @@ export default function FilterModal({ isOpen, onClose }) {
   });
 
   const [openDropdown, setOpenDropdown] = useState(null);
-
-  const dataKategori = ["Tipe", "SLA Policy", "Team", "Aplikasi"];
 
   const dataPeriode = [
     "Hari",
@@ -23,6 +21,7 @@ export default function FilterModal({ isOpen, onClose }) {
     "Semester",
     "Tahun",
   ];
+
   const handleDropdownToggle = (dropdownName) => {
     setOpenDropdown(openDropdown === dropdownName ? null : dropdownName);
   };
@@ -67,48 +66,6 @@ export default function FilterModal({ isOpen, onClose }) {
             </div>
 
             <div className="space-y-4">
-              {/* Filter Kategori */}
-              <div>
-                <label className="font-semibold text-sm block mb-1">
-                  Kategori<span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => handleDropdownToggle("kategori")}
-                    className="input w-full text-left flex justify-between items-center"
-                  >
-                    <span>{selectedFilters.kategori || "Pilih Kategori"}</span>
-                    <svg
-                      className="fill-current h-4 w-4"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                    </svg>
-                  </button>
-                  {openDropdown === "kategori" && (
-                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
-                      {dataKategori.map((kategori, index) => (
-                        <div
-                          key={index}
-                          onClick={() => {
-                            setSelectedFilters({
-                              ...selectedFilters,
-                              kategori,
-                            });
-                            setOpenDropdown(null);
-                          }}
-                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
-                        >
-                          {kategori}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
               {/* Filter Periode */}
               <div>
                 <label className="font-semibold text-sm block mb-1">
@@ -185,7 +142,7 @@ export default function FilterModal({ isOpen, onClose }) {
                   onClick={handleApplyFilter}
                   className="px-6 py-2 rounded-lg text-white bg-[#65C7D5] hover:bg-[#4FB3C1] transition"
                 >
-                  Terapkan
+                  Terpakan
                 </button>
               </div>
             </div>

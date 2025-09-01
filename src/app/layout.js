@@ -1,7 +1,7 @@
 import { Toaster } from "sonner";
 import "./globals.css";
 import { TicketDataProvider } from "@/context/TicketDataContext";
-import SessionWrapper from "@/components/SessionWrapper";
+import { AuthProvider } from "@/context/AuthContext"; // Import AuthProvider yang baru
 
 export const metadata = {
   title: "Dashboard ITSM",
@@ -13,9 +13,9 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={`antialiased`}>
         <Toaster richColors position="top-center" />
-        <SessionWrapper>
+        <AuthProvider>
           <TicketDataProvider>{children}</TicketDataProvider>
-        </SessionWrapper>
+        </AuthProvider>
       </body>
     </html>
   );

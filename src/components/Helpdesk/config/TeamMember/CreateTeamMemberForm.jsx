@@ -5,6 +5,7 @@ import CKEditorWrapper from "@/components/CKEditorWrapper";
 import { toast } from "sonner";
 import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
 import TambahAnggotaModal from "./TambahAnggotaModal";
+import { useRouter } from "next/navigation";
 
 export default function CreateTeamMemberForm() {
   const [form, setForm] = useState({
@@ -16,6 +17,8 @@ export default function CreateTeamMemberForm() {
     email: false,
     autoAssign: false,
   });
+
+  const router = useRouter();
 
   const [errors, setErrors] = useState({});
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -293,7 +296,7 @@ export default function CreateTeamMemberForm() {
           <button
             type="button"
             className="px-6 py-2 rounded-lg text-gray-700 bg-gray-200 hover:bg-gray-300 transition"
-            onClick={() => console.log("Cancel")}
+            onClick={() => router.back()}
           >
             Cancel
           </button>

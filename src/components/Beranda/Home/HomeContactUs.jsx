@@ -11,17 +11,17 @@ export default function HomeContactUs() {
   };
 
   const onClickWebsite = () => {
-    const webUrl = "URL_WEBSITE_ITSM";
+    const webUrl = "https://itsm-helpdesk.unotek.co.id/beranda";
     window.open(webUrl, "_blank");
   };
 
   const onClickWhatsapp = () => {
-    const waUrl = "https://wa.me/NOMOR_WHATSAPP_HELPDESK";
+    const waUrl = "https://wa.me/6285121053911";
     window.open(waUrl, "_blank");
   };
 
   const onClickCall = () => {
-    const phoneUrl = "tel:NOMOR_TELEPON_HELPDESK";
+    const phoneUrl = "tel:+6285121053911";
     window.location.href = phoneUrl;
   };
 

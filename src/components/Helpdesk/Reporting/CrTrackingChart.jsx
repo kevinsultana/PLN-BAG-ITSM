@@ -1,5 +1,6 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
+import { RiArrowDownSLine, RiCalendarLine } from "react-icons/ri";
 import {
   BarChart,
   Bar,
@@ -8,6 +9,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import FilterModalTanggal from "./FilterModalTanggal";
 
 const data = [
   { name: "Penambahan Fitur", value: 40 },
@@ -74,16 +76,18 @@ const CustomTooltip = ({ active, payload }) => {
 };
 
 export default function CrTrackingChart() {
+  const [isModalTanggalOpen, setIsModalTanggalOpen] = useState(false);
   return (
     <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm mt-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold mb-4">CR Tracking</h2>
-        <div className="flex items-center gap-2">
-          <span className="text-gray-500">Tahun:</span>
-          <select className="input rounded-full pr-8">
-            <option>2025</option>
-            <option>2024</option>
-          </select>
+        <div
+          className="flex items-center bg-white border border-gray-200 rounded-lg px-4 py-2 text-gray-700 text-sm cursor-pointer relative"
+          onClick={() => setIsModalTanggalOpen(true)}
+        >
+          <RiCalendarLine className="mr-2 text-gray-500" />
+          <span>Filter</span>
+          <RiArrowDownSLine className="ml-2 text-gray-500" />
         </div>
       </div>
       <div className="w-full h-110">
@@ -117,6 +121,10 @@ export default function CrTrackingChart() {
           </BarChart>
         </ResponsiveContainer>
       </div>
+      <FilterModalTanggal
+        isOpen={isModalTanggalOpen}
+        onClose={() => setIsModalTanggalOpen(false)}
+      />
     </div>
   );
 }

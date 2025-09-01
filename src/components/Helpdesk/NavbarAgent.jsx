@@ -5,20 +5,12 @@ import { FaBell, FaUser } from "react-icons/fa6";
 import { HiOutlineMenuAlt2 } from "react-icons/hi";
 import { CgArrowsExpandRight } from "react-icons/cg";
 import { IoClose } from "react-icons/io5";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { useAuth } from "@/context/AuthContext";
 
 export default function NavbarAgent({ onClick }) {
-  const { data: session, status } = useSession();
+  const { user, loading, login, logout } = useAuth();
   const [showNotifications, setShowNotifications] = useState(false);
   const notifRef = useRef(null);
-
-  const handleAuthAction = () => {
-    if (session) {
-      signOut();
-    } else {
-      signIn("sso-bag");
-    }
-  };
 
   const notifications = [
     {
@@ -94,6 +86,14 @@ export default function NavbarAgent({ onClick }) {
     const options = { day: "numeric", month: "long", year: "numeric" };
     const date = new Date(dateString);
     return date.toLocaleDateString("id-ID", options);
+  };
+
+  const handleAuthAction = () => {
+    if (user) {
+      logout();
+    } else {
+      login();
+    }
   };
 
   return (
@@ -187,14 +187,12 @@ export default function NavbarAgent({ onClick }) {
           </div>
 
           <FaUser className="text-xl text-gray-600" />
-          {/* <div className="flex flex-col">
-            <h4 className="text-sm font-semibold">Pedro Gozales</h4>
-            <p className="text-xs">admin</p>
-          </div> */}
-          {status === "authenticated" ? (
+          {loading ? (
+            <p>Loading...</p>
+          ) : user ? (
             <div className="flex flex-col">
-              <h4 className="text-sm font-semibold">{session.user.name}</h4>
-              <p className="text-xs">{session.user.email}</p>
+              <h4 className="text-sm font-semibold">{user.data.name}</h4>
+              <p className="text-xs">{user.data.email}</p>
             </div>
           ) : (
             <div className="flex flex-col">
@@ -203,7 +201,7 @@ export default function NavbarAgent({ onClick }) {
             </div>
           )}
           <button onClick={handleAuthAction}>
-            {status === "authenticated" ? "Sign out" : "Sign in"}
+            {user ? "Sign out" : "Sign in"}
           </button>
         </div>
       </div>

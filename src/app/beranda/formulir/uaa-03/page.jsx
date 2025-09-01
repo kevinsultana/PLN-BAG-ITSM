@@ -61,7 +61,7 @@ export default function Page() {
                 />
               </div>
 
-              <div>
+              {/* <div>
                 <Label text="Role Yang Akan Diassign Ke User" required />
                 <div className="space-y-2">
                   {[...Array(3)].map((_, i) => (
@@ -113,7 +113,7 @@ export default function Page() {
                     </tr>
                   </tbody>
                 </table>
-              </div>
+              </div> */}
 
               <div className="text-xs text-gray-500 space-y-1">
                 <p>

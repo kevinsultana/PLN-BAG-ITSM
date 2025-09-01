@@ -62,11 +62,11 @@ const statusStyle = {
 };
 
 const columns = [
-  { label: "No.", key: "no" },
-  { label: "Nama", key: "nama" },
-  { label: "Email", key: "email" },
-  { label: "Divisi", key: "divisi" },
-  { label: "Status", key: "status" },
+  { label: "No.", key: "no", disableSorting: true },
+  { label: "Nama", key: "nama", disableSorting: true },
+  { label: "Email", key: "email", disableSorting: true },
+  { label: "Divisi", key: "divisi", disableSorting: true },
+  { label: "Status", key: "status", disableSorting: true },
   { label: "Aksi", key: "aksi", disableSorting: true },
 ];
 
@@ -120,15 +120,8 @@ export default function UserManagementTable({ onClickNewUser }) {
       )
     );
 
-    return filteredList.sort((a, b) => {
-      const aValue = a[orderBy];
-      const bValue = b[orderBy];
-
-      if (aValue < bValue) return order === "asc" ? -1 : 1;
-      if (aValue > bValue) return order === "asc" ? 1 : -1;
-      return 0;
-    });
-  }, [users, orderBy, order, searchTerm]);
+    return filteredList;
+  }, [users, searchTerm]);
 
   const paginatedUsers = useMemo(() => {
     const start = (page - 1) * rowsPerPage;
