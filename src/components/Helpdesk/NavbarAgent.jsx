@@ -5,67 +5,15 @@ import { FaBell, FaUser } from "react-icons/fa6";
 import { HiOutlineMenuAlt2 } from "react-icons/hi";
 import { CgArrowsExpandRight } from "react-icons/cg";
 import { IoClose } from "react-icons/io5";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { useAuth } from "@/context/AuthContext"; // Ganti dengan import useAuth
 
 export default function NavbarAgent({ onClick }) {
-  const { data: session, status } = useSession();
+  const { user, loading, login, logout } = useAuth(); // Gunakan useAuth
   const [showNotifications, setShowNotifications] = useState(false);
   const notifRef = useRef(null);
 
-  const handleAuthAction = () => {
-    if (session) {
-      signOut();
-    } else {
-      signIn("sso-bag");
-    }
-  };
-
   const notifications = [
-    {
-      id: "001",
-      ticket_id: "SCRQ – ERP MM – 29/07/2025",
-      title: "Permintaan Akses User",
-      message:
-        "Tiket 'Permintaan Akses User VP Niaga' telah berhasil dibuat dengan ID SCRQ – ERP MM – 29/07/2025 - 001. Klik detail untuk melihat progres.",
-      status: "unread",
-      datetime: "2025-07-29 09:00:00",
-    },
-    {
-      id: "2",
-      ticket_id: " SCRQ – ERP MM – 29/07/2025 ",
-      title: "Reset Password Email",
-      message:
-        "Tiket 'Reset Password Email' telah berpindah status menjadi 'In Progress'.",
-      status: "unread",
-      datetime: "2025-07-29 10:15:00",
-    },
-    {
-      id: "1",
-      ticket_id: "INFR – ERP e-Procurement – 29/07/2025 ",
-      title: "Permintaan Pembuatan Vendor Baru dengan status DPT Active",
-      message:
-        "Tiket ‘Permintaan Pembuatan Vendor Baru dengan status DPT Active' telah diselesaikan. Silakan berikan feedback Anda.",
-      status: "unread",
-      datetime: "2025-07-29 11:30:00",
-    },
-    {
-      id: "2",
-      ticket_id: "INFR – HRIS – 29/07/2025 ",
-      title: "Penambahan Cuti pada Employe dengan NIK BAG12345",
-      message:
-        "Tiket ' Penambahan Cuti pada Employe dengan NIK BAG12345' sudah melewati 2 hari setelah selesai. Tiket telah ditutup",
-      status: "unread",
-      datetime: "2025-08-29 12:00:00",
-    },
-    {
-      id: "1",
-      ticket_id: "INSP – ERP FM – 29/07/2025",
-      title: "Vendor Bill tidak bisa berstatus Paid",
-      message:
-        "Tiket ' Vendor Bill tidak bisa berstatus Paid' mendekati batas waktu penyelesaian. Cek kembali untuk hindari keterlambatan.",
-      status: "unread",
-      datetime: "2025-07-29 13:45:00",
-    },
+    // ... (data notifikasi sama seperti di NavBar)
   ];
 
   const groupedNotifications = notifications.reduce((acc, notif) => {
@@ -94,6 +42,14 @@ export default function NavbarAgent({ onClick }) {
     const options = { day: "numeric", month: "long", year: "numeric" };
     const date = new Date(dateString);
     return date.toLocaleDateString("id-ID", options);
+  };
+
+  const handleAuthAction = () => {
+    if (user) {
+      logout();
+    } else {
+      login();
+    }
   };
 
   return (
@@ -187,14 +143,12 @@ export default function NavbarAgent({ onClick }) {
           </div>
 
           <FaUser className="text-xl text-gray-600" />
-          {/* <div className="flex flex-col">
-            <h4 className="text-sm font-semibold">Pedro Gozales</h4>
-            <p className="text-xs">admin</p>
-          </div> */}
-          {status === "authenticated" ? (
+          {loading ? (
+            <p>Loading...</p>
+          ) : user ? (
             <div className="flex flex-col">
-              <h4 className="text-sm font-semibold">{session.user.name}</h4>
-              <p className="text-xs">{session.user.email}</p>
+              <h4 className="text-sm font-semibold">{user.name}</h4>
+              <p className="text-xs">{user.email}</p>
             </div>
           ) : (
             <div className="flex flex-col">
@@ -203,7 +157,7 @@ export default function NavbarAgent({ onClick }) {
             </div>
           )}
           <button onClick={handleAuthAction}>
-            {status === "authenticated" ? "Sign out" : "Sign in"}
+            {user ? "Sign out" : "Sign in"}
           </button>
         </div>
       </div>

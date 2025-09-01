@@ -5,22 +5,12 @@ import { FaBell, FaUser } from "react-icons/fa6";
 import { HiOutlineMenuAlt2 } from "react-icons/hi";
 import { CgArrowsExpandRight } from "react-icons/cg";
 import { IoClose } from "react-icons/io5";
-import { useSession, signIn, signOut } from "next-auth/react";
+import { useAuth } from "@/context/AuthContext"; // Ganti dengan import useAuth
 
 export default function NavBar({ onClick }) {
-  const { data: session, status } = useSession();
+  const { user, loading, login, logout } = useAuth(); // Gunakan useAuth
   const [showNotifications, setShowNotifications] = useState(false);
   const notifRef = useRef(null);
-
-  console.log(session, status);
-
-  const handleAuthAction = () => {
-    if (session) {
-      signOut();
-    } else {
-      signIn("sso-bag");
-    }
-  };
 
   const notifications = [
     {
@@ -96,6 +86,14 @@ export default function NavBar({ onClick }) {
     const options = { day: "numeric", month: "long", year: "numeric" };
     const date = new Date(dateString);
     return date.toLocaleDateString("id-ID", options);
+  };
+
+  const handleAuthAction = () => {
+    if (user) {
+      logout();
+    } else {
+      login();
+    }
   };
 
   return (
@@ -189,19 +187,15 @@ export default function NavBar({ onClick }) {
           </div>
 
           <FaUser className="text-xl text-gray-600" />
-          {/* <div className="flex flex-col">
-            <h4 className="text-sm font-semibold">Pedro Gozales</h4>
-            <p className="text-xs">admin</p>
-          </div> */}
           <div className="flex flex-col">
-            {status === "loading" && <p>Loading...</p>}
-            {status === "authenticated" && (
+            {loading ? (
+              <p>Loading...</p>
+            ) : user ? (
               <>
-                <h4 className="text-sm font-semibold">{session.user.name}</h4>
-                <p className="text-xs">{session.user.email}</p>
+                <h4 className="text-sm font-semibold">{user.name}</h4>
+                <p className="text-xs">{user.email}</p>
               </>
-            )}
-            {status === "unauthenticated" && (
+            ) : (
               <>
                 <h4 className="text-sm font-semibold">Tamu</h4>
                 <p className="text-xs">belum login</p>
@@ -212,7 +206,7 @@ export default function NavBar({ onClick }) {
             onClick={handleAuthAction}
             className="px-4 py-2 rounded-lg text-white bg-[#65C7D5] hover:bg-[#4FB3C1] transition"
           >
-            {status === "authenticated" ? "Logout" : "Login"}
+            {user ? "Logout" : "Login"}
           </button>
         </div>
       </div>
