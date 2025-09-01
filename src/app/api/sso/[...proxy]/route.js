@@ -44,6 +44,9 @@ async function handler(req) {
       headers: response.headers,
     });
 
+    // Hapus header content-encoding agar browser tidak salah decode
+    res.headers.delete("content-encoding");
+
     // Jika backend mengirim cookie baru (seperti saat login/logout), teruskan ke client
     if (response.headers.has("set-cookie")) {
       const setCookie = response.headers.get("set-cookie");
