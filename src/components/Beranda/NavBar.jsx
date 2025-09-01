@@ -192,8 +192,8 @@ export default function NavBar({ onClick }) {
               <p>Loading...</p>
             ) : user ? (
               <>
-                <h4 className="text-sm font-semibold">{user.name}</h4>
-                <p className="text-xs">{user.email}</p>
+                <h4 className="text-sm font-semibold">{user.data.name}</h4>
+                <p className="text-xs">{user.data.email}</p>
               </>
             ) : (
               <>

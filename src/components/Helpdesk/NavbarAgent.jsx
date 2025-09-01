@@ -191,8 +191,8 @@ export default function NavbarAgent({ onClick }) {
             <p>Loading...</p>
           ) : user ? (
             <div className="flex flex-col">
-              <h4 className="text-sm font-semibold">{user.name}</h4>
-              <p className="text-xs">{user.email}</p>
+              <h4 className="text-sm font-semibold">{user.data.name}</h4>
+              <p className="text-xs">{user.data.email}</p>
             </div>
           ) : (
             <div className="flex flex-col">

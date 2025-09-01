@@ -2,10 +2,17 @@
 import { NextResponse } from "next/server";
 
 const SSO_API_URL = "https://itsm-helpdesk-be.unotek.co.id";
+// const SSO_API_URL = "http://localhost:8080";
 
 async function handler(req) {
   const { pathname, search } = new URL(req.url);
-  const proxyPath = pathname.replace("/api/sso", "");
+  let proxyPath = pathname.replace("/api/sso", "");
+
+  // Jika path /logout, arahkan ke /auth/logout
+  if (proxyPath === "/logout") {
+    proxyPath = "/auth/logout";
+  }
+
   const proxyUrl = `${SSO_API_URL}${proxyPath}${search}`;
 
   // Salin headers dari request yang masuk, ini akan menyertakan cookie sesi
