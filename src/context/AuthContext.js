@@ -12,7 +12,9 @@ export function AuthProvider({ children }) {
     const checkUserSession = async () => {
       try {
         // Panggil endpoint /me melalui proxy kita
-        const res = await fetch("/api/sso/me");
+        const res = await fetch("/api/sso/me", {
+          credentials: "include",
+        });
 
         if (res.ok) {
           const userData = await res.json();
