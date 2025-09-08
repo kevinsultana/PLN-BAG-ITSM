@@ -200,7 +200,10 @@ export default function NavbarAgent({ onClick }) {
               <p className="text-xs">belum login</p>
             </div>
           )}
-          <button onClick={handleAuthAction}>
+          <button
+            className="px-4 py-2 rounded-lg text-white bg-[#65C7D5] hover:bg-[#4FB3C1] transition cursor-pointer"
+            onClick={handleAuthAction}
+          >
             {user ? "Sign out" : "Sign in"}
           </button>
         </div>

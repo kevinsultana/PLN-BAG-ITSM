@@ -1,26 +1,18 @@
-// src/app/api/sso/[...proxy]/route.js
 import { NextResponse } from "next/server";
 
-// const SSO_API_URL = "https://itsm-helpdesk-be.unotek.co.id";
-const SSO_API_URL = "http://localhost:8080";
+const BACKEND_URL = "http://localhost:8080";
 
 async function handler(req) {
   const { pathname, search } = new URL(req.url);
-  let proxyPath = pathname.replace("/api/sso", "");
+  const proxyPath = pathname.replace("/api/proxy", "");
+  const proxyUrl = `${BACKEND_URL}${proxyPath}${search}`;
 
-  // Jika path /logout, arahkan ke /auth/logout
-  if (proxyPath === "/logout") {
-    proxyPath = "/auth/logout";
-  }
-
-  const proxyUrl = `${SSO_API_URL}${proxyPath}${search}`;
-
-  // Salin headers dari request yang masuk, ini akan menyertakan cookie sesi
+  // Salin headers dari request yang masuk, termasuk cookie
   const headers = new Headers(req.headers);
-  headers.set("host", new URL(SSO_API_URL).host);
+  headers.set("host", new URL(BACKEND_URL).host);
   headers.delete("connection");
 
-  // Handle body dengan benar
+  // Handle body jika bukan GET/HEAD
   let body;
   if (req.method !== "GET" && req.method !== "HEAD") {
     body = await req.text();
@@ -37,17 +29,17 @@ async function handler(req) {
     // Ambil response body sebagai arrayBuffer
     const resBody = await response.arrayBuffer();
 
-    // Buat respons baru untuk dikirim kembali ke browser
+    // Buat respons baru untuk dikirim ke browser
     const res = new NextResponse(resBody, {
       status: response.status,
       statusText: response.statusText,
       headers: response.headers,
     });
 
-    // Hapus header content-encoding agar browser tidak salah decode
+    // Hapus content-encoding agar browser tidak salah decode
     res.headers.delete("content-encoding");
 
-    // Jika backend mengirim cookie baru (seperti saat login/logout), teruskan ke client
+    // Teruskan set-cookie jika ada
     if (response.headers.has("set-cookie")) {
       const setCookie = response.headers.get("set-cookie");
       res.headers.set("set-cookie", setCookie);
@@ -55,9 +47,9 @@ async function handler(req) {
 
     return res;
   } catch (error) {
-    console.error("Kesalahan pada API Proxy:", error);
+    console.error("Proxy API error:", error);
     return NextResponse.json(
-      { error: "Kesalahan Internal Server" },
+      { error: "Internal Server Error" },
       { status: 500 }
     );
   }
