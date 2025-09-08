@@ -2,11 +2,25 @@
 import { ProxyUrl } from "@/api/BaseUrl";
 import TicketTypeTable from "@/components/Helpdesk/config/TicketType/TicketTypeTable";
 import HelpdeskLayout from "@/components/Helpdesk/layout/HelpdeskLayout";
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Button,
+  TextField,
+} from "@mui/material";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 export default function page() {
   const [data, setData] = useState([]);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editRow, setEditRow] = useState(null);
+  const [editName, setEditName] = useState("");
+  const [editCode, setEditCode] = useState("");
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteRow, setDeleteRow] = useState(null);
   const router = useRouter();
 
   const handleNewTicketType = () => {
@@ -21,7 +35,32 @@ export default function page() {
       console.log(error);
     }
   };
-  console.log(data);
+
+  const handleEdit = (row) => {
+    router.push(`/helpdesk/config/ticket-type/edit/${row.ID}`);
+  };
+
+  const handleEditSave = async () => {
+    await ProxyUrl.put(`/ticket-types/${editRow.ID}`, {
+      Name: editName,
+      Code: editCode,
+    });
+    setEditOpen(false);
+    getData();
+  };
+
+  const handleDelete = (row) => {
+    setDeleteRow(row);
+    setDeleteOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    await ProxyUrl.delete(`/ticket-types/${deleteRow.ID}`);
+    setDeleteOpen(false);
+    setDeleteRow(null);
+    getData();
+  };
+
   useEffect(() => {
     getData();
   }, []);
@@ -30,8 +69,54 @@ export default function page() {
     <div className="bg-slate-100 h-full">
       <HelpdeskLayout>
         <h1 className="text-2xl font-bold">Konfigurasi</h1>
-        <TicketTypeTable onClickNewTicketType={handleNewTicketType} />
+        <TicketTypeTable
+          data={data.data}
+          onClickNewTicketType={handleNewTicketType}
+          onClickEdit={handleEdit}
+          onClickDelete={handleDelete}
+        />
       </HelpdeskLayout>
+      <Dialog open={editOpen} onClose={() => setEditOpen(false)}>
+        <DialogTitle>Edit Tipe Tiket</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Nama"
+            value={editName}
+            onChange={(e) => setEditName(e.target.value)}
+            fullWidth
+            margin="normal"
+          />
+          <TextField
+            label="Code"
+            value={editCode}
+            onChange={(e) => setEditCode(e.target.value)}
+            fullWidth
+            margin="normal"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditOpen(false)}>Cancel</Button>
+          <Button onClick={handleEditSave} variant="contained" color="primary">
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={deleteOpen} onClose={() => setDeleteOpen(false)}>
+        <DialogTitle>Hapus Tipe Tiket</DialogTitle>
+        <DialogContent>
+          Apakah Anda yakin ingin menghapus tipe tiket <b>{deleteRow?.Name}</b>?
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteOpen(false)}>Cancel</Button>
+          <Button
+            onClick={handleDeleteConfirm}
+            variant="contained"
+            color="error"
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }
