@@ -29,7 +29,11 @@ export default function Page() {
     <div className="bg-slate-100 h-full">
       <HelpdeskLayout>
         <h1 className="text-2xl font-bold">Konfigurasi</h1>
-        <CreateTicketTypeForm onSubmit={handleCreate} />
+        <CreateTicketTypeForm
+          onSubmit={handleCreate}
+          submitLabel="Save"
+          onCancel={() => router.back()}
+        />
       </HelpdeskLayout>
     </div>
   );

@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   RiHome4Line,
   RiFileEditLine,
@@ -18,7 +18,18 @@ import { BiPhoneCall } from "react-icons/bi";
 
 export default function SidebarAgent({ show }) {
   const pathname = usePathname();
-  const [openDropdown, setOpenDropdown] = useState(null);
+  const [openDropdown, setOpenDropdown] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("sidebarOpenDropdown") || null;
+    }
+    return null;
+  });
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("sidebarOpenDropdown", openDropdown || "");
+    }
+  }, [openDropdown]);
 
   const getLinkClassName = (paths) => {
     const isActive = Array.isArray(paths)
@@ -252,7 +263,11 @@ export default function SidebarAgent({ show }) {
               <li>
                 <Link
                   href="/helpdesk/config/ticket-type"
-                  className={getLinkClassName("/helpdesk/config/ticket-type")}
+                  className={getLinkClassName([
+                    "/helpdesk/config/ticket-type",
+                    "/helpdesk/config/ticket-type/edit/[id]",
+                    "/helpdesk/config/ticket-type/new",
+                  ])}
                 >
                   Tipe Tiket
                 </Link>
