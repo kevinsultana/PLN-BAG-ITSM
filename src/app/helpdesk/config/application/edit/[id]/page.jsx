@@ -5,19 +5,20 @@ import HelpdeskLayout from "@/components/Helpdesk/layout/HelpdeskLayout";
 import { ProxyUrl } from "@/api/BaseUrl";
 import { CircularProgress } from "@mui/material";
 import { toast } from "sonner";
-import CreateTicketStatusForm from "@/components/Helpdesk/config/TiketStatus/CreateTicketStatusForm";
+import CreateApplicationForm from "@/components/Helpdesk/config/Aplikasi/CreateApplicationForm";
 
-export default function EditTicketStatusPage() {
+export default function EditApplicationPage() {
   const router = useRouter();
   const params = useParams();
   const { id } = params;
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState({});
+  console.log(data);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await ProxyUrl.get(`/ticket-statuses/${id}`);
+        const response = await ProxyUrl.get(`/applications/${id}`);
         setData(response.data.data || {});
       } catch (err) {
         toast.error("Gagal mengambil data");
@@ -30,14 +31,13 @@ export default function EditTicketStatusPage() {
 
   const handleSave = async (form) => {
     try {
-      await ProxyUrl.put(`/ticket-statuses/${id}`, {
+      await ProxyUrl.put(`/applications/${id}`, {
         name: form.name,
-        code: form.code,
+        // SlaPolicy: form.slaPolicy,
         description: form.description,
-        status: form.status,
       });
       router.back();
-      toast.success("Tipe tiket berhasil diperbarui");
+      toast.success("Aplikasi berhasil diperbarui");
     } catch (err) {
       console.log(err);
       toast.error("Gagal menyimpan perubahan");
@@ -53,7 +53,7 @@ export default function EditTicketStatusPage() {
         {loading ? (
           <CircularProgress />
         ) : (
-          <CreateTicketStatusForm
+          <CreateApplicationForm
             data={data}
             onSubmit={handleSave}
             onCancel={() => router.back()}

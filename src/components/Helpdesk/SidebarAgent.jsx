@@ -279,7 +279,11 @@ export default function SidebarAgent({ show }) {
               <li>
                 <Link
                   href="/helpdesk/config/application"
-                  className={getLinkClassName("/helpdesk/config/application")}
+                  className={getLinkClassName([
+                    "/helpdesk/config/application",
+                    "/helpdesk/config/application/new",
+                    "/helpdesk/config/application/edit/[id]",
+                  ])}
                 >
                   Aplikasi
                 </Link>

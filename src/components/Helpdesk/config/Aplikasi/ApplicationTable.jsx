@@ -17,23 +17,30 @@ import {
 import { FaPlus } from "react-icons/fa";
 import { RiSearchLine, RiMore2Fill } from "react-icons/ri";
 
-const initialApplications = [
-  { no: 1, nama: "ERP CRM", slaMapping: "SLA – Critical Incident" },
-  { no: 2, nama: "ERP FM", slaMapping: "SLA – Low Priority Request" },
-  { no: 3, nama: "ERP MM", slaMapping: "SLA – Emergency Access Request" },
-  { no: 4, nama: "ERP HCM", slaMapping: "SLA – IT Procurement Approval" },
-  { no: 5, nama: "e-Procurement", slaMapping: "SLA – Critical Incident" },
-];
+const initialApplications = [];
 
 const columns = [
   { label: "No.", key: "no" },
-  { label: "Nama", key: "nama" },
-  { label: "SLA Mapping", key: "slaMapping" },
+  { label: "Nama", key: "Name" },
+  { label: "Deskripsi", key: "Description" },
   { label: "Aksi", key: "aksi", disableSorting: true },
 ];
 
-export default function ApplicationTable({ onClickNewApps }) {
-  const [applications, setApplications] = useState(initialApplications);
+export default function ApplicationTable({
+  data,
+  onClickNewApps,
+  onClickEdit,
+  onClickDelete,
+}) {
+  const mappedData = useMemo(() => {
+    if (!data || !Array.isArray(data)) return initialApplications;
+    return data.map((item, idx) => ({
+      no: idx + 1,
+      ...item,
+    }));
+  }, [data]);
+
+  const [applications, setApplications] = useState(mappedData);
   const [orderBy, setOrderBy] = useState("no");
   const [order, setOrder] = useState("asc");
   const [page, setPage] = useState(1);
@@ -53,15 +60,18 @@ export default function ApplicationTable({ onClickNewApps }) {
   };
 
   const handleEdit = (row) => {
-    console.log("Edit item:", row);
+    if (onClickEdit) onClickEdit(row);
     setOpenMenuId(null);
   };
 
   const handleDelete = (row) => {
-    console.log("Delete item:", row);
-    setApplications(applications.filter((item) => item.no !== row.no));
+    if (onClickDelete) onClickDelete(row);
     setOpenMenuId(null);
   };
+
+  useEffect(() => {
+    setApplications(mappedData);
+  }, [mappedData]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -73,7 +83,7 @@ export default function ApplicationTable({ onClickNewApps }) {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [menuRef]);
+  }, []);
 
   const sortedAndFilteredApplications = useMemo(() => {
     let filteredList = applications.filter((app) =>
@@ -159,16 +169,27 @@ export default function ApplicationTable({ onClickNewApps }) {
           </TableHead>
           <TableBody>
             {paginatedApplications.map((row) => (
-              <TableRow key={row.no} hover>
+              <TableRow key={row.ID || row.no} hover>
                 <TableCell>{row.no}</TableCell>
-                <TableCell>{row.nama}</TableCell>
-                <TableCell>{row.slaMapping}</TableCell>
-                <TableCell className="relative" ref={menuRef}>
+                <TableCell>{row.Name}</TableCell>
+                <TableCell>
+                  {row.Description ? (
+                    <span
+                      dangerouslySetInnerHTML={{ __html: row.Description }}
+                    />
+                  ) : (
+                    "-"
+                  )}
+                </TableCell>
+                <TableCell className="relative">
                   <IconButton onClick={() => handleOpenMenu(row.no)}>
                     <RiMore2Fill />
                   </IconButton>
                   {openMenuId === row.no && (
-                    <div className="absolute right-8 top-1/2 -translate-y-1/2 w-32 bg-white rounded-md shadow-lg border border-gray-200 z-10">
+                    <div
+                      className="absolute right-8 top-1/2 -translate-y-1/2 w-32 bg-white rounded-md shadow-lg border border-gray-200 z-10"
+                      ref={menuRef}
+                    >
                       <ul className="py-1">
                         <li
                           onClick={() => handleEdit(row)}
