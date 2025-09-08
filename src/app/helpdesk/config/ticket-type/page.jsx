@@ -40,15 +40,6 @@ export default function page() {
     router.push(`/helpdesk/config/ticket-type/edit/${row.ID}`);
   };
 
-  const handleEditSave = async () => {
-    await ProxyUrl.put(`/ticket-types/${editRow.ID}`, {
-      Name: editName,
-      Code: editCode,
-    });
-    setEditOpen(false);
-    getData();
-  };
-
   const handleDelete = (row) => {
     setDeleteRow(row);
     setDeleteOpen(true);
@@ -76,31 +67,7 @@ export default function page() {
           onClickDelete={handleDelete}
         />
       </HelpdeskLayout>
-      <Dialog open={editOpen} onClose={() => setEditOpen(false)}>
-        <DialogTitle>Edit Tipe Tiket</DialogTitle>
-        <DialogContent>
-          <TextField
-            label="Nama"
-            value={editName}
-            onChange={(e) => setEditName(e.target.value)}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Code"
-            value={editCode}
-            onChange={(e) => setEditCode(e.target.value)}
-            fullWidth
-            margin="normal"
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setEditOpen(false)}>Cancel</Button>
-          <Button onClick={handleEditSave} variant="contained" color="primary">
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
+
       <Dialog open={deleteOpen} onClose={() => setDeleteOpen(false)}>
         <DialogTitle>Hapus Tipe Tiket</DialogTitle>
         <DialogContent>
