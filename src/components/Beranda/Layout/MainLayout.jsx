@@ -16,9 +16,9 @@ export default function MainLayout({ children }) {
   }, []);
 
   return (
-    <div>
+    <div className="min-h-screen flex flex-col">
       <NavBar onClick={() => setShowSideBar(!showSideBar)} />
-      <div className="flex min-h-150">
+      <div className="flex flex-1">
         <SideBar show={showSideBar} />
         <div
           className={`transition-all duration-300 ease-in-out w-full ${
