@@ -6,6 +6,7 @@ import { HiOutlineMenuAlt2 } from "react-icons/hi";
 import { CgArrowsExpandRight } from "react-icons/cg";
 import { IoClose } from "react-icons/io5";
 import { useAuth } from "@/context/AuthContext";
+import Link from "next/link";
 
 export default function NavBar({ onClick }) {
   const { user, loading, login, logout } = useAuth();
@@ -115,6 +116,14 @@ export default function NavBar({ onClick }) {
 
         <div className="flex gap-6 items-center relative">
           {/* Bell + dropdown */}
+          {user.data.role === "Administrator" && (
+            <Link
+              href="/helpdesk"
+              className="text-gray-500 hover:text-gray-800 transition-all duration-300 hover:bg-sky-600/40 bg-sky-600/20 px-3 py-2 rounded-lg text-sm font-semibold"
+            >
+              Helpdesk
+            </Link>
+          )}
           <div className="relative" ref={notifRef}>
             <FaBell
               className="text-xl text-gray-600 cursor-pointer"
@@ -206,7 +215,7 @@ export default function NavBar({ onClick }) {
             onClick={handleAuthAction}
             className="px-4 py-2 rounded-lg text-white bg-[#65C7D5] hover:bg-[#4FB3C1] transition"
           >
-            {user ? "Logout" : "Login"}
+            {user ? "Sign Out" : "Login"}
           </button>
         </div>
       </div>

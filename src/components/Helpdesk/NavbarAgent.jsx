@@ -204,7 +204,7 @@ export default function NavbarAgent({ onClick }) {
             className="px-4 py-2 rounded-lg text-white bg-[#65C7D5] hover:bg-[#4FB3C1] transition cursor-pointer"
             onClick={handleAuthAction}
           >
-            {user ? "Sign out" : "Sign in"}
+            {user ? "Sign Out" : "Sign In"}
           </button>
         </div>
       </div>
