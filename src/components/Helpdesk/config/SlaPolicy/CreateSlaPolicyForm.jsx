@@ -2,19 +2,19 @@
 import React, { useState } from "react";
 import CKEditorWrapper from "@/components/CKEditorWrapper";
 import { toast } from "sonner";
-import { FaTimesCircle } from "react-icons/fa";
-import { HiOutlineDocumentSearch } from "react-icons/hi";
 
-export default function CreateSlaPolicyForm() {
+export default function CreateSlaPolicyForm({
+  data = null,
+  onSubmit,
+  onCancel,
+  submitLabel = "Save",
+}) {
   const [form, setForm] = useState({
-    namaSlaPolicy: "",
-    resolvedTime: { hours: "", minutes: "" },
-    priority: "",
-    statusReach: "In Progress",
-    workingHours: { hours: "", minutes: "" },
-    statusFinal: "Hold",
-    responseTime: { hours: "", minutes: "" },
-    deskripsi: "",
+    name: data?.name || "",
+    resolve_time: data?.resolve_time || "",
+    priority: data?.priority || "",
+    response_time: data?.response_time || "",
+    description: data?.description || "",
   });
 
   const [errors, setErrors] = useState({});
@@ -26,14 +26,6 @@ export default function CreateSlaPolicyForm() {
     { name: "Rendah", value: "rendah", color: "text-green-500" },
   ];
 
-  const dataStatus = [
-    { name: "Open", value: "open" },
-    { name: "In Progress", value: "inProgress" },
-    { name: "On Hold", value: "onHold" },
-    { name: "Resolved", value: "resolved" },
-    { name: "Closed", value: "closed" },
-  ];
-
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm({
@@ -42,27 +34,13 @@ export default function CreateSlaPolicyForm() {
     });
   };
 
-  const handleTimeChange = (e, field) => {
-    const { name, value } = e.target;
-    setForm((prevForm) => ({
-      ...prevForm,
-      [field]: { ...prevForm[field], [name]: value },
-    }));
-  };
-
   const validate = () => {
     const newErrors = {};
-    if (!form.namaSlaPolicy.trim()) newErrors.namaSlaPolicy = true;
-    if (!form.resolvedTime.hours || !form.resolvedTime.minutes)
-      newErrors.resolvedTime = true;
+    if (!form.name.trim()) newErrors.name = true;
+    if (!form.resolve_time) newErrors.resolve_time = true;
     if (!form.priority) newErrors.priority = true;
-    if (!form.statusReach) newErrors.statusReach = true;
-    if (!form.workingHours.hours || !form.workingHours.minutes)
-      newErrors.workingHours = true;
-    if (!form.statusFinal) newErrors.statusFinal = true;
-    if (!form.responseTime.hours || !form.responseTime.minutes)
-      newErrors.responseTime = true;
-    if (!form.deskripsi.trim()) newErrors.deskripsi = true;
+    if (!form.response_time) newErrors.response_time = true;
+    if (!form.description.trim()) newErrors.description = true;
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -75,12 +53,22 @@ export default function CreateSlaPolicyForm() {
       });
       return;
     }
-    // Logic to submit form
-    console.log("Submitted Data:", form);
-    toast.success("SLA Policy berhasil dibuat!", {
-      description: `SLA Policy "${form.namaSlaPolicy}" telah berhasil ditambahkan.`,
-      duration: 5000,
-    });
+    const submitData = {
+      name: form.name,
+      resolve_time: Number(form.resolve_time),
+      priority: form.priority,
+      response_time: Number(form.response_time),
+      description: form.description,
+      ...(data?.ID ? { ID: data.ID } : {}),
+    };
+    if (onSubmit) {
+      onSubmit(submitData);
+    } else {
+      toast.success("SLA Policy berhasil disimpan!", {
+        description: `SLA Policy "${form.name}" telah berhasil disimpan.`,
+        duration: 5000,
+      });
+    }
   };
 
   return (
@@ -97,45 +85,33 @@ export default function CreateSlaPolicyForm() {
           </label>
           <input
             type="text"
-            name="namaSlaPolicy"
-            value={form.namaSlaPolicy}
+            name="name"
+            value={form.name}
             onChange={handleChange}
-            className={`input ${errors.namaSlaPolicy ? "border-red-500" : ""}`}
+            className={`input ${errors.name ? "border-red-500" : ""}`}
             placeholder="Nama SLA Policy"
           />
         </div>
 
-        {/* Resolved Time */}
+        {/* Response Time */}
         <div className="flex flex-col gap-2">
           <label className="font-semibold text-sm">
-            Resolved Time<span className="text-red-500">*</span>
+            Response Time<span className="text-red-500">*</span>
           </label>
           <div className="flex gap-2 items-center">
             <input
               type="number"
-              name="hours"
-              value={form.resolvedTime.hours}
-              onChange={(e) => handleTimeChange(e, "resolvedTime")}
+              name="response_time"
+              value={form.response_time}
+              onChange={(e) => handleChange(e)}
               className={`input w-20 text-center ${
-                errors.resolvedTime ? "border-red-500" : ""
+                errors.response_time ? "border-red-500" : ""
               }`}
               placeholder="00"
               min="0"
             />
-            <span className="text-gray-500">:</span>
-            <input
-              type="number"
-              name="minutes"
-              value={form.resolvedTime.minutes}
-              onChange={(e) => handleTimeChange(e, "resolvedTime")}
-              className={`input w-20 text-center ${
-                errors.resolvedTime ? "border-red-500" : ""
-              }`}
-              placeholder="00"
-              min="0"
-              max="59"
-            />
-            <span className="text-gray-700">WIB</span>
+
+            <span className="text-gray-700">Menit</span>
           </div>
         </div>
 
@@ -179,140 +155,37 @@ export default function CreateSlaPolicyForm() {
           </div>
         </div>
 
-        {/* Status Reach */}
+        {/* Resolved Time */}
         <div className="flex flex-col gap-2">
           <label className="font-semibold text-sm">
-            Status Reach<span className="text-red-500">*</span>
-          </label>
-          <div className="relative">
-            <select
-              name="statusReach"
-              value={form.statusReach}
-              onChange={handleChange}
-              className={`input appearance-none cursor-pointer ${
-                errors.statusReach ? "border-red-500" : ""
-              }`}
-            >
-              <option value="">Pilih Status Reach</option>
-              {dataStatus.map((item, index) => (
-                <option key={index} value={item.value}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-700">
-              <HiOutlineDocumentSearch className="mr-2 text-lg" />
-              <FaTimesCircle className="text-red-500 text-sm" />
-            </div>
-          </div>
-        </div>
-
-        {/* Working Hours */}
-        <div className="flex flex-col gap-2">
-          <label className="font-semibold text-sm">
-            Working Hours<span className="text-red-500">*</span>
+            Resolved Time<span className="text-red-500">*</span>
           </label>
           <div className="flex gap-2 items-center">
             <input
               type="number"
-              name="hours"
-              value={form.workingHours.hours}
-              onChange={(e) => handleTimeChange(e, "workingHours")}
+              name="resolve_time"
+              value={form.resolve_time}
+              onChange={(e) => handleChange(e)}
               className={`input w-20 text-center ${
-                errors.workingHours ? "border-red-500" : ""
+                errors.resolve_time ? "border-red-500" : ""
               }`}
               placeholder="00"
               min="0"
             />
-            <span className="text-gray-500">:</span>
-            <input
-              type="number"
-              name="minutes"
-              value={form.workingHours.minutes}
-              onChange={(e) => handleTimeChange(e, "workingHours")}
-              className={`input w-20 text-center ${
-                errors.workingHours ? "border-red-500" : ""
-              }`}
-              placeholder="00"
-              min="0"
-              max="59"
-            />
-            <span className="text-gray-700">WIB</span>
-          </div>
-        </div>
-
-        {/* Status Final */}
-        <div className="flex flex-col gap-2">
-          <label className="font-semibold text-sm">
-            Status Final<span className="text-red-500">*</span>
-          </label>
-          <div className="relative">
-            <select
-              name="statusFinal"
-              value={form.statusFinal}
-              onChange={handleChange}
-              className={`input appearance-none cursor-pointer ${
-                errors.statusFinal ? "border-red-500" : ""
-              }`}
-            >
-              <option value="">Pilih Status Final</option>
-              {dataStatus.map((item, index) => (
-                <option key={index} value={item.value}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-700">
-              <HiOutlineDocumentSearch className="mr-2 text-lg" />
-              <FaTimesCircle className="text-red-500 text-sm" />
-            </div>
-          </div>
-        </div>
-
-        {/* Response Time */}
-        <div className="flex flex-col gap-2">
-          <label className="font-semibold text-sm">
-            Response Time<span className="text-red-500">*</span>
-          </label>
-          <div className="flex gap-2 items-center">
-            <input
-              type="number"
-              name="hours"
-              value={form.responseTime.hours}
-              onChange={(e) => handleTimeChange(e, "responseTime")}
-              className={`input w-20 text-center ${
-                errors.responseTime ? "border-red-500" : ""
-              }`}
-              placeholder="00"
-              min="0"
-            />
-            <span className="text-gray-500">:</span>
-            <input
-              type="number"
-              name="minutes"
-              value={form.responseTime.minutes}
-              onChange={(e) => handleTimeChange(e, "responseTime")}
-              className={`input w-20 text-center ${
-                errors.responseTime ? "border-red-500" : ""
-              }`}
-              placeholder="00"
-              min="0"
-              max="59"
-            />
-            <span className="text-gray-700">WIB</span>
+            <span className="text-gray-700">Jam</span>
           </div>
         </div>
 
         {/* Deskripsi */}
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 row-span-2 md:col-span-2">
           <label className="font-semibold text-sm">
             Deskripsi<span className="text-red-500">*</span>
           </label>
           <CKEditorWrapper
-            value={form.deskripsi}
-            onChange={(data) => setForm({ ...form, deskripsi: data })}
+            value={form.description}
+            onChange={(data) => setForm({ ...form, description: data })}
             className={`ckeditor-container ${
-              errors.deskripsi ? "border-red-500" : ""
+              errors.description ? "border-red-500" : ""
             }`}
             placeholder="Deskripsi"
           />
@@ -323,7 +196,7 @@ export default function CreateSlaPolicyForm() {
           <button
             type="button"
             className="px-6 py-2 rounded-lg text-gray-700 bg-gray-200 hover:bg-gray-300 transition"
-            onClick={() => console.log("Cancel")}
+            onClick={onCancel}
           >
             Cancel
           </button>
@@ -331,7 +204,7 @@ export default function CreateSlaPolicyForm() {
             type="submit"
             className="px-6 py-2 rounded-lg text-white bg-[#65C7D5] hover:bg-[#4FB3C1] transition"
           >
-            Save
+            {submitLabel}
           </button>
         </div>
       </form>
