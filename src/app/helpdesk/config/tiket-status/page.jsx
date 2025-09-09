@@ -74,6 +74,7 @@ export default function Page() {
           onClickNewTiketStats={handleNewTiketStats}
           onClickEdit={handleEdit}
           onClickDelete={handleDelete}
+          loading={!data.data}
         />
       </HelpdeskLayout>
 

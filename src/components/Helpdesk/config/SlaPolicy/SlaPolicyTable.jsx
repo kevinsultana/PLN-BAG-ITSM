@@ -13,6 +13,7 @@ import {
   TextField,
   InputAdornment,
   IconButton,
+  CircularProgress,
 } from "@mui/material";
 import { FaPlus } from "react-icons/fa";
 import { RiSearchLine, RiMore2Fill } from "react-icons/ri";
@@ -34,6 +35,7 @@ export default function SlaPolicyTable({
   onClickNewSLAPolicy,
   onClickEdit,
   onClickDelete,
+  loading,
 }) {
   const mappedData = useMemo(() => {
     if (!data || !Array.isArray(data)) return initialSlaPolicies;
@@ -169,42 +171,58 @@ export default function SlaPolicyTable({
             </TableRow>
           </TableHead>
           <TableBody>
-            {paginatedPolicies.map((row) => (
-              <TableRow key={row.ID || row.no} hover>
-                <TableCell>{row.no}</TableCell>
-                <TableCell>{row.Name}</TableCell>
-                <TableCell>{row.Description}</TableCell>
-                <TableCell>{row.Priority}</TableCell>
-                <TableCell>{row.ResponseTime}</TableCell>
-                <TableCell>{row.ResolveTime}</TableCell>
-                <TableCell className="relative">
-                  <IconButton onClick={() => handleOpenMenu(row.no)}>
-                    <RiMore2Fill />
-                  </IconButton>
-                  {openMenuId === row.no && (
-                    <div
-                      className="absolute right-28  -translate-y-1/2 w-32 bg-white rounded-md shadow-lg border border-gray-200 z-10"
-                      ref={menuRef}
-                    >
-                      <ul className="py-1">
-                        <li
-                          onClick={() => handleEdit(row)}
-                          className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                        >
-                          Edit
-                        </li>
-                        <li
-                          onClick={() => handleDelete(row)}
-                          className="px-4 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
-                        >
-                          Delete
-                        </li>
-                      </ul>
-                    </div>
-                  )}
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={columns.length} align="center">
+                  <CircularProgress />
                 </TableCell>
               </TableRow>
-            ))}
+            ) : (
+              paginatedPolicies.map((row) => (
+                <TableRow key={row.ID || row.no} hover>
+                  <TableCell>{row.no}</TableCell>
+                  <TableCell>{row.Name}</TableCell>
+                  <TableCell>
+                    {row.Description ? (
+                      <div
+                        dangerouslySetInnerHTML={{ __html: row.Description }}
+                      />
+                    ) : (
+                      "No Description"
+                    )}
+                  </TableCell>
+                  <TableCell>{row.Priority}</TableCell>
+                  <TableCell>{row.ResponseTime}</TableCell>
+                  <TableCell>{row.ResolveTime}</TableCell>
+                  <TableCell className="relative">
+                    <IconButton onClick={() => handleOpenMenu(row.no)}>
+                      <RiMore2Fill />
+                    </IconButton>
+                    {openMenuId === row.no && (
+                      <div
+                        className="absolute right-28  -translate-y-1/2 w-32 bg-white rounded-md shadow-lg border border-gray-200 z-10"
+                        ref={menuRef}
+                      >
+                        <ul className="py-1">
+                          <li
+                            onClick={() => handleEdit(row)}
+                            className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                          >
+                            Edit
+                          </li>
+                          <li
+                            onClick={() => handleDelete(row)}
+                            className="px-4 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
+                          >
+                            Delete
+                          </li>
+                        </ul>
+                      </div>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
         <div className="flex items-center justify-between px-4 py-3">

@@ -65,6 +65,7 @@ export default function page() {
           onClickNewTicketType={handleNewTicketType}
           onClickEdit={handleEdit}
           onClickDelete={handleDelete}
+          loading={!data.data}
         />
       </HelpdeskLayout>
 

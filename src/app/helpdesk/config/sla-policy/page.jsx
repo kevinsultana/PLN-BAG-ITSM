@@ -69,6 +69,7 @@ export default function Page() {
           onClickNewSLAPolicy={handleNewSLAPolicy}
           onClickDelete={handleDeleteSLAPolicy}
           onClickEdit={handleEditSLAPolicy}
+          loading={!data.length}
         />
         <Dialog
           open={deleteModalOpen}

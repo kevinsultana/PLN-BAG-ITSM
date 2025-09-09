@@ -11,7 +11,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`antialiased`}>
+      <body className={`antialiased `}>
         <Toaster richColors position="top-center" />
         <AuthProvider>
           <TicketDataProvider>{children}</TicketDataProvider>

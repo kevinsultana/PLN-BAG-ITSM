@@ -64,6 +64,7 @@ export default function Page() {
           onClickNewApps={handleNewApplication}
           onClickDelete={handleDeleteApplication}
           onClickEdit={handleEditApplication}
+          loading={!data.length}
         />
         <Dialog
           open={deleteModalOpen}
