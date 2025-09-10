@@ -15,7 +15,6 @@ export default function Page() {
   const [data, setData] = useState([]);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
-  console.log(data);
   const router = useRouter();
 
   const handleNewSLAPolicy = () => {

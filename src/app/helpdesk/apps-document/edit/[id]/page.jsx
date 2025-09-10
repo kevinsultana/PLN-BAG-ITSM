@@ -4,21 +4,22 @@ import { useEffect, useState } from "react";
 import HelpdeskLayout from "@/components/Helpdesk/layout/HelpdeskLayout";
 import { ProxyUrl } from "@/api/BaseUrl";
 import { CircularProgress } from "@mui/material";
-import CreateSlaPolicyForm from "@/components/Helpdesk/config/SlaPolicy/CreateSlaPolicyForm";
 import { toast } from "sonner";
+import CreateAppDocumentForm from "@/components/Helpdesk/AppDocument/CreateAppDocumentForm";
 
-export default function EditSlaPolicyPage() {
+export default function EditApplicationPage() {
   const router = useRouter();
   const params = useParams();
   const { id } = params;
   const [loading, setLoading] = useState(true);
-  const [data, setData] = useState(null);
+  const [data, setData] = useState({});
+  const [appList, setAppList] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await ProxyUrl.get(`/sla-policies/${id}`);
-        setData(response.data.data || null);
+        const response = await ProxyUrl.get(`/docs/${id}`);
+        setData(response.data.data || {});
       } catch (err) {
         toast.error("Gagal mengambil data");
       } finally {
@@ -26,19 +27,23 @@ export default function EditSlaPolicyPage() {
       }
     };
     fetchData();
+
+    const fetchAppList = async () => {
+      try {
+        const response = await ProxyUrl.get("/applications");
+        setAppList(response.data.data || []);
+      } catch (err) {
+        toast.error("Gagal mengambil daftar aplikasi");
+      }
+    };
+    fetchAppList();
   }, [id]);
 
   const handleSave = async (form) => {
     try {
-      await ProxyUrl.put(`/sla-policies/${id}`, {
-        name: form.name,
-        description: form.description,
-        priority: form.priority,
-        response_time: Number(form.response_time),
-        resolve_time: Number(form.resolve_time),
-      });
+      await ProxyUrl.put(`/docs/${id}`, form);
       router.back();
-      toast.success("SLA Policy berhasil diperbarui");
+      toast.success("Aplikasi berhasil diperbarui");
     } catch (err) {
       console.log(err);
       toast.error("Gagal menyimpan perubahan");
@@ -54,7 +59,8 @@ export default function EditSlaPolicyPage() {
         {loading ? (
           <CircularProgress />
         ) : (
-          <CreateSlaPolicyForm
+          <CreateAppDocumentForm
+            appList={appList}
             data={data}
             onSubmit={handleSave}
             onCancel={() => router.back()}

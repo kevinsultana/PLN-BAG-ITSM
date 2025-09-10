@@ -10,14 +10,12 @@ export default function Page() {
   const router = useRouter();
 
   const handleSubmit = async (form) => {
-    // console.log(form);
     try {
       const response = await ProxyUrl.post("/applications", {
         name: form.name,
         // slaPolicy: form.slaPolicy,
         description: form.description,
       });
-      console.log(response.data);
       toast.success("Aplikasi berhasil dibuat");
       router.push("/helpdesk/config/application");
     } catch (error) {

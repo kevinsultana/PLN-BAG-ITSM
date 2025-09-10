@@ -13,7 +13,6 @@ export default function EditApplicationPage() {
   const { id } = params;
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState({});
-  console.log(data);
 
   useEffect(() => {
     const fetchData = async () => {
