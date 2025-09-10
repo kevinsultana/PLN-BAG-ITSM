@@ -33,7 +33,6 @@ export default function TeamMemberTable({ onClickNew, data = [] }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [orderBy, setOrderBy] = useState("name");
   const [order, setOrder] = useState("asc");
-  console.log(data);
 
   useEffect(() => {
     setTeamMembers(data);
