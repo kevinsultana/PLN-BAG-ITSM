@@ -92,7 +92,9 @@ export default function CreateAppDocumentForm({
 
   return (
     <div className="bg-white rounded-xl p-6 mt-4 border border-gray-200 shadow-sm">
-      <h1 className="text-xl font-bold mb-6">Buat Dokumen</h1>
+      <h1 className="text-xl font-bold mb-6">
+        {data ? "Edit Dokumen Aplikasi" : "Buat Dokumen Aplikasi"}
+      </h1>
       <form
         onSubmit={handleSubmit}
         className="grid grid-cols-1 md:grid-cols-2 gap-6"

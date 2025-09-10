@@ -176,6 +176,7 @@ export default function SidebarAgent({ show }) {
               className={getLinkClassName([
                 "/helpdesk/apps-document",
                 "/helpdesk/apps-document/new",
+                "/helpdesk/apps-document/edit/[id]",
               ])}
             >
               <LuClipboardList />
