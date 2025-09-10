@@ -1,13 +1,14 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
-import { FaPlus, FaTimesCircle, FaCheck } from "react-icons/fa";
+import { FaTimesCircle, FaCheck } from "react-icons/fa";
 import CKEditorWrapper from "@/components/CKEditorWrapper";
 import { toast } from "sonner";
 import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
 import TambahAnggotaModal from "./TambahAnggotaModal";
 import { useRouter } from "next/navigation";
+import { ProxyUrl } from "@/api/BaseUrl";
 
-export default function CreateTeamMemberForm() {
+export default function CreateTeamMemberForm({ onSubmit }) {
   const [form, setForm] = useState({
     namaTeam: "",
     anggotaTeam: [],
@@ -25,28 +26,45 @@ export default function CreateTeamMemberForm() {
   const [anggotaModal, setAnggotaModal] = useState(false);
   const dropdownRef = useRef(null);
 
-  const [dataAnggotaTeamMember, setDataAnggotaTeamMember] = useState([
-    { name: "Pedro", email: "pedro@mail.com", value: "pedro" },
-    { name: "John", email: "john@mail.com", value: "john" },
-    { name: "Maria", email: "maria@mail.com", value: "maria" },
-  ]);
+  const [dataAnggotaTeamMember, setDataAnggotaTeamMember] = useState([]);
 
-  const dataVisibility = [
-    { name: "All Agent", value: "allAgent" },
-    { name: "Only member team", value: "onlyMemberTeam" },
-    { name: "Only Admin", value: "onlyAdmin" },
-  ];
+  const [dataVisibility, setDataVisibility] = useState([]);
 
-  const dataSLA = [
-    { name: "SLA - Critical Incident", value: "criticalIncident" },
-    { name: "SLA - Low Priority Request", value: "lowPriorityRequest" },
-    { name: "SLA - Emergency Access Request", value: "emergencyAccessRequest" },
-    { name: "SLA - IT Procurement Approval", value: "itProcurementApproval" },
-  ];
+  const getDataAnggota = async () => {
+    try {
+      const res = await ProxyUrl.get("/teams");
+      const data = res.data.data;
+      setDataAnggotaTeamMember(data);
+    } catch (error) {
+      console.error("Error fetching team members:", error);
+    }
+  };
 
-  const handleAddMember = (memberData) => {
-    // Memperbarui state dataAnggotaTeamMember dengan anggota baru
-    setDataAnggotaTeamMember((prevData) => [...prevData, memberData]);
+  const getDataVisibility = async () => {
+    try {
+      const res = await ProxyUrl.get("/visibilities");
+      const data = res.data.data;
+      setDataVisibility(data);
+    } catch (error) {
+      console.error("Error fetching visibility options:", error);
+    }
+  };
+
+  useEffect(() => {
+    getDataAnggota();
+    getDataVisibility();
+  }, []);
+
+  const handleAddMember = async (memberData) => {
+    try {
+      await ProxyUrl.post("/teams", memberData);
+      getDataAnggota();
+      toast.success("Anggota berhasil ditambahkan!", {
+        description: `Anggota ${memberData.nama} telah berhasil ditambahkan.`,
+      });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleChange = (e) => {
@@ -89,7 +107,6 @@ export default function CreateTeamMemberForm() {
     if (form.anggotaTeam.length === 0) newErrors.anggotaTeam = true;
     if (!form.visibility) newErrors.visibility = true;
     if (!form.deskripsi.trim()) newErrors.deskripsi = true;
-    if (!form.slaPolicy) newErrors.slaPolicy = true;
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -102,11 +119,17 @@ export default function CreateTeamMemberForm() {
       });
       return;
     }
-    console.log("Submitted Data:", form);
-    toast.success("Team Member berhasil dibuat!", {
-      description: `Tim ${form.namaTeam} telah berhasil ditambahkan.`,
-      duration: 5000,
-    });
+    // Build payload conforming to API contract
+    const payload = {
+      name: form.namaTeam,
+      description: form.deskripsi,
+      is_autoassign: form.autoAssign,
+      is_email: form.email,
+      teams: form.anggotaTeam, // assuming array of identifiers or names
+      visibility_id: form.visibility,
+    };
+
+    onSubmit(payload);
   };
 
   useEffect(() => {
@@ -158,22 +181,25 @@ export default function CreateTeamMemberForm() {
           </label>
           <div
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className={`flex flex-wrap items-center gap-2 border rounded-md p-2 min-h-[42px] ${
+            className={`relative border rounded-md p-2 pr-10 min-h-[42px] ${
               errors.anggotaTeam ? "border-red-500" : "border-gray-300"
             }`}
           >
-            <div className="flex flex-wrap gap-2 w-[94%]">
+            <div className="flex flex-wrap gap-2 w-full pr-10 items-start">
               {form.anggotaTeam.length > 0 ? (
                 form.anggotaTeam.map((member, index) => (
                   <span
                     key={index}
-                    className="flex items-center gap-1 bg-gray-200 rounded-full pl-3 pr-2 py-1 text-sm"
+                    className="flex items-center gap-1 bg-gray-200 rounded-full pl-3 pr-2 py-1 text-sm max-w-full"
                   >
-                    {dataAnggotaTeamMember.find((m) => m.value === member)
-                      ?.name || member}
+                    {dataAnggotaTeamMember.find((m) => m.ID === member)?.Name ||
+                      member}
                     <button
                       type="button"
-                      onClick={() => handleRemoveMember(member)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveMember(member);
+                      }}
                       className="text-gray-500 hover:text-gray-700"
                     >
                       <FaTimesCircle className="w-3 h-3" />
@@ -184,25 +210,31 @@ export default function CreateTeamMemberForm() {
                 <span className="text-gray-400">Pilih anggota</span>
               )}
             </div>
+
+            {/* arrow button fixed to top-right of the box */}
             <button
               type="button"
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="text-2xl self-end text-gray-500"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsDropdownOpen(!isDropdownOpen);
+              }}
+              className="absolute right-2 top-2 text-gray-500 p-1"
+              aria-label="toggle anggota dropdown"
             >
               {isDropdownOpen ? <RiArrowUpSLine /> : <RiArrowDownSLine />}
             </button>
           </div>
           {isDropdownOpen && (
-            <div className="absolute z-10 w-full top-18 mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
+            <div className="absolute z-10 w-full top-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
               <ul className="py-1 max-h-48 overflow-y-auto">
                 {dataAnggotaTeamMember.map((member, index) => (
                   <li
                     key={index}
-                    onClick={() => handleMemberSelect(member.value)}
+                    onClick={() => handleMemberSelect(member.ID)}
                     className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm flex justify-between items-center"
                   >
-                    {member.name}
-                    {form.anggotaTeam.includes(member.value) && (
+                    {member.Name}
+                    {form.anggotaTeam.includes(member.ID) && (
                       <FaCheck className="text-[#65C7D5]" />
                     )}
                   </li>
@@ -225,15 +257,15 @@ export default function CreateTeamMemberForm() {
           >
             <option value="">Pilih Visibility</option>
             {dataVisibility.map((item, index) => (
-              <option key={index} value={item.value}>
-                {item.name}
+              <option key={index} value={item.ID}>
+                {item.Name}
               </option>
             ))}
           </select>
         </div>
 
         {/* Deskripsi */}
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 col-span-2">
           <label className="font-semibold text-sm">
             Deskripsi<span className="text-red-500">*</span>
           </label>
@@ -245,26 +277,6 @@ export default function CreateTeamMemberForm() {
             }`}
             placeholder="Deskripsi..."
           />
-        </div>
-
-        {/* SLA Policy */}
-        <div className="flex flex-col gap-2">
-          <label className="font-semibold text-sm">
-            SLA Policy<span className="text-red-500">*</span>
-          </label>
-          <select
-            name="slaPolicy"
-            value={form.slaPolicy}
-            onChange={handleChange}
-            className={`input ${errors.slaPolicy ? "border-red-500" : ""}`}
-          >
-            <option value="">Pilih SLA</option>
-            {dataSLA.map((item, index) => (
-              <option key={index} value={item.value}>
-                {item.name}
-              </option>
-            ))}
-          </select>
         </div>
 
         {/* Email & Auto Assign */}
