@@ -104,13 +104,13 @@ export default function page() {
           </button>
         </form>
       </div>
-      <div>
-        <Link
-          href={"/beranda"}
-          className="bg-[#65C7D5] hover:bg-[#4FB3C1] text-white font-semibold rounded-xl p-2 mt-2 shadow transition text-lg"
-        >
-          Beranda
-        </Link>
+      <div className="flex gap-6">
+        <button className="bg-cyan-400 cursor-pointer p-4 text-white rounded-xl shadow hover:bg-cyan-500 transition">
+          <Link href="/beranda">Beranda side</Link>
+        </button>
+        <button className="bg-cyan-400 cursor-pointer p-4 text-white rounded-xl shadow hover:bg-cyan-500 transition">
+          <Link href="/helpdesk">Helpdesk Side</Link>
+        </button>
       </div>
     </div>
   );
