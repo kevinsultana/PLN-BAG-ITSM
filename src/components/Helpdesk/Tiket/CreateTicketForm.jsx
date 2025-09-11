@@ -1,11 +1,13 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CKEditorWrapper from "@/components/CKEditorWrapper";
 import { toast } from "sonner";
 import { FaExternalLinkAlt } from "react-icons/fa";
 import { RiArrowDownSLine } from "react-icons/ri";
+import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import { ProxyUrl } from "@/api/BaseUrl";
 
-export default function CreateTicketForm() {
+export default function CreateTicketForm({ onSubmit }) {
   const [form, setForm] = useState({
     team: "",
     namaAplikasi: "",
@@ -22,15 +24,88 @@ export default function CreateTicketForm() {
   });
 
   const [errors, setErrors] = useState({});
+  const [dataTeams, setDataTeams] = useState([]);
+  const [dataPriorities, setDataPriorities] = useState([]);
+  const [dataTipe, setDataTipe] = useState([]);
+  const [dataSla, setDataSla] = useState([]);
+  const [dataApplications, setDataApplications] = useState([]);
+  const [dataDivisions, setDataDivisions] = useState([]);
 
-  const dataTeams = ["Functional", "Technical"];
-  const dataPriorities = ["Kritis", "Tinggi", "Sedang", "Rendah"];
-  const dataTipe = ["INFR", "SCRQ", "INSP", "CRQS"];
-  const dataSLAs = [
-    "SLA - Critical Incident",
-    "SLA - Low Priority",
-    "SLA - Emergency Access",
-  ];
+  const getDataTeams = async () => {
+    try {
+      const res = await ProxyUrl.get("/team-groups");
+      const data = res.data?.data.map((item) => ({
+        name: item.name,
+        id: item.id,
+      }));
+      setDataTeams(data);
+    } catch (error) {
+      console.error("Error fetching team groups:", error);
+    }
+  };
+
+  const getDataPriorities = async () => {
+    try {
+      const res = await ProxyUrl.get("/priorities");
+      setDataPriorities(res?.data?.data);
+    } catch (error) {
+      console.error("Error fetching priorities:", error);
+    }
+  };
+
+  const getTicketTypes = async () => {
+    try {
+      const res = await ProxyUrl.get("/ticket-types");
+      setDataTipe(res?.data?.data);
+    } catch (error) {
+      console.error("Error fetching ticket types:", error);
+    }
+  };
+
+  const getDataSla = async () => {
+    try {
+      const res = await ProxyUrl.get("/sla-policies");
+      setDataSla(res?.data?.data);
+    } catch (error) {
+      console.error("Error fetching SLA policies:", error);
+    }
+  };
+
+  const getDataApplications = async () => {
+    try {
+      const res = await ProxyUrl.get("/applications");
+      setDataApplications(res?.data?.data);
+    } catch (error) {
+      console.error("Error fetching applications:", error);
+    }
+  };
+
+  const getDataDivisions = async () => {
+    try {
+      const res = await ProxyUrl.get("/divisions");
+      setDataDivisions(res?.data?.data);
+    } catch (error) {
+      console.error("Error fetching divisions:", error);
+    }
+  };
+
+  useEffect(() => {
+    getDataTeams();
+    getDataPriorities();
+    getTicketTypes();
+    getDataSla();
+    getDataApplications();
+    getDataDivisions();
+  }, []);
+
+  // const dataTeams = ["Functional", "Technical"];
+  // const dataPriorities = ["Kritis", "Tinggi", "Sedang", "Rendah"];
+  // const dataTipe = ["INFR", "SCRQ", "INSP", "CRQS"];
+  // const dataSLAs = [
+  //   "SLA - Critical Incident",
+  //   "SLA - Low Priority",
+  //   "SLA - Emergency Access",
+  // ];
 
   const priorityColors = {
     Kritis: "text-red-500",
@@ -64,17 +139,14 @@ export default function CreateTicketForm() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!validate()) {
-      toast.error("Lengkapi data di bawah ini", {
-        description: "Silahkan lengkapi semua field yang ditandai (*).",
-      });
-      return;
-    }
-    console.log("Submitted Data:", form);
-    toast.success("Formulir berhasil disubmit!", {
-      description: "Data tiket telah berhasil disimpan.",
-      duration: 5000,
-    });
+    // if (!validate()) {
+    //   toast.error("Lengkapi data di bawah ini", {
+    //     description: "Silahkan lengkapi semua field yang ditandai (*).",
+    //   });
+    //   return;
+    // }
+    // console.log("Submitted Data:", form);
+    onSubmit(form);
   };
 
   return (
@@ -84,41 +156,54 @@ export default function CreateTicketForm() {
         onSubmit={handleSubmit}
         className="grid grid-cols-1 md:grid-cols-2 gap-6"
       >
-        {/* Team */}
+        {/* Team - MUI Select dengan label custom */}
         <div className="flex flex-col gap-2">
           <label className="font-semibold text-sm">
             Team<span className="text-red-500">*</span>
           </label>
-          <div className="relative">
-            <select
+          <FormControl fullWidth size="small" error={!!errors.team}>
+            <Select
               name="team"
               value={form.team}
               onChange={handleChange}
-              className={`input ${errors.team ? "border-red-500" : ""}`}
+              displayEmpty
+              sx={{ backgroundColor: "white", borderRadius: 2 }}
             >
-              <option value="">Pilih Team</option>
-              {dataTeams.map((team, index) => (
-                <option key={index} value={team}>
-                  {team}
-                </option>
+              <MenuItem value="">
+                <em>Pilih Team</em>
+              </MenuItem>
+              {dataTeams.map((team) => (
+                <MenuItem key={team.id} value={String(team.id ?? "")}>
+                  {team.name}
+                </MenuItem>
               ))}
-            </select>
-          </div>
+            </Select>
+          </FormControl>
         </div>
 
-        {/* Nama Aplikasi */}
+        {/* Nama Aplikasi - MUI Select */}
         <div className="flex flex-col gap-2">
           <label className="font-semibold text-sm">
             Nama Aplikasi<span className="text-red-500">*</span>
           </label>
-          <input
-            type="text"
-            name="namaAplikasi"
-            value={form.namaAplikasi}
-            onChange={handleChange}
-            className={`input ${errors.namaAplikasi ? "border-red-500" : ""}`}
-            placeholder="Nama Aplikasi"
-          />
+          <FormControl fullWidth size="small" error={!!errors.namaAplikasi}>
+            <Select
+              name="namaAplikasi"
+              value={form.namaAplikasi}
+              onChange={handleChange}
+              displayEmpty
+              sx={{ backgroundColor: "white", borderRadius: 2 }}
+            >
+              <MenuItem value="">
+                <em>Pilih Aplikasi</em>
+              </MenuItem>
+              {dataApplications.map((app) => (
+                <MenuItem key={app.id} value={String(app.ID ?? "")}>
+                  {app.Name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </div>
 
         {/* Assigned To */}
@@ -151,75 +236,130 @@ export default function CreateTicketForm() {
           />
         </div>
 
-        {/* Priority */}
+        {/* Priority - MUI Select */}
         <div className="flex flex-col gap-2">
           <label className="font-semibold text-sm">
             Priority<span className="text-red-500">*</span>
           </label>
-          <div className="relative">
-            <select
+          <FormControl fullWidth size="small" error={!!errors.priority}>
+            <Select
               name="priority"
-              value={form.priority}
+              value={form.priority || ""}
               onChange={handleChange}
-              className={`input appearance-none cursor-pointer ${
-                errors.priority ? "border-red-500" : ""
-              }`}
+              displayEmpty
+              sx={{ backgroundColor: "white", borderRadius: 2 }}
+              renderValue={(selected) => {
+                if (!selected) return <em>Pilih Priority</em>;
+                const p = dataPriorities.find(
+                  (p) => String(p.ID) === String(selected)
+                );
+                return (
+                  <span style={{ display: "flex", alignItems: "center" }}>
+                    <span
+                      style={{
+                        display: "inline-block",
+                        width: 12,
+                        height: 12,
+                        borderRadius: "50%",
+                        marginRight: 8,
+                        backgroundColor:
+                          p?.Level === "Kritis"
+                            ? "#ef4444"
+                            : p?.Level === "Tinggi"
+                            ? "#f97316"
+                            : p?.Level === "Sedang"
+                            ? "#eab308"
+                            : p?.Level === "Rendah"
+                            ? "#22c55e"
+                            : "#d1d5db",
+                      }}
+                    ></span>
+                    {p?.Level}
+                  </span>
+                );
+              }}
             >
-              <option value="">Pilih Priority</option>
+              <MenuItem value="">
+                <em>Pilih Priority</em>
+              </MenuItem>
               {dataPriorities.map((p, index) => (
-                <option key={index} value={p}>
-                  {p}
-                </option>
+                <MenuItem key={index} value={String(p.ID ?? "")}>
+                  <span style={{ display: "flex", alignItems: "center" }}>
+                    <span
+                      style={{
+                        display: "inline-block",
+                        width: 12,
+                        height: 12,
+                        borderRadius: "50%",
+                        marginRight: 8,
+                        backgroundColor:
+                          p.Level === "Kritis"
+                            ? "#ef4444"
+                            : p.Level === "Tinggi"
+                            ? "#f97316"
+                            : p.Level === "Sedang"
+                            ? "#eab308"
+                            : p.Level === "Rendah"
+                            ? "#22c55e"
+                            : "#d1d5db",
+                      }}
+                    ></span>
+                    {p.Level}
+                  </span>
+                </MenuItem>
               ))}
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-700">
-              {form.priority && (
-                <span
-                  className={`h-3 w-3 rounded-full mr-2 ${priorityColors[
-                    form.priority
-                  ]?.replace("text", "bg")}`}
-                />
-              )}
-              <RiArrowDownSLine />
-            </div>
-          </div>
+            </Select>
+          </FormControl>
         </div>
 
-        {/* Nama Divisi */}
+        {/* Nama Divisi - MUI Select */}
         <div className="flex flex-col gap-2">
           <label className="font-semibold text-sm">
             Nama Divisi<span className="text-red-500">*</span>
           </label>
-          <input
-            type="text"
-            name="namaDivisi"
-            value={form.namaDivisi}
-            onChange={handleChange}
-            className={`input ${errors.namaDivisi ? "border-red-500" : ""}`}
-            placeholder="Accounting"
-          />
+          <FormControl fullWidth size="small" error={!!errors.namaDivisi}>
+            <Select
+              name="namaDivisi"
+              value={form.namaDivisi || ""}
+              onChange={handleChange}
+              displayEmpty
+              sx={{ backgroundColor: "white", borderRadius: 2 }}
+            >
+              <MenuItem value="">
+                <em>Pilih Divisi</em>
+              </MenuItem>
+              {dataDivisions.map((divisi, index) => (
+                <MenuItem key={index} value={String(divisi.ID ?? "")}>
+                  {divisi.Name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </div>
 
-        {/* Tipe */}
+        {/* Tipe - MUI Select */}
         <div className="flex flex-col gap-2">
           <label className="font-semibold text-sm">
             Tipe<span className="text-red-500">*</span>
           </label>
-          <div className="relative">
-            <select
+          <FormControl fullWidth size="small" error={!!errors.tipe}>
+            <Select
               name="tipe"
-              value={form.tipe}
+              value={form.tipe || ""}
               onChange={handleChange}
-              className={`input ${errors.tipe ? "border-red-500" : ""}`}
+              displayEmpty
+              sx={{ backgroundColor: "white", borderRadius: 2 }}
             >
-              <option value="">Pilih Tipe</option>
+              <MenuItem value="">
+                <em>Pilih Tipe</em>
+              </MenuItem>
               {dataTipe.map((tipe, index) => (
-                <option key={index} value={tipe}>
-                  {tipe}
-                </option>
+                <MenuItem key={index} value={String(tipe.ID ?? "")}>
+                  {tipe.Code}
+                </MenuItem>
               ))}
-            </select>
-          </div>
+            </Select>
+          </FormControl>
         </div>
 
         {/* Email */}
@@ -233,30 +373,33 @@ export default function CreateTicketForm() {
             value={form.email}
             onChange={handleChange}
             className={`input ${errors.email ? "border-red-500" : ""}`}
-            placeholder="jhondoe@gmail.com"
+            placeholder="Email"
           />
         </div>
 
-        {/* SLA Policy */}
+        {/* SLA Policy - MUI Select */}
         <div className="flex flex-col gap-2">
           <label className="font-semibold text-sm">
             SLA Policy<span className="text-red-500">*</span>
           </label>
-          <div className="relative">
-            <select
+          <FormControl fullWidth size="small" error={!!errors.slaPolicy}>
+            <Select
               name="slaPolicy"
-              value={form.slaPolicy}
+              value={form.slaPolicy || ""}
               onChange={handleChange}
-              className={`input ${errors.slaPolicy ? "border-red-500" : ""}`}
+              displayEmpty
+              sx={{ backgroundColor: "white", borderRadius: 2 }}
             >
-              <option value="">Pilih SLA Policy</option>
-              {dataSLAs.map((sla, index) => (
-                <option key={index} value={sla}>
-                  {sla}
-                </option>
+              <MenuItem value="">
+                <em>Pilih SLA Policy</em>
+              </MenuItem>
+              {dataSla.map((sla, index) => (
+                <MenuItem key={index} value={String(sla.ID ?? "")}>
+                  {sla.Name}
+                </MenuItem>
               ))}
-            </select>
-          </div>
+            </Select>
+          </FormControl>
         </div>
 
         {/* No. Whatsapp */}

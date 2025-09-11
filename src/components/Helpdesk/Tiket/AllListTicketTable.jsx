@@ -11,7 +11,6 @@ import {
   Paper,
   TableSortLabel,
   Pagination,
-  Checkbox,
 } from "@mui/material";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import HourglassTopIcon from "@mui/icons-material/HourglassTop";
@@ -19,58 +18,7 @@ import TimelapseIcon from "@mui/icons-material/Timelapse";
 import CancelIcon from "@mui/icons-material/Cancel";
 import { FaPlus } from "react-icons/fa";
 
-const initialTickets = [
-  {
-    id: 1,
-    priority: "Tinggi",
-    subject: "Permintaan akses ERP",
-    application: "ERP FM",
-    assign_team: "Func - Adam",
-    requester: "Raka Pratama",
-    sla_deadline: "2025-08-05 17:00:00",
-    status: "In Progress",
-  },
-  {
-    id: 2,
-    priority: "Rendah",
-    subject: "Akses approval PO hilang",
-    application: "ERP CRM",
-    assign_team: "",
-    requester: "Dian Sari",
-    sla_deadline: "",
-    status: "Open",
-  },
-  {
-    id: 3,
-    priority: "Kritis",
-    subject: "Modul e-Proc error saat submit",
-    application: "e-Procurement",
-    assign_team: "Tech - Yola",
-    requester: "Budi Santoso",
-    sla_deadline: "2025-08-04T10:00:00",
-    status: "Resolved",
-  },
-  {
-    id: 4,
-    priority: "Sedang",
-    subject: "Butuh data laporan vendor",
-    application: "ERP CRM",
-    assign_team: "",
-    requester: "Lestari Wulandari",
-    sla_deadline: "",
-    status: "Open",
-  },
-  {
-    id: 5,
-    priority: "Tinggi",
-    subject: "Tidak bisa login e-Proc",
-    application: "e-Procurement",
-    assign_team: "Tech - Yola",
-    requester: "Irfan Hidayat",
-    sla_deadline: "2025-08-05T12:00:00",
-    status: "In Progress",
-  },
-];
+const initialTickets = []; // fallback jika belum ada data API
 
 const priorityStyle = {
   Kritis: { dot: "bg-red-500", text: "text-red-600", bg: "bg-red-50" },
@@ -82,26 +30,20 @@ const priorityStyle = {
 const priorityOrder = { Kritis: 4, Tinggi: 3, Sedang: 2, Rendah: 1, "": 0 };
 
 const StatusPill = ({ status }) => {
-  let icon = null;
-  switch (status) {
-    case "Resolved":
-      icon = <CheckCircleOutlineIcon fontSize="small" />;
-      break;
-    case "In Progress":
-      icon = <TimelapseIcon fontSize="small" />;
-      break;
-    case "Waiting":
-      icon = <HourglassTopIcon fontSize="small" />;
-      break;
-    case "Closed":
-      icon = <CancelIcon fontSize="small" />;
-      break;
-    default:
-      icon = <HourglassTopIcon fontSize="small" />;
-  }
+  const s = (status || "").toString().toUpperCase();
+  let icon = <HourglassTopIcon fontSize="small" />;
+
+  if (s === "RESOLVED" || s === "DONE")
+    icon = <CheckCircleOutlineIcon fontSize="small" />;
+  else if (s === "IN PROGRESS" || s === "ON PROGRESS")
+    icon = <TimelapseIcon fontSize="small" />;
+  else if (s === "WAITING" || s === "PENDING")
+    icon = <HourglassTopIcon fontSize="small" />;
+  else if (s === "CLOSED") icon = <CancelIcon fontSize="small" />;
+
   return (
     <span className="inline-flex items-center gap-2 rounded-full bg-gray-100 text-gray-700 px-3 py-1 text-sm">
-      {icon} {status}
+      {icon} {status || "-"}
     </span>
   );
 };
@@ -143,13 +85,35 @@ const formatSLA = (str) => {
   return `${tanggal} - ${jam} WIB`;
 };
 
-export default function AllListTicketTable({ onRowClick }) {
-  const [tickets] = useState(initialTickets);
-  const [orderBy, setOrderBy] = useState("id");
+export default function AllListTicketTable({
+  onRowClick,
+  onPageChange,
+  items = [],
+  meta,
+}) {
+  // Parent mengirim langsung array `items` dari API
+  const itemsFromApi = useMemo(() => {
+    return (items || []).map((it) => ({
+      id: it?.id ?? "-",
+      priority: it?.priority ?? "", // jika belum ada di API akan tampil '-'
+      subject: it?.subject ?? "-",
+      application: it?.application?.name ?? it?.application ?? "-",
+      assign_team: it?.team?.name ?? it?.assign_team ?? "",
+      requester: it?.fullname || it?.requester?.name || it?.requester || "-",
+      sla_deadline: it?.sla_deadline || "",
+      status: it?.status || "-",
+    }));
+  }, [items]);
+
+  const [orderBy, setOrderBy] = useState("subject");
   const [order, setOrder] = useState("asc");
-  const [page, setPage] = useState(1);
-  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [page, setPage] = useState(meta?.page || 1);
+  React.useEffect(() => {
+    if (meta?.page) setPage(meta.page);
+  }, [meta?.page]);
   const rowsPerPage = 5;
+
+  const tickets = itemsFromApi.length ? itemsFromApi : initialTickets;
 
   const handleSort = (property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -180,28 +144,13 @@ export default function AllListTicketTable({ onRowClick }) {
     return data;
   }, [tickets, orderBy, order]);
 
-  const totalPages = Math.ceil(sortedTickets.length / rowsPerPage);
+  const totalPages =
+    meta?.total_pages ?? Math.ceil(sortedTickets.length / rowsPerPage);
   const paginatedTickets = useMemo(() => {
+    if (onPageChange) return sortedTickets; // server-side pagination handled by parent
     const start = (page - 1) * rowsPerPage;
     return sortedTickets.slice(start, start + rowsPerPage);
-  }, [sortedTickets, page]);
-
-  const pageIds = paginatedTickets.map((t) => t.id);
-  const allPageChecked = pageIds.every((id) => selectedIds.has(id));
-  const indeterminate =
-    !allPageChecked && pageIds.some((id) => selectedIds.has(id));
-
-  const toggleSelectAllPage = (checked) => {
-    const copy = new Set(selectedIds);
-    if (checked) pageIds.forEach((id) => copy.add(id));
-    else pageIds.forEach((id) => copy.delete(id));
-    setSelectedIds(copy);
-  };
-  const toggleSelectRow = (id) => {
-    const copy = new Set(selectedIds);
-    copy.has(id) ? copy.delete(id) : copy.add(id);
-    setSelectedIds(copy);
-  };
+  }, [sortedTickets, page, onPageChange]);
 
   return (
     <div className="p-6 bg-white rounded-2xl border border-gray-200">
@@ -223,23 +172,7 @@ export default function AllListTicketTable({ onRowClick }) {
         <Table>
           <TableHead>
             <TableRow className="bg-gray-50">
-              <TableCell padding="checkbox">
-                <Checkbox
-                  checked={allPageChecked}
-                  indeterminate={indeterminate}
-                  onChange={(e) => toggleSelectAllPage(e.target.checked)}
-                />
-              </TableCell>
-
-              <TableCell sortDirection={orderBy === "id" ? order : false}>
-                <TableSortLabel
-                  active={orderBy === "id"}
-                  direction={orderBy === "id" ? order : "asc"}
-                  onClick={() => handleSort("id")}
-                >
-                  ID
-                </TableSortLabel>
-              </TableCell>
+              <TableCell>No</TableCell>
 
               <TableCell sortDirection={orderBy === "priority" ? order : false}>
                 <TableSortLabel
@@ -316,38 +249,41 @@ export default function AllListTicketTable({ onRowClick }) {
           <TableBody>
             {paginatedTickets.map((row, index) => (
               <TableRow
-                key={row.id}
+                key={row.id || index}
                 hover
                 className="cursor-pointer"
-                onClick={() => onRowClick(row, index)}
+                onClick={() => onRowClick?.(row, index)}
               >
-                <TableCell
-                  padding="checkbox"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <Checkbox
-                    checked={selectedIds.has(row.id)}
-                    onChange={() => toggleSelectRow(row.id)}
-                  />
+                <TableCell className="text-gray-800">
+                  {((meta?.page || page) - 1) *
+                    (meta?.page_size || rowsPerPage) +
+                    index +
+                    1}
                 </TableCell>
-
-                <TableCell className="text-gray-800">{row.id}</TableCell>
 
                 <TableCell>
                   <PriorityBadge value={row.priority} />
                 </TableCell>
 
-                <TableCell className="text-gray-800">{row.subject}</TableCell>
-
                 <TableCell className="text-gray-800">
-                  {row.application}
+                  {row.subject || "-"}
                 </TableCell>
 
                 <TableCell className="text-gray-800">
-                  {row.assign_team || <span className="text-gray-400">-</span>}
+                  {row.application || "-"}
                 </TableCell>
 
-                <TableCell className="text-gray-800">{row.requester}</TableCell>
+                <TableCell className="text-gray-800">
+                  {row.assign_team ? (
+                    row.assign_team
+                  ) : (
+                    <span className="text-gray-400">-</span>
+                  )}
+                </TableCell>
+
+                <TableCell className="text-gray-800">
+                  {row.requester || "-"}
+                </TableCell>
 
                 <TableCell className="text-gray-800">
                   {formatSLA(row.sla_deadline)}
@@ -367,9 +303,12 @@ export default function AllListTicketTable({ onRowClick }) {
             <span className="font-medium">{totalPages || 1}</span>
           </div>
           <Pagination
-            count={totalPages}
+            count={totalPages || 1}
             page={page}
-            onChange={(e, value) => setPage(value)}
+            onChange={(e, value) => {
+              setPage(value);
+              onPageChange?.(value);
+            }}
             sx={{
               "& .MuiPaginationItem-root": {
                 color: "#65C7D5",
