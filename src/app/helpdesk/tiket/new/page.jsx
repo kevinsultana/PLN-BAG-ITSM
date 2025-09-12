@@ -1,4 +1,5 @@
 "use client";
+import { ProxyUrl } from "@/api/BaseUrl";
 import HelpdeskLayout from "@/components/Helpdesk/layout/HelpdeskLayout";
 import CreateTicketForm from "@/components/Helpdesk/Tiket/CreateTicketForm";
 import { useRouter } from "next/navigation";
@@ -15,12 +16,12 @@ export default function Page() {
     //   division_id: formData.namaDivisi,
 
     // };
-    // try {
-    //   const res = await ProxyUrl.post("/tickets", submitData);
-    // } catch (error) {
-    //   console.error("Error submitting ticket:", error);
-    // }
-    console.log("Form Data Submitted:", formData);
+    try {
+      const res = await ProxyUrl.post("/tickets", formData);
+      console.log(res.data);
+    } catch (error) {
+      console.error("Error submitting ticket:", error);
+    }
     toast.success("Tiket berhasil dibuat!", {
       description: "Tiket baru telah berhasil dibuat.",
     });

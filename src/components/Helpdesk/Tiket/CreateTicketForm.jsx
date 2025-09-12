@@ -9,109 +9,72 @@ import { ProxyUrl } from "@/api/BaseUrl";
 
 export default function CreateTicketForm({ onSubmit }) {
   const [form, setForm] = useState({
-    team: "",
-    namaAplikasi: "",
-    assignedTo: "",
+    team_id: "",
+    application_id: "",
+    assigned_to: "",
     requester: "",
-    priority: "",
-    namaDivisi: "",
-    tipe: "",
+    priority_id: "",
+    division_id: "",
+    ticket_type_id: "",
     email: "",
-    slaPolicy: "",
-    noWhatsapp: "",
-    lampiran: "",
-    deskripsi: "",
+    sla_policy_id: "",
+    whatsapp: "",
+    description: "",
+    bpo_id: "",
+    contract_number: "",
+    contract_value: "",
   });
 
+  const [attachment, setAttachment] = useState([]);
+
   const [errors, setErrors] = useState({});
+  const [files, setFiles] = useState([]);
   const [dataTeams, setDataTeams] = useState([]);
   const [dataPriorities, setDataPriorities] = useState([]);
   const [dataTipe, setDataTipe] = useState([]);
   const [dataSla, setDataSla] = useState([]);
   const [dataApplications, setDataApplications] = useState([]);
   const [dataDivisions, setDataDivisions] = useState([]);
+  const [dataBpo, setDataBpo] = useState([]);
 
-  const getDataTeams = async () => {
+  const getDataAllSelections = async () => {
     try {
-      const res = await ProxyUrl.get("/team-groups");
-      const data = res.data?.data.map((item) => ({
-        name: item.name,
-        id: item.id,
-      }));
-      setDataTeams(data);
+      const res = await ProxyUrl.get("/tickets/selections");
+      setDataTeams(res.data.data.teams || []);
+      setDataPriorities(res.data.data.priorities || []);
+      setDataTipe(res.data.data.ticket_types || []);
+      setDataSla(res.data.data.sla_policies || []);
+      setDataApplications(res.data.data.applications || []);
+      setDataDivisions(res.data.data.divisions || []);
+      setDataBpo(res.data.data.bpos || []);
     } catch (error) {
-      console.error("Error fetching team groups:", error);
-    }
-  };
-
-  const getDataPriorities = async () => {
-    try {
-      const res = await ProxyUrl.get("/priorities");
-      setDataPriorities(res?.data?.data);
-    } catch (error) {
-      console.error("Error fetching priorities:", error);
-    }
-  };
-
-  const getTicketTypes = async () => {
-    try {
-      const res = await ProxyUrl.get("/ticket-types");
-      setDataTipe(res?.data?.data);
-    } catch (error) {
-      console.error("Error fetching ticket types:", error);
-    }
-  };
-
-  const getDataSla = async () => {
-    try {
-      const res = await ProxyUrl.get("/sla-policies");
-      setDataSla(res?.data?.data);
-    } catch (error) {
-      console.error("Error fetching SLA policies:", error);
-    }
-  };
-
-  const getDataApplications = async () => {
-    try {
-      const res = await ProxyUrl.get("/applications");
-      setDataApplications(res?.data?.data);
-    } catch (error) {
-      console.error("Error fetching applications:", error);
-    }
-  };
-
-  const getDataDivisions = async () => {
-    try {
-      const res = await ProxyUrl.get("/divisions");
-      setDataDivisions(res?.data?.data);
-    } catch (error) {
-      console.error("Error fetching divisions:", error);
+      console.error("Error fetching all selections:", error);
     }
   };
 
   useEffect(() => {
-    getDataTeams();
-    getDataPriorities();
-    getTicketTypes();
-    getDataSla();
-    getDataApplications();
-    getDataDivisions();
+    getDataAllSelections();
   }, []);
 
-  // const dataTeams = ["Functional", "Technical"];
-  // const dataPriorities = ["Kritis", "Tinggi", "Sedang", "Rendah"];
-  // const dataTipe = ["INFR", "SCRQ", "INSP", "CRQS"];
-  // const dataSLAs = [
-  //   "SLA - Critical Incident",
-  //   "SLA - Low Priority",
-  //   "SLA - Emergency Access",
-  // ];
+  const MAX_TOTAL_BYTES = 50 * 1024 * 1024; // 50 MB
 
-  const priorityColors = {
-    Kritis: "text-red-500",
-    Tinggi: "text-orange-500",
-    Sedang: "text-yellow-500",
-    Rendah: "text-green-500",
+  const totalFilesSize = (arr) => arr.reduce((s, f) => s + (f?.size || 0), 0);
+
+  const handleFileChange = (e) => {
+    const selected = Array.from(e.target.files || []);
+    const total = totalFilesSize(selected);
+    if (total > MAX_TOTAL_BYTES) {
+      toast.error(
+        "Total lampiran melebihi 50 MB. Silakan pilih file lebih kecil."
+      );
+      return;
+    }
+    setFiles(selected);
+    setForm((prev) => ({
+      ...prev,
+      lampiran: selected.map((f) => f.name).join(", "),
+    }));
+    setErrors((prev) => ({ ...prev, lampiran: false }));
   };
 
   const handleChange = (e) => {
@@ -124,29 +87,74 @@ export default function CreateTicketForm({ onSubmit }) {
 
   const validate = () => {
     const newErrors = {};
-    for (const [key, value] of Object.entries(form)) {
-      if (
-        (typeof value === "string" && !value.trim()) ||
-        (key === "deskripsi" && !value.trim()) ||
-        !value
-      ) {
-        newErrors[key] = true;
-      }
-    }
+    if (!form.team_id) newErrors.team_id = true;
+    if (!form.application_id) newErrors.application_id = true;
+    if (!String(form.assigned_to || "").trim()) newErrors.assigned_to = true;
+    if (!String(form.requester || "").trim()) newErrors.requester = true;
+    if (!form.priority_id) newErrors.priority_id = true;
+    if (!form.division_id) newErrors.division_id = true;
+    if (!form.ticket_type_id) newErrors.ticket_type_id = true;
+    if (!String(form.email || "").trim()) newErrors.email = true;
+    if (!form.sla_policy_id) newErrors.sla_policy_id = true;
+    if (!String(form.whatsapp || "").trim()) newErrors.whatsapp = true;
+    // if (!String(form.lampiran || "").trim()) newErrors.lampiran = true;
+    if (!String(form.description || "").trim()) newErrors.description = true;
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // if (!validate()) {
-    //   toast.error("Lengkapi data di bawah ini", {
-    //     description: "Silahkan lengkapi semua field yang ditandai (*).",
-    //   });
-    //   return;
-    // }
-    // console.log("Submitted Data:", form);
-    onSubmit(form);
+    if (!validate()) {
+      toast.error("Lengkapi data di bawah ini", {
+        description: "Silahkan lengkapi semua field yang ditandai (*).",
+      });
+      return;
+    }
+
+    const submit = async () => {
+      try {
+        // If there are files, upload them first to the attachments endpoint
+        let uploaded = form.lampiran || null;
+        if (files && files.length > 0) {
+          const attForm = new FormData();
+          files.forEach((f) => attForm.append("files", f, f.name));
+
+          // perform the upload and extract returned data
+          const uploadPromise = ProxyUrl.post("/attachments", attForm);
+
+          toast.promise(uploadPromise, {
+            loading: "Mengunggah lampiran...",
+            success: "Lampiran berhasil diunggah",
+            error: "Gagal mengunggah lampiran",
+          });
+
+          const res = await uploadPromise;
+
+          // Try to extract attachment references from the response
+          uploaded =
+            (res && res.data && (res.data.data || res.data.attachments)) ||
+            res.data ||
+            [];
+
+          // Save uploaded references locally and in form state
+          setAttachment(uploaded);
+          setForm((prev) => ({ ...prev, lampiran: uploaded }));
+        }
+
+        // Call parent's onSubmit with the form object (includes lampiran refs)
+        const merged = form.lampiran
+          ? form
+          : { ...form, lampiran: form.lampiran || uploaded };
+        if (onSubmit) onSubmit(merged);
+      } catch (error) {
+        console.error("Error uploading attachments or submitting form:", error);
+        toast.error("Terjadi kesalahan saat mengirim data. Coba lagi.");
+      }
+    };
+
+    submit();
   };
 
   return (
@@ -161,10 +169,10 @@ export default function CreateTicketForm({ onSubmit }) {
           <label className="font-semibold text-sm">
             Team<span className="text-red-500">*</span>
           </label>
-          <FormControl fullWidth size="small" error={!!errors.team}>
+          <FormControl fullWidth size="small" error={!!errors.team_id}>
             <Select
-              name="team"
-              value={form.team}
+              name="team_id"
+              value={form.team_id}
               onChange={handleChange}
               displayEmpty
               sx={{ backgroundColor: "white", borderRadius: 2 }}
@@ -186,10 +194,10 @@ export default function CreateTicketForm({ onSubmit }) {
           <label className="font-semibold text-sm">
             Nama Aplikasi<span className="text-red-500">*</span>
           </label>
-          <FormControl fullWidth size="small" error={!!errors.namaAplikasi}>
+          <FormControl fullWidth size="small" error={!!errors.application_id}>
             <Select
-              name="namaAplikasi"
-              value={form.namaAplikasi}
+              name="application_id"
+              value={form.application_id || ""}
               onChange={handleChange}
               displayEmpty
               sx={{ backgroundColor: "white", borderRadius: 2 }}
@@ -198,8 +206,8 @@ export default function CreateTicketForm({ onSubmit }) {
                 <em>Pilih Aplikasi</em>
               </MenuItem>
               {dataApplications.map((app) => (
-                <MenuItem key={app.id} value={String(app.ID ?? "")}>
-                  {app.Name}
+                <MenuItem key={app.id} value={String(app.id ?? "")}>
+                  {app.name}
                 </MenuItem>
               ))}
             </Select>
@@ -213,10 +221,10 @@ export default function CreateTicketForm({ onSubmit }) {
           </label>
           <input
             type="text"
-            name="assignedTo"
-            value={form.assignedTo}
+            name="assigned_to"
+            value={form.assigned_to}
             onChange={handleChange}
-            className={`input ${errors.assignedTo ? "border-red-500" : ""}`}
+            className={`input ${errors.assigned_to ? "border-red-500" : ""}`}
             placeholder="Jordi Amat"
           />
         </div>
@@ -241,17 +249,17 @@ export default function CreateTicketForm({ onSubmit }) {
           <label className="font-semibold text-sm">
             Priority<span className="text-red-500">*</span>
           </label>
-          <FormControl fullWidth size="small" error={!!errors.priority}>
+          <FormControl fullWidth size="small" error={!!errors.priority_id}>
             <Select
-              name="priority"
-              value={form.priority || ""}
+              name="priority_id"
+              value={form.priority_id || ""}
               onChange={handleChange}
               displayEmpty
               sx={{ backgroundColor: "white", borderRadius: 2 }}
               renderValue={(selected) => {
                 if (!selected) return <em>Pilih Priority</em>;
                 const p = dataPriorities.find(
-                  (p) => String(p.ID) === String(selected)
+                  (p) => String(p.id) === String(selected)
                 );
                 return (
                   <span style={{ display: "flex", alignItems: "center" }}>
@@ -263,18 +271,18 @@ export default function CreateTicketForm({ onSubmit }) {
                         borderRadius: "50%",
                         marginRight: 8,
                         backgroundColor:
-                          p?.Level === "Kritis"
+                          p?.level === "Kritis"
                             ? "#ef4444"
-                            : p?.Level === "Tinggi"
+                            : p?.level === "Tinggi"
                             ? "#f97316"
-                            : p?.Level === "Sedang"
+                            : p?.level === "Sedang"
                             ? "#eab308"
-                            : p?.Level === "Rendah"
+                            : p?.level === "Rendah"
                             ? "#22c55e"
                             : "#d1d5db",
                       }}
                     ></span>
-                    {p?.Level}
+                    {p?.level}
                   </span>
                 );
               }}
@@ -283,7 +291,7 @@ export default function CreateTicketForm({ onSubmit }) {
                 <em>Pilih Priority</em>
               </MenuItem>
               {dataPriorities.map((p, index) => (
-                <MenuItem key={index} value={String(p.ID ?? "")}>
+                <MenuItem key={index} value={String(p.id ?? "")}>
                   <span style={{ display: "flex", alignItems: "center" }}>
                     <span
                       style={{
@@ -293,18 +301,18 @@ export default function CreateTicketForm({ onSubmit }) {
                         borderRadius: "50%",
                         marginRight: 8,
                         backgroundColor:
-                          p.Level === "Kritis"
+                          p.level === "Kritis"
                             ? "#ef4444"
-                            : p.Level === "Tinggi"
+                            : p.level === "Tinggi"
                             ? "#f97316"
-                            : p.Level === "Sedang"
+                            : p.level === "Sedang"
                             ? "#eab308"
-                            : p.Level === "Rendah"
+                            : p.level === "Rendah"
                             ? "#22c55e"
                             : "#d1d5db",
                       }}
                     ></span>
-                    {p.Level}
+                    {p.level}
                   </span>
                 </MenuItem>
               ))}
@@ -317,10 +325,10 @@ export default function CreateTicketForm({ onSubmit }) {
           <label className="font-semibold text-sm">
             Nama Divisi<span className="text-red-500">*</span>
           </label>
-          <FormControl fullWidth size="small" error={!!errors.namaDivisi}>
+          <FormControl fullWidth size="small" error={!!errors.division_id}>
             <Select
-              name="namaDivisi"
-              value={form.namaDivisi || ""}
+              name="division_id"
+              value={form.division_id || ""}
               onChange={handleChange}
               displayEmpty
               sx={{ backgroundColor: "white", borderRadius: 2 }}
@@ -329,8 +337,8 @@ export default function CreateTicketForm({ onSubmit }) {
                 <em>Pilih Divisi</em>
               </MenuItem>
               {dataDivisions.map((divisi, index) => (
-                <MenuItem key={index} value={String(divisi.ID ?? "")}>
-                  {divisi.Name}
+                <MenuItem key={index} value={String(divisi.id ?? "")}>
+                  {divisi.name}
                 </MenuItem>
               ))}
             </Select>
@@ -342,10 +350,10 @@ export default function CreateTicketForm({ onSubmit }) {
           <label className="font-semibold text-sm">
             Tipe<span className="text-red-500">*</span>
           </label>
-          <FormControl fullWidth size="small" error={!!errors.tipe}>
+          <FormControl fullWidth size="small" error={!!errors.ticket_type_id}>
             <Select
-              name="tipe"
-              value={form.tipe || ""}
+              name="ticket_type_id"
+              value={form.ticket_type_id || ""}
               onChange={handleChange}
               displayEmpty
               sx={{ backgroundColor: "white", borderRadius: 2 }}
@@ -354,13 +362,73 @@ export default function CreateTicketForm({ onSubmit }) {
                 <em>Pilih Tipe</em>
               </MenuItem>
               {dataTipe.map((tipe, index) => (
-                <MenuItem key={index} value={String(tipe.ID ?? "")}>
-                  {tipe.Code}
+                <MenuItem key={index} value={String(tipe.id ?? "")}>
+                  {tipe.code}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
         </div>
+
+        {form.ticket_type_id === "a38273cd-c962-464a-b61f-ca9b133dcff5" && (
+          <>
+            <div className="flex flex-col gap-2">
+              <label className="font-semibold text-sm">
+                BPO<span className="text-red-500">*</span>
+              </label>
+              <FormControl fullWidth size="small" error={!!errors.bpo_id}>
+                <Select
+                  name="bpo_id"
+                  value={form.bpo_id || ""}
+                  onChange={handleChange}
+                  displayEmpty
+                  sx={{ backgroundColor: "white", borderRadius: 2 }}
+                >
+                  <MenuItem value="">
+                    <em>Pilih BPO</em>
+                  </MenuItem>
+                  {dataBpo.map((bpo, index) => (
+                    <MenuItem key={index} value={String(bpo.id ?? "")}>
+                      Divisi {bpo.division_name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="font-semibold text-sm">
+                Nomer Kontrak<span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                name="contract_number"
+                value={form.contract_number}
+                onChange={handleChange}
+                className={`input ${
+                  errors.contract_number ? "border-red-500" : ""
+                }`}
+                placeholder="Nomer Kontrak"
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="font-semibold text-sm">
+                Nilai Kontrak<span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                name="contract_value"
+                value={form.contract_value}
+                onChange={handleChange}
+                className={`input ${
+                  errors.contract_value ? "border-red-500" : ""
+                }`}
+                placeholder="Nilai Kontrak"
+              />
+            </div>
+          </>
+        )}
 
         {/* Email */}
         <div className="flex flex-col gap-2">
@@ -382,10 +450,10 @@ export default function CreateTicketForm({ onSubmit }) {
           <label className="font-semibold text-sm">
             SLA Policy<span className="text-red-500">*</span>
           </label>
-          <FormControl fullWidth size="small" error={!!errors.slaPolicy}>
+          <FormControl fullWidth size="small" error={!!errors.sla_policy_id}>
             <Select
-              name="slaPolicy"
-              value={form.slaPolicy || ""}
+              name="sla_policy_id"
+              value={form.sla_policy_id || ""}
               onChange={handleChange}
               displayEmpty
               sx={{ backgroundColor: "white", borderRadius: 2 }}
@@ -394,8 +462,8 @@ export default function CreateTicketForm({ onSubmit }) {
                 <em>Pilih SLA Policy</em>
               </MenuItem>
               {dataSla.map((sla, index) => (
-                <MenuItem key={index} value={String(sla.ID ?? "")}>
-                  {sla.Name}
+                <MenuItem key={index} value={String(sla.id ?? "")}>
+                  {sla.name}
                 </MenuItem>
               ))}
             </Select>
@@ -409,10 +477,10 @@ export default function CreateTicketForm({ onSubmit }) {
           </label>
           <input
             type="text"
-            name="noWhatsapp"
-            value={form.noWhatsapp}
+            name="whatsapp"
+            value={form.whatsapp}
             onChange={handleChange}
-            className={`input ${errors.noWhatsapp ? "border-red-500" : ""}`}
+            className={`input ${errors.whatsapp ? "border-red-500" : ""}`}
             placeholder="08xxxxxxxxxx"
           />
         </div>
@@ -421,17 +489,52 @@ export default function CreateTicketForm({ onSubmit }) {
         <div className="flex flex-col gap-2">
           <label className="font-semibold text-sm">
             Lampiran<span className="text-red-500">*</span>{" "}
-            <span className="text-sm text-gray-500">(Maks 5MB)</span>
+            <span className="text-sm text-gray-500">(Maks 50MB)</span>
           </label>
-          <div
-            className={`flex items-center input px-3 py-2 ${
-              errors.lampiran ? "border-red-500" : ""
-            }`}
-          >
-            <span className="flex-grow text-gray-500">
-              {form.lampiran || "Lampirkan Dokumen / Foto"}
-            </span>
-            <FaExternalLinkAlt className="text-gray-500" />
+          <input
+            type="file"
+            name="lampiran"
+            multiple
+            onChange={handleFileChange}
+            className={`file-input ${errors.lampiran ? "border-red-500" : ""}`}
+            accept="*/*"
+          />
+          <div className="text-sm text-gray-600">
+            {files.length > 0 ? (
+              <ul className="list-disc ml-5">
+                {files.map((f, i) => (
+                  <li key={i} className="flex items-center justify-between">
+                    <span>
+                      {f.name} ({(f.size / 1024 / 1024).toFixed(2)} MB)
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const next = files.filter((_, idx) => idx !== i);
+                        setFiles(next);
+                        setForm((prev) => ({
+                          ...prev,
+                          lampiran: next.map((x) => x.name).join(", "),
+                        }));
+                      }}
+                      className="text-red-500 ml-3"
+                    >
+                      Hapus
+                    </button>
+                  </li>
+                ))}
+                <li>
+                  Total: {(totalFilesSize(files) / 1024 / 1024).toFixed(2)} MB
+                </li>
+              </ul>
+            ) : (
+              <div className="input flex items-center px-3 py-2">
+                <span className="flex-grow text-gray-500">
+                  {form.lampiran || "Lampirkan Dokumen / Foto"}
+                </span>
+                <FaExternalLinkAlt className="text-gray-500" />
+              </div>
+            )}
           </div>
         </div>
 
@@ -441,10 +544,10 @@ export default function CreateTicketForm({ onSubmit }) {
             Deskripsi<span className="text-red-500">*</span>
           </label>
           <CKEditorWrapper
-            value={form.deskripsi}
-            onChange={(data) => setForm({ ...form, deskripsi: data })}
+            value={form.description}
+            onChange={(data) => setForm({ ...form, description: data })}
             className={`ckeditor-container ${
-              errors.deskripsi ? "border-red-500" : ""
+              errors.description ? "border-red-500" : ""
             }`}
             placeholder="Deskripsi"
           />

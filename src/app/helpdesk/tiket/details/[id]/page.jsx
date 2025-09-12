@@ -1,15 +1,14 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { useTicketData } from "@/context/TicketDataContext";
 import HelpdeskLayout from "@/components/Helpdesk/layout/HelpdeskLayout";
 import TiketDetails from "@/components/Helpdesk/Tiket/TiketDetails";
+import { ProxyUrl } from "@/api/BaseUrl";
 
 export default function Page() {
   const params = useParams();
-  const ticketNo = params.no;
-  const { selectedDataTicket } = useTicketData();
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const ticketNo = params.id;
+  const [data, setData] = useState(null);
 
   const dummyData = [
     {
@@ -74,18 +73,33 @@ export default function Page() {
       ],
     },
   ];
+
+  const getDataTicket = async () => {
+    try {
+      const res = await ProxyUrl.get(`/tickets/${ticketNo}`);
+      const data = res.data.data || {};
+      setData(data);
+    } catch (error) {
+      console.error("Error fetching ticket data:", error);
+    }
+  };
+
+  useEffect(() => {
+    getDataTicket();
+  }, [ticketNo]);
+
   return (
     <div className="bg-slate-100 h-full">
       <HelpdeskLayout>
-        <div className="flex items-center mb-6 gap-4">
-          <h1 className="text-2xl font-bold ">Tiket</h1>
+        {/* <div className="flex items-center mb-6 gap-4">
+          <h1 className="text-2xl font-bold ">Tiket {ticketNo}</h1>
           <select onChange={(e) => setSelectedIndex(e.target.value)}>
             <option value="0">OPEN</option>
             <option value="1">IN PROGRESS</option>
             <option value="2">RESOLVED</option>
           </select>
-        </div>
-        <TiketDetails data={dummyData[selectedIndex]} />
+        </div> */}
+        <TiketDetails data={data} />
       </HelpdeskLayout>
     </div>
   );

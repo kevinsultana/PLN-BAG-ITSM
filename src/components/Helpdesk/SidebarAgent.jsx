@@ -190,6 +190,7 @@ export default function SidebarAgent({ show }) {
               className={getLinkClassName([
                 "/helpdesk/user-previlege",
                 "/helpdesk/user-previlege/new",
+                "/helpdesk/user-previlege/edit/[id]",
               ])}
             >
               <RiUser3Line />
