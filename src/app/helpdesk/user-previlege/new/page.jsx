@@ -1,5 +1,5 @@
 import HelpdeskLayout from "@/components/Helpdesk/layout/HelpdeskLayout";
-import CreateUserForm from "@/components/Helpdesk/User/CreateUserForm";
+import CreateUserForm from "@/components/Helpdesk/User-Privilege/CreateUserForm";
 import React from "react";
 
 export default function Page() {
