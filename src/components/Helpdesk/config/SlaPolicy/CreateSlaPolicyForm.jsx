@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import CKEditorWrapper from "@/components/CKEditorWrapper";
 import { toast } from "sonner";
+import { FormControl, MenuItem, Select } from "@mui/material";
 
 export default function CreateSlaPolicyForm({
   data = null,
@@ -120,39 +121,43 @@ export default function CreateSlaPolicyForm({
           <label className="font-semibold text-sm">
             Priority<span className="text-red-500">*</span>
           </label>
-          <div className="relative">
-            <select
+          <FormControl fullWidth size="small">
+            <Select
               name="priority"
               value={form.priority}
               onChange={handleChange}
-              className={`input appearance-none cursor-pointer ${
-                errors.priority ? "border-red-500" : ""
-              }`}
+              displayEmpty
+              sx={{ backgroundColor: "white", borderRadius: 2 }}
             >
-              <option value="">Pilih Priority</option>
+              <MenuItem value="">
+                <em>Pilih Priority</em>
+              </MenuItem>
               {dataPriority.map((item, index) => (
-                <option key={index} value={item.value}>
+                <MenuItem key={index} value={item.value}>
+                  <span
+                    style={{
+                      display: "inline-block",
+                      width: 12,
+                      height: 12,
+                      borderRadius: "50%",
+                      marginRight: 8,
+                      backgroundColor:
+                        item.name === "Kritis"
+                          ? "#ef4444"
+                          : item.name === "Tinggi"
+                          ? "#f97316"
+                          : item.name === "Sedang"
+                          ? "#eab308"
+                          : item.name === "Rendah"
+                          ? "#22c55e"
+                          : "#d1d5db",
+                    }}
+                  ></span>
                   {item.name}
-                </option>
+                </MenuItem>
               ))}
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-700">
-              {form.priority && (
-                <span
-                  className={`h-3 w-3 rounded-full mr-2 ${dataPriority
-                    .find((p) => p.value === form.priority)
-                    ?.color.replace("text", "bg")}`}
-                />
-              )}
-              <svg
-                className="fill-current h-4 w-4"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-              >
-                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-              </svg>
-            </div>
-          </div>
+            </Select>
+          </FormControl>
         </div>
 
         {/* Resolved Time */}

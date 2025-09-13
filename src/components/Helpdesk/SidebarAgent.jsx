@@ -261,7 +261,11 @@ export default function SidebarAgent({ show }) {
               <li>
                 <Link
                   href="/helpdesk/config/sla-policy"
-                  className={getLinkClassName("/helpdesk/config/sla-policy")}
+                  className={getLinkClassName([
+                    "/helpdesk/config/sla-policy",
+                    "/helpdesk/config/sla-policy/new",
+                    "/helpdesk/config/sla-policy/edit/[id]",
+                  ])}
                 >
                   SLA Policy
                 </Link>
@@ -293,7 +297,11 @@ export default function SidebarAgent({ show }) {
               <li>
                 <Link
                   href="/helpdesk/config/helpdesk-info"
-                  className={getLinkClassName("/helpdesk/config/helpdesk-info")}
+                  className={getLinkClassName([
+                    "/helpdesk/config/helpdesk-info",
+                    "/helpdesk/config/helpdesk-info/new",
+                    "/helpdesk/config/helpdesk-info/edit/[id]",
+                  ])}
                 >
                   Helpdesk Info
                 </Link>

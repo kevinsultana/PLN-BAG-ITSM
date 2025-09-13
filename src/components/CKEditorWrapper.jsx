@@ -1,5 +1,6 @@
 "use client";
 
+import { PostProxyUrl } from "@/api/BaseUrl";
 import React, { useState, useEffect, useRef } from "react";
 
 export default function CKEditorWrapper({
@@ -38,6 +39,36 @@ export default function CKEditorWrapper({
     );
   }
 
+  // CKEditor custom upload adapter using PostProxyUrl
+  function MyUploadAdapter(loader) {
+    this.loader = loader;
+  }
+  MyUploadAdapter.prototype.upload = function () {
+    return this.loader.file.then((file) => {
+      const data = new FormData();
+      data.append("files", file);
+      // Ganti '/upload-endpoint' sesuai endpoint API kamu
+      // console.log(file);
+      return new Promise(async (resolve, reject) => {
+        const res = await PostProxyUrl.post("/attachments", data);
+        // console.log(res.data);
+        const status = res.data.success;
+        if (status) {
+          resolve({ default: res.data.data[0]?.url });
+        } else {
+          reject("Upload gagal: URL tidak ditemukan.");
+        }
+      });
+    });
+  };
+  MyUploadAdapter.prototype.abort = function () {};
+
+  function uploadAdapterPlugin(editor) {
+    editor.plugins.get("FileRepository").createUploadAdapter = (loader) => {
+      return new MyUploadAdapter(loader);
+    };
+  }
+
   return (
     <div className={className}>
       <editor.CKEditor
@@ -60,8 +91,10 @@ export default function CKEditorWrapper({
             "|",
             "undo",
             "redo",
+            "imageUpload",
           ],
           placeholder: placeholder,
+          extraPlugins: [uploadAdapterPlugin],
         }}
       />
     </div>

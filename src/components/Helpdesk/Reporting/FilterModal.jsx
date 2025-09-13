@@ -1,44 +1,35 @@
 "use client";
 import React, { useState } from "react";
+import { Select, MenuItem, FormControl, InputLabel } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
 import { RiCloseLine } from "react-icons/ri";
 import { FaCalendarAlt } from "react-icons/fa";
 
-export default function FilterModal({ isOpen, onClose }) {
+export default function FilterModal({ isOpen, onClose, onClickApply }) {
   const [selectedFilters, setSelectedFilters] = useState({
-    kategori: "",
-    periode: "Hari",
+    kategori: "team",
     tanggal: new Date().toISOString().split("T")[0],
+    tanggalend: new Date().toISOString().split("T")[0],
   });
 
-  const [openDropdown, setOpenDropdown] = useState(null);
-
-  const dataKategori = ["Tipe", "SLA Policy", "Team", "Aplikasi"];
-
-  const dataPeriode = [
-    "Hari",
-    "Minggu",
-    "Bulan",
-    "Triwulan",
-    "Semester",
-    "Tahun",
+  const dataKategori = [
+    { name: "Tipe", value: "type" },
+    { name: "SLA Policy", value: "sla_policy" },
+    { name: "Team", value: "team" },
+    { name: "Aplikasi", value: "application" },
   ];
-  const handleDropdownToggle = (dropdownName) => {
-    setOpenDropdown(openDropdown === dropdownName ? null : dropdownName);
-  };
 
   const handleApplyFilter = () => {
-    console.log("Applied filters:", selectedFilters);
+    onClickApply(selectedFilters);
     onClose();
   };
 
   const handleResetFilter = () => {
     setSelectedFilters({
-      kategori: "",
-      periode: "",
+      kategori: "team",
       tanggal: new Date().toISOString().split("T")[0],
+      tanggalend: new Date().toISOString().split("T")[0],
     });
-    setOpenDropdown(null);
   };
 
   return (
@@ -69,88 +60,38 @@ export default function FilterModal({ isOpen, onClose }) {
             <div className="space-y-4">
               {/* Filter Kategori */}
               <div>
-                <label className="font-semibold text-sm block mb-1">
-                  Kategori<span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => handleDropdownToggle("kategori")}
-                    className="input w-full text-left flex justify-between items-center"
-                  >
-                    <span>{selectedFilters.kategori || "Pilih Kategori"}</span>
-                    <svg
-                      className="fill-current h-4 w-4"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                    </svg>
-                  </button>
-                  {openDropdown === "kategori" && (
-                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
-                      {dataKategori.map((kategori, index) => (
-                        <div
-                          key={index}
-                          onClick={() => {
-                            setSelectedFilters({
-                              ...selectedFilters,
-                              kategori,
-                            });
-                            setOpenDropdown(null);
-                          }}
-                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
-                        >
-                          {kategori}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Filter Periode */}
-              <div>
-                <label className="font-semibold text-sm block mb-1">
-                  Periode<span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <select
-                    name="periode"
-                    value={selectedFilters.periode}
+                <FormControl fullWidth>
+                  <InputLabel id="kategori-label">
+                    Kategori<span style={{ color: "red" }}>*</span>
+                  </InputLabel>
+                  <Select
+                    labelId="kategori-label"
+                    id="kategori-select"
+                    value={selectedFilters.kategori}
+                    label="Kategori"
                     onChange={(e) =>
                       setSelectedFilters({
                         ...selectedFilters,
-                        periode: e.target.value,
+                        kategori: e.target.value,
                       })
                     }
-                    className="input w-full appearance-none"
                   >
-                    <option value="" disabled>
-                      Pilih Periode
-                    </option>
-                    {dataPeriode.map((periode, index) => (
-                      <option key={index} value={periode}>
-                        {periode}
-                      </option>
+                    <MenuItem value="">
+                      <em>Pilih Kategori</em>
+                    </MenuItem>
+                    {dataKategori.map((kategori) => (
+                      <MenuItem key={kategori.value} value={kategori.value}>
+                        {kategori.name}
+                      </MenuItem>
                     ))}
-                  </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-700">
-                    <svg
-                      className="fill-current h-4 w-4"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                    </svg>
-                  </div>
-                </div>
+                  </Select>
+                </FormControl>
               </div>
 
-              {/* Filter Tanggal */}
+              {/* Filter Tanggal Awal */}
               <div>
                 <label className="font-semibold text-sm block mb-1">
-                  Tanggal<span className="text-red-500">*</span>
+                  Tanggal Mulai<span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <input
@@ -161,6 +102,30 @@ export default function FilterModal({ isOpen, onClose }) {
                       setSelectedFilters({
                         ...selectedFilters,
                         tanggal: e.target.value,
+                      })
+                    }
+                    className="input w-full pr-10"
+                  />
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-500">
+                    <FaCalendarAlt />
+                  </div>
+                </div>
+              </div>
+
+              {/* Filter Tanggal */}
+              <div>
+                <label className="font-semibold text-sm block mb-1">
+                  Tanggal Berakhir<span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="date"
+                    name="tannggalend"
+                    value={selectedFilters.tanggalend}
+                    onChange={(e) =>
+                      setSelectedFilters({
+                        ...selectedFilters,
+                        tanggalend: e.target.value,
                       })
                     }
                     className="input w-full pr-10"
