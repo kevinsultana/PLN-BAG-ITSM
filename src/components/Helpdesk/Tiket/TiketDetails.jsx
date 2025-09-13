@@ -1,43 +1,81 @@
 import CKEditorWrapper from "@/components/CKEditorWrapper";
-import React from "react";
-import { CgArrowsExpandRight } from "react-icons/cg";
+import renderDescription from "@/utils/RenderDesc";
+import React, { useState } from "react";
+import { FaCircleStop } from "react-icons/fa6";
 import { HiPlay } from "react-icons/hi";
-import { LuArrowRight } from "react-icons/lu";
+import { MdOutlinePauseCircleFilled } from "react-icons/md";
 
-export default function TiketDetails({ data }) {
-  const status = ["OPEN", "ON PROGRESS", "ON HOLD", "RESOLVED", "CLOSED"];
-  function formatDateTimeDMY(dateInput) {
+export default function TiketDetails({
+  data,
+  onClickStart,
+  onClickPause,
+  onClickEnd,
+  feedback,
+  onClickSubmitFeedback,
+}) {
+  const status = ["OPEN", "IN PROGRESS", "ON HOLD", "RESOLVED", "CLOSED"];
+
+  const [feedbackTiket, setFeedbackTiket] = useState("");
+
+  function timeAgo(dateInput) {
     const date = new Date(dateInput);
-    const time = new Intl.DateTimeFormat("id-ID", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-      timeZone: "Asia/Jakarta",
-    }).format(date);
-
-    const dateStr = new Intl.DateTimeFormat("id-ID", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-      timeZone: "Asia/Jakarta",
-    }).format(date);
-    return `${time} ${dateStr}`;
+    const now = new Date();
+    const diffMs = now - date;
+    if (isNaN(diffMs)) return "-";
+    const diffSec = Math.floor(diffMs / 1000);
+    const diffMin = Math.floor(diffSec / 60);
+    const diffHour = Math.floor(diffMin / 60);
+    const diffDay = Math.floor(diffHour / 24);
+    if (diffDay > 0) return `${diffDay} hari yang lalu`;
+    if (diffHour > 0) return `${diffHour} jam yang lalu`;
+    if (diffMin > 0) return `${diffMin} menit yang lalu`;
+    return "Baru saja";
   }
-  // console.log(data);
+
+  // console.log(feedback);
+
   return (
     <div key={data?.id} className="bg-white rounded-xl p-4">
       {/* top section */}
       <h1 className="text-black text-base font-bold">Detail Tiket</h1>
       <div className="flex items-center justify-between">
         <div className="py-4 flex items-center gap-2">
-          <button className="px-3 py-1 flex items-center gap-2 bg-gray-400 rounded-lg">
-            <HiPlay className="text-2xl text-white" />
-            <p className="text-sm text-white font-semibold">Start</p>
-          </button>
-          <button className="px-3 py-1 flex items-center gap-2 bg-gray-400 rounded-lg">
-            <p className="text-sm text-white font-semibold">Send</p>
-            <LuArrowRight className="text-2xl text-white" />
-          </button>
+          {data?.status === "OPEN" && (
+            <button
+              onClick={onClickStart}
+              className="px-3 py-1 flex items-center gap-2 bg-green-400 rounded-lg cursor-pointer hover:bg-green-500 transition-all duration-300"
+            >
+              <HiPlay className="text-2xl text-white" />
+              <p className="text-sm text-white font-semibold">Start</p>
+            </button>
+          )}
+          {data?.status === "IN PROGRESS" && (
+            <>
+              <button
+                onClick={onClickEnd}
+                className="px-3 py-1 flex items-center gap-2 border border-red-500 rounded-lg cursor-pointer hover:bg-red-500/10 transition-all duration-300"
+              >
+                <FaCircleStop className="text-2xl text-red-500" />
+                <p className="text-sm text-red-500 font-semibold">End</p>
+              </button>
+              <button
+                onClick={onClickPause}
+                className="px-3 py-1 flex items-center gap-2 border border-yellow-500 rounded-lg cursor-pointer hover:bg-yellow-500/10 transition-all duration-300"
+              >
+                <MdOutlinePauseCircleFilled className="text-2xl text-yellow-500" />
+                <p className="text-sm text-yellow-500 font-semibold">Pause</p>
+              </button>
+            </>
+          )}
+          {data?.status === "ON HOLD" && (
+            <button
+              onClick={onClickStart}
+              className="px-3 py-1 flex items-center gap-2 bg-green-400 rounded-lg cursor-pointer hover:bg-green-500 transition-all duration-300"
+            >
+              <HiPlay className="text-2xl text-white" />
+              <p className="text-sm text-white font-semibold">Start</p>
+            </button>
+          )}
         </div>
         <div>
           {status.map((item, index) => (
@@ -314,33 +352,38 @@ export default function TiketDetails({ data }) {
         </form>
       </div>
 
+      {/* garis*/}
+      <div className="wfull h-[1px] bg-gray-200 " />
+
       {/* feedback */}
-      {data?.status === "OPEN" && (
-        <>
-          <div className="wfull h-[1px] bg-gray-200 " />
-          <div className="flex flex-col gap-2 space-y-2 py-4">
-            <label className="text-lg font-semibold">
-              Feedback Tiket <span className="text-red-500">*</span>
-            </label>
-            <CKEditorWrapper />
-            <button className="bg-sky-500 cursor-pointer p-2 text-white w-1/10 rounded-full">
-              Submit
-            </button>
-          </div>
-          <div className="wfull h-[3px] bg-gray-200 mb-4" />
-          {data?.feedback?.map((item, index) => (
-            <div key={index} className="flex flex-col gap-2 space-y-2 py-4">
-              <h1 className="font-bold text-lg">
-                {item.oleh}{" "}
-                <span className="text-gray-500 font-medium text-base">
-                  {formatDateTimeDMY(item.waktu)}
-                </span>
-              </h1>
-              <p>{item.isi}</p>
-            </div>
-          ))}
-        </>
-      )}
+      <div className="flex flex-col gap-2 space-y-2 py-4">
+        <label className="text-lg font-semibold">
+          Feedback Tiket <span className="text-red-500">*</span>
+        </label>
+        <CKEditorWrapper value={feedbackTiket} onChange={setFeedbackTiket} />
+        <button
+          onClick={() => {
+            onClickSubmitFeedback(feedbackTiket);
+            setFeedbackTiket("");
+          }}
+          className="bg-sky-500 cursor-pointer p-2 text-white w-1/10 rounded-full"
+        >
+          Submit
+        </button>
+      </div>
+      <div className="wfull h-[3px] bg-gray-200 mb-4" />
+      {feedback?.map((item, index) => (
+        <div key={index} className="flex flex-col gap-2 space-y-2 py-4">
+          <h1 className="font-bold text-lg">
+            {item.user.name}{" "}
+            <span className="text-gray-500 font-medium text-base">
+              {timeAgo(item.created_at)}
+            </span>
+          </h1>
+          <div>{renderDescription(item.description)}</div>
+          {/* <p dangerouslySetInnerHTML={{ __html: item.description }}></p> */}
+        </div>
+      ))}
     </div>
   );
 }
