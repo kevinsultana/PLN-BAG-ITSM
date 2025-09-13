@@ -5,7 +5,7 @@ import { HiPlay } from "react-icons/hi";
 import { LuArrowRight } from "react-icons/lu";
 
 export default function TiketDetails({ data }) {
-  const status = ["Open", "ON PROGRESS", "On Hold", "Resolved", "Closed"];
+  const status = ["OPEN", "ON PROGRESS", "ON HOLD", "RESOLVED", "CLOSED"];
   function formatDateTimeDMY(dateInput) {
     const date = new Date(dateInput);
     const time = new Intl.DateTimeFormat("id-ID", {
@@ -23,9 +23,7 @@ export default function TiketDetails({ data }) {
     }).format(date);
     return `${time} ${dateStr}`;
   }
-
   // console.log(data);
-
   return (
     <div key={data?.id} className="bg-white rounded-xl p-4">
       {/* top section */}
@@ -67,19 +65,51 @@ export default function TiketDetails({ data }) {
           <div className="flex flex-col gap-2">
             <h3 className="">Response</h3>
             <p className="font-semibold text-base bg-gray-200 px-2 py-1 rounded-full">
-              15 Minutes to Start
+              {data?.sla_policy?.response_time || 0} Menit Untuk Respon
             </p>
           </div>
           <div className="flex flex-col gap-2">
             <h3 className="">Resolve</h3>
             <p className="font-semibold text-base bg-gray-200 px-2 py-1 rounded-full">
-              2 Hours to Finish
+              {data?.sla_policy?.resolve_time || 0} Jam Untuk Selesai
             </p>
           </div>
           <div className="flex flex-col gap-2">
             <h3 className="">Reminder</h3>
             <p className="font-semibold text-base bg-gray-200 px-2 py-1 rounded-full">
-              In 1 Hour
+              {(() => {
+                if (!data?.created_at || !data?.sla_policy?.resolve_time)
+                  return "-";
+                const created = new Date(data.created_at);
+                if (isNaN(created.getTime())) return "-";
+                // resolve_time in hours
+                const resolveMs =
+                  Number(data.sla_policy.resolve_time) * 60 * 60 * 1000;
+                const deadline = new Date(created.getTime() + resolveMs);
+                const now = new Date();
+                const diffMs = deadline - now;
+                const absMs = Math.abs(diffMs);
+                const diffMin = Math.floor(absMs / 1000 / 60);
+                const diffHour = Math.floor(diffMin / 60);
+                const minRemainder = diffMin % 60;
+                if (diffMs > 0) {
+                  // Time remaining
+                  if (diffHour > 0)
+                    return `Sisa ${diffHour} jam ${
+                      minRemainder > 0 ? minRemainder + " menit" : ""
+                    }`;
+                  if (diffMin > 0) return `Sisa ${diffMin} menit`;
+                  return "Segera berakhir";
+                } else {
+                  // Overdue
+                  if (diffHour > 0)
+                    return `Terlambat ${diffHour} jam ${
+                      minRemainder > 0 ? minRemainder + " menit" : ""
+                    }`;
+                  if (diffMin > 0) return `Terlambat ${diffMin} menit`;
+                  return "Sudah lewat";
+                }
+              })()}
             </p>
           </div>
         </div>
@@ -88,20 +118,22 @@ export default function TiketDetails({ data }) {
       {/* forms */}
       <div className="border border-gray-200 rounded-xl p-4 space-y-2 my-6">
         <form className="grid grid-cols-2 gap-4">
-          {/* team */}
+          {/* Team */}
           <div className="flex flex-col gap-2">
             <label className="text-lg font-semibold">
               Team <span className="text-red-500">*</span>
             </label>
             <select
               className="border border-gray-500 rounded-lg p-2 w-full"
-              value={data?.team?.name || ""}
+              value={data?.team?.name || data?.assign_to?.name || ""}
               onChange={() => {}}
             >
-              <option value="">{data?.team?.name || "- Pilih Team -"}</option>
+              <option value="">
+                {data?.team?.name || data?.assign_to?.name || "- Pilih Team -"}
+              </option>
             </select>
           </div>
-          {/* nama aplikasi */}
+          {/* Nama Aplikasi */}
           <div className="flex flex-col gap-2">
             <label className="text-lg font-semibold">
               Nama Aplikasi <span className="text-red-500">*</span>
@@ -120,7 +152,12 @@ export default function TiketDetails({ data }) {
             </label>
             <input
               type="text"
-              value={data?.assigned_to?.name || data?.nama_assigned_to || ""}
+              value={
+                data?.assigned_to?.name ||
+                data?.assign_to?.name ||
+                data?.nama_assigned_to ||
+                ""
+              }
               className="input p-2"
               readOnly
             />
@@ -132,7 +169,12 @@ export default function TiketDetails({ data }) {
             </label>
             <input
               type="text"
-              value={data?.requester?.name || data?.nama_requester || ""}
+              value={
+                data?.requester?.name ||
+                data?.fullname ||
+                data?.nama_requester ||
+                ""
+              }
               className="input p-2"
               readOnly
             />
@@ -144,10 +186,14 @@ export default function TiketDetails({ data }) {
             </label>
             <select
               className="border border-gray-500 rounded-lg p-2 w-full"
-              value={data?.priority || ""}
+              value={data?.priority?.level || data?.priority || ""}
               onChange={() => {}}
             >
-              <option value="">{data?.priority || "- Pilih Priority -"}</option>
+              <option value="">
+                {data?.priority?.level ||
+                  data?.priority ||
+                  "- Pilih Priority -"}
+              </option>
             </select>
           </div>
           {/* Nama Divisi */}
@@ -169,11 +215,11 @@ export default function TiketDetails({ data }) {
             </label>
             <select
               className="border border-gray-500 rounded-lg p-2 w-full"
-              value={data?.ticket_type?.name || ""}
+              value={data?.ticket_type?.name || data?.tipe || ""}
               onChange={() => {}}
             >
               <option value="">
-                {data?.ticket_type?.name || "- Pilih Tipe -"}
+                {data?.ticket_type?.name || data?.tipe || "- Pilih Tipe -"}
               </option>
             </select>
           </div>
@@ -196,10 +242,12 @@ export default function TiketDetails({ data }) {
             </label>
             <select
               className="border border-gray-500 rounded-lg p-2 w-full"
-              value={data?.sla_policy || ""}
+              value={data?.sla_policy?.name || data?.sla_policy || ""}
               onChange={() => {}}
             >
-              <option value="">{data?.sla_policy || "- Pilih SLA -"}</option>
+              <option value="">
+                {data?.sla_policy?.name || data?.sla_policy || "- Pilih SLA -"}
+              </option>
             </select>
           </div>
           {/* No. Whatsapp */}
@@ -219,9 +267,41 @@ export default function TiketDetails({ data }) {
             <label className="text-lg font-semibold">
               Lampiran <span className="text-red-500">*</span>
             </label>
-            <div className="input flex justify-between items-center">
-              <p>{data?.lampiran || "-"}</p>
-              <CgArrowsExpandRight className="cursor-pointer" />
+            <div className="input flex flex-col gap-2">
+              {/* Array of attachments */}
+              {Array.isArray(data?.attachments) &&
+              data.attachments.length > 0 ? (
+                data.attachments.map((att) => (
+                  <div key={att.id} className="flex items-center gap-2">
+                    {att.mime_type.startsWith("image/") ? (
+                      <img
+                        src={att.url}
+                        alt={att.name}
+                        style={{ maxWidth: 100, maxHeight: 100 }}
+                      />
+                    ) : null}
+                    <a
+                      href={att.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 underline"
+                    >
+                      {att.name}
+                    </a>
+                    <span className="text-xs text-gray-500">
+                      {Math.round(att.size / 1024)} KB
+                    </span>
+                  </div>
+                ))
+              ) : Array.isArray(data?.lampiran) && data.lampiran.length > 0 ? (
+                data.lampiran.map((name, idx) => (
+                  <div key={idx} className="flex items-center gap-2">
+                    <span>{name}</span>
+                  </div>
+                ))
+              ) : (
+                <span>-</span>
+              )}
             </div>
           </div>
           {/* Deskripsi */}
@@ -229,7 +309,7 @@ export default function TiketDetails({ data }) {
             <label className="text-lg font-semibold">
               Deskripsi <span className="text-red-500">*</span>
             </label>
-            <CKEditorWrapper />
+            <CKEditorWrapper value={data?.description || ""} />
           </div>
         </form>
       </div>
