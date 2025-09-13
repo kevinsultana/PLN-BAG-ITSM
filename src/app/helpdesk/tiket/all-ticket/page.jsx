@@ -8,7 +8,8 @@ import React, { useEffect, useState } from "react";
 export default function Page() {
   const router = useRouter();
   const [items, setItems] = useState([]);
-  const [meta, setMeta] = useState({ page: 1, total_pages: 1, page_size: 10 });
+  const [meta, setMeta] = useState({ page: 1, total_pages: 1, page_size: 5 });
+  const [loading, setLoading] = useState(false);
 
   const handleNavigateToDetails = (ticket) => {
     if (ticket?.id) {
@@ -17,9 +18,10 @@ export default function Page() {
   };
 
   const getDataTicket = async (page = 1) => {
+    setLoading(true);
     try {
       const res = await ProxyUrl.get("/tickets", {
-        params: { page },
+        params: { page, page_size: 5 },
       });
 
       const body = res.data || {};
@@ -32,7 +34,9 @@ export default function Page() {
 
       setItems(items);
       setMeta(meta);
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
       console.error("Error fetching ticket data:", error);
     }
   };
@@ -50,6 +54,7 @@ export default function Page() {
           meta={meta}
           onRowClick={(item) => handleNavigateToDetails(item)}
           onPageChange={(newPage) => getDataTicket(newPage)}
+          loading={loading}
         />
       </HelpdeskLayout>
     </div>

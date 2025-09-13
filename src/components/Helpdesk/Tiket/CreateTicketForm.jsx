@@ -21,7 +21,7 @@ export default function CreateTicketForm({ onSubmit }) {
     description: "",
     bpo_id: "",
     contract_number: "",
-    contract_value: null,
+    contract_value: null || 0,
     subject: "",
   });
 
@@ -241,19 +241,29 @@ export default function CreateTicketForm({ onSubmit }) {
           </FormControl>
         </div>
 
-        {/* Requester */}
+        {/* requester Dropdown */}
         <div className="flex flex-col gap-2">
           <label className="font-semibold text-sm">
             Requester<span className="text-red-500">*</span>
           </label>
-          <input
-            type="text"
-            name="requester"
-            value={form.requester}
-            onChange={handleChange}
-            className={`input ${errors.requester ? "border-red-500" : ""}`}
-            placeholder="Jhon Doe"
-          />
+          <FormControl fullWidth size="small" error={!!errors.requester}>
+            <Select
+              name="requester"
+              value={form.requester}
+              onChange={handleChange}
+              displayEmpty
+              sx={{ backgroundColor: "white", borderRadius: 2 }}
+            >
+              <MenuItem value="">
+                <em>Pilih User</em>
+              </MenuItem>
+              {dataUsers.map((user) => (
+                <MenuItem key={user.id} value={String(user.id ?? "")}>
+                  {user.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </div>
 
         {/* Priority - MUI Select */}

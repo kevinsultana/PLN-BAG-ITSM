@@ -11,6 +11,7 @@ import {
   Paper,
   TableSortLabel,
   Pagination,
+  CircularProgress,
 } from "@mui/material";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import HourglassTopIcon from "@mui/icons-material/HourglassTop";
@@ -96,6 +97,7 @@ export default function AllListTicketTable({
   onPageChange,
   items = [],
   meta = [],
+  loading,
 }) {
   // Parent mengirim langsung array `items` dari API
   const itemsFromApi = useMemo(() => {
@@ -257,53 +259,56 @@ export default function AllListTicketTable({
           </TableHead>
 
           <TableBody>
-            {paginatedTickets.map((row, index) => (
-              <TableRow
-                key={row.id || index}
-                hover
-                className="cursor-pointer"
-                onClick={() => onRowClick?.(row, index)}
-              >
-                <TableCell className="text-gray-800">
-                  {((meta?.page || page) - 1) *
-                    (meta?.page_size || rowsPerPage) +
-                    index +
-                    1}
-                </TableCell>
-
-                <TableCell>
-                  <PriorityBadge value={row.priority} />
-                </TableCell>
-
-                <TableCell className="text-gray-800">
-                  {row.subject || "-"}
-                </TableCell>
-
-                <TableCell className="text-gray-800">
-                  {row.application || "-"}
-                </TableCell>
-
-                <TableCell className="text-gray-800">
-                  {row.assign_team ? (
-                    row.assign_team
-                  ) : (
-                    <span className="text-gray-400">-</span>
-                  )}
-                </TableCell>
-
-                <TableCell className="text-gray-800">
-                  {row.requester || "-"}
-                </TableCell>
-
-                <TableCell className="text-gray-800">
-                  {formatSLA(row.sla_policy)}
-                </TableCell>
-
-                <TableCell>
-                  <StatusPill status={row.status} />
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={8} align="center">
+                  <CircularProgress />
                 </TableCell>
               </TableRow>
-            ))}
+            ) : items.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={8} align="center">
+                  Tidak ada data tiket.
+                </TableCell>
+              </TableRow>
+            ) : (
+              paginatedTickets.map((row, index) => (
+                <TableRow
+                  key={row.id || index}
+                  hover
+                  className="cursor-pointer"
+                  onClick={() => onRowClick?.(row, index)}
+                >
+                  <TableCell className="text-gray-800">
+                    {((meta?.page || page) - 1) *
+                      (meta?.page_size || rowsPerPage) +
+                      index +
+                      1}
+                  </TableCell>
+                  <TableCell>
+                    <PriorityBadge value={row.priority} />
+                  </TableCell>
+                  <TableCell className="text-gray-800">
+                    {row.subject || "-"}
+                  </TableCell>
+                  <TableCell className="text-gray-800">
+                    {row.application || "-"}
+                  </TableCell>
+                  <TableCell className="text-gray-800">
+                    {row.assign_team || "-"}
+                  </TableCell>
+                  <TableCell className="text-gray-800">
+                    {row.requester || "-"}
+                  </TableCell>
+                  <TableCell className="text-gray-800">
+                    {formatSLA(row.sla_policy)}
+                  </TableCell>
+                  <TableCell>
+                    <StatusPill status={row.status} />
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
 
