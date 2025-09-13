@@ -7,6 +7,7 @@ import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
 import TambahAnggotaModal from "./TambahAnggotaModal";
 import { useRouter } from "next/navigation";
 import { ProxyUrl } from "@/api/BaseUrl";
+import { FormControl, MenuItem, Select } from "@mui/material";
 
 export default function CreateTeamMemberForm({ onSubmit }) {
   const [form, setForm] = useState({
@@ -249,19 +250,24 @@ export default function CreateTeamMemberForm({ onSubmit }) {
           <label className="font-semibold text-sm">
             Visibility<span className="text-red-500">*</span>
           </label>
-          <select
-            name="visibility"
-            value={form.visibility}
-            onChange={handleChange}
-            className={`input ${errors.visibility ? "border-red-500" : ""}`}
-          >
-            <option value="">Pilih Visibility</option>
-            {dataVisibility.map((item, index) => (
-              <option key={index} value={item.ID}>
-                {item.Name}
-              </option>
-            ))}
-          </select>
+          <FormControl fullWidth size="small">
+            <Select
+              name="visibility"
+              value={form.visibility}
+              onChange={handleChange}
+              displayEmpty
+              inputProps={{ "aria-label": "Without label" }}
+            >
+              <MenuItem value="">
+                <em>Pilih Visibility</em>
+              </MenuItem>
+              {dataVisibility.map((item, index) => (
+                <MenuItem key={index} value={item.ID}>
+                  {item.Name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </div>
 
         {/* Deskripsi */}
