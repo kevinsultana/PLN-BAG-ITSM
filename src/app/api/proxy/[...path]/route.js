@@ -12,19 +12,21 @@ async function handler(req) {
   const headers = new Headers(req.headers);
   headers.set("host", new URL(BACKEND_URL).host);
   headers.delete("connection");
+  headers.delete("content-length");
 
   // Handle body jika bukan GET/HEAD
   let body;
   if (req.method !== "GET" && req.method !== "HEAD") {
-    body = await req.text();
+    body = req.body;
   }
 
   try {
     const response = await fetch(proxyUrl, {
       method: req.method,
-      headers: headers,
-      body: body,
+      headers,
+      body,
       redirect: "manual",
+      duplex: "half",
     });
 
     // Ambil response body sebagai arrayBuffer

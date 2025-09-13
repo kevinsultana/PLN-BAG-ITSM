@@ -3,9 +3,8 @@ import React, { useEffect, useState } from "react";
 import CKEditorWrapper from "@/components/CKEditorWrapper";
 import { toast } from "sonner";
 import { FaExternalLinkAlt } from "react-icons/fa";
-import { RiArrowDownSLine } from "react-icons/ri";
-import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
-import { ProxyUrl } from "@/api/BaseUrl";
+import { FormControl, Select, MenuItem } from "@mui/material";
+import { PostProxyUrl, ProxyUrl } from "@/api/BaseUrl";
 
 export default function CreateTicketForm({ onSubmit }) {
   const [form, setForm] = useState({
@@ -22,10 +21,9 @@ export default function CreateTicketForm({ onSubmit }) {
     description: "",
     bpo_id: "",
     contract_number: "",
-    contract_value: "",
+    contract_value: null,
+    subject: "",
   });
-
-  const [attachment, setAttachment] = useState([]);
 
   const [errors, setErrors] = useState({});
   const [files, setFiles] = useState([]);
@@ -36,6 +34,7 @@ export default function CreateTicketForm({ onSubmit }) {
   const [dataApplications, setDataApplications] = useState([]);
   const [dataDivisions, setDataDivisions] = useState([]);
   const [dataBpo, setDataBpo] = useState([]);
+  const [dataUsers, setDataUsers] = useState([]);
 
   const getDataAllSelections = async () => {
     try {
@@ -47,6 +46,7 @@ export default function CreateTicketForm({ onSubmit }) {
       setDataApplications(res.data.data.applications || []);
       setDataDivisions(res.data.data.divisions || []);
       setDataBpo(res.data.data.bpos || []);
+      setDataUsers(res.data.data.users || []);
     } catch (error) {
       console.error("Error fetching all selections:", error);
     }
@@ -79,10 +79,20 @@ export default function CreateTicketForm({ onSubmit }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm({
-      ...form,
-      [name]: value,
-    });
+    if (name === "contract_value") {
+      const numericValue = value === "" ? "" : Number(value);
+      if (numericValue === "" || !isNaN(numericValue)) {
+        setForm({
+          ...form,
+          [name]: numericValue,
+        });
+      }
+    } else {
+      setForm({
+        ...form,
+        [name]: value,
+      });
+    }
   };
 
   const validate = () => {
@@ -103,26 +113,22 @@ export default function CreateTicketForm({ onSubmit }) {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
+  // console.log(form);
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!validate()) {
-      toast.error("Lengkapi data di bawah ini", {
-        description: "Silahkan lengkapi semua field yang ditandai (*).",
-      });
-      return;
-    }
 
     const submit = async () => {
       try {
-        // If there are files, upload them first to the attachments endpoint
-        let uploaded = form.lampiran || null;
+        // Make a shallow copy of form so we don't rely on asynchronous state updates
+        const payload = { ...form };
+
+        // If there are files, upload them first and collect returned attachment IDs
+        let mappedData = payload.attachment_ids || [];
         if (files && files.length > 0) {
           const attForm = new FormData();
           files.forEach((f) => attForm.append("files", f, f.name));
 
-          // perform the upload and extract returned data
-          const uploadPromise = ProxyUrl.post("/attachments", attForm);
+          const uploadPromise = PostProxyUrl.post("/attachments", attForm);
 
           toast.promise(uploadPromise, {
             loading: "Mengunggah lampiran...",
@@ -132,22 +138,18 @@ export default function CreateTicketForm({ onSubmit }) {
 
           const res = await uploadPromise;
 
-          // Try to extract attachment references from the response
-          uploaded =
-            (res && res.data && (res.data.data || res.data.attachments)) ||
-            res.data ||
+          // Normalize response to extract IDs
+          mappedData =
+            (res?.data?.data && res.data.data.map((i) => i.id)) ||
+            (Array.isArray(res?.data) && res.data.map((i) => i.id)) ||
             [];
 
-          // Save uploaded references locally and in form state
-          setAttachment(uploaded);
-          setForm((prev) => ({ ...prev, lampiran: uploaded }));
+          // Update local component state for UI only
+          payload.attachment_ids = mappedData;
         }
 
-        // Call parent's onSubmit with the form object (includes lampiran refs)
-        const merged = form.lampiran
-          ? form
-          : { ...form, lampiran: form.lampiran || uploaded };
-        if (onSubmit) onSubmit(merged);
+        // Call parent onSubmit with the up-to-date payload and attachment IDs
+        if (onSubmit) await onSubmit(payload, mappedData || []);
       } catch (error) {
         console.error("Error uploading attachments or submitting form:", error);
         toast.error("Terjadi kesalahan saat mengirim data. Coba lagi.");
@@ -219,14 +221,24 @@ export default function CreateTicketForm({ onSubmit }) {
           <label className="font-semibold text-sm">
             Assigned to<span className="text-red-500">*</span>
           </label>
-          <input
-            type="text"
-            name="assigned_to"
-            value={form.assigned_to}
-            onChange={handleChange}
-            className={`input ${errors.assigned_to ? "border-red-500" : ""}`}
-            placeholder="Jordi Amat"
-          />
+          <FormControl fullWidth size="small" error={!!errors.assigned_to}>
+            <Select
+              name="assigned_to"
+              value={form.assigned_to}
+              onChange={handleChange}
+              displayEmpty
+              sx={{ backgroundColor: "white", borderRadius: 2 }}
+            >
+              <MenuItem value="">
+                <em>Pilih User</em>
+              </MenuItem>
+              {dataUsers.map((user) => (
+                <MenuItem key={user.id} value={String(user.id ?? "")}>
+                  {user.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </div>
 
         {/* Requester */}
@@ -345,6 +357,21 @@ export default function CreateTicketForm({ onSubmit }) {
           </FormControl>
         </div>
 
+        {/* subject */}
+        <div className="flex flex-col gap-2">
+          <label className="font-semibold text-sm">
+            Subject<span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            name="subject"
+            value={form.subject}
+            onChange={handleChange}
+            className={`input ${errors.subject ? "border-red-500" : ""}`}
+            placeholder="Jhon Doe"
+          />
+        </div>
+
         {/* Tipe - MUI Select */}
         <div className="flex flex-col gap-2">
           <label className="font-semibold text-sm">
@@ -389,7 +416,7 @@ export default function CreateTicketForm({ onSubmit }) {
                   </MenuItem>
                   {dataBpo.map((bpo, index) => (
                     <MenuItem key={index} value={String(bpo.id ?? "")}>
-                      Divisi {bpo.division_name}
+                      Divisi {bpo.name}
                     </MenuItem>
                   ))}
                 </Select>
@@ -417,7 +444,7 @@ export default function CreateTicketForm({ onSubmit }) {
                 Nilai Kontrak<span className="text-red-500">*</span>
               </label>
               <input
-                type="text"
+                type="number"
                 name="contract_value"
                 value={form.contract_value}
                 onChange={handleChange}

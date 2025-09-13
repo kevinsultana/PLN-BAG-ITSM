@@ -49,14 +49,20 @@ const StatusPill = ({ status }) => {
 };
 
 const PriorityBadge = ({ value }) => {
-  if (!value) return <span className="text-gray-400">-</span>;
-  const s = priorityStyle[value] || priorityStyle.Rendah;
+  // guard against objects or unexpected types coming from API
+  if (value == null || value === "")
+    return <span className="text-gray-400">-</span>;
+  const str =
+    typeof value === "object"
+      ? value.level || value.name || value.toString()
+      : String(value);
+  const s = priorityStyle[str] || priorityStyle.Rendah;
   return (
     <span
       className={`inline-flex items-center gap-2 ${s.bg} ${s.text} px-3 py-1 rounded-full text-sm font-medium`}
     >
       <span className={`inline-block h-2.5 w-2.5 rounded-full ${s.dot}`} />
-      {value}
+      {str}
     </span>
   );
 };
@@ -89,13 +95,17 @@ export default function AllListTicketTable({
   onRowClick,
   onPageChange,
   items = [],
-  meta,
+  meta = [],
 }) {
   // Parent mengirim langsung array `items` dari API
   const itemsFromApi = useMemo(() => {
     return (items || []).map((it) => ({
       id: it?.id ?? "-",
-      priority: it?.priority ?? "", // jika belum ada di API akan tampil '-'
+      // API sometimes returns priority as object like {id, level}
+      priority:
+        it?.priority && typeof it.priority === "object"
+          ? it.priority.level || it.priority.name || ""
+          : it?.priority ?? "",
       subject: it?.subject ?? "-",
       application: it?.application?.name ?? it?.application ?? "-",
       assign_team: it?.team?.name ?? it?.assign_team ?? "",
@@ -286,7 +296,7 @@ export default function AllListTicketTable({
                 </TableCell>
 
                 <TableCell className="text-gray-800">
-                  {formatSLA(row.sla_deadline)}
+                  {formatSLA(row.sla_policy)}
                 </TableCell>
 
                 <TableCell>

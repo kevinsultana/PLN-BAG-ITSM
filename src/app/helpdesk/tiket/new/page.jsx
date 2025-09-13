@@ -9,22 +9,20 @@ import { toast } from "sonner";
 export default function Page() {
   const router = useRouter();
 
-  const handleFormSubmit = async (formData) => {
-    // const submitData = {
-    //   team_id: formData.team,
-    //   application_id: formData.namaAplikasi,
-    //   division_id: formData.namaDivisi,
-
-    // };
+  const handleFormSubmit = async (formData, attachment) => {
+    const newFormData = { ...formData, attachment_ids: attachment };
     try {
-      const res = await ProxyUrl.post("/tickets", formData);
-      console.log(res.data);
+      const res = await ProxyUrl.post("/tickets", newFormData);
+      toast.success("Tiket berhasil dibuat!", {
+        description: "Tiket baru telah berhasil dibuat.",
+      });
+      router.back();
     } catch (error) {
       console.error("Error submitting ticket:", error);
+      toast.error("Gagal membuat tiket.", {
+        description: error?.response?.data?.message || "Terjadi kesalahan.",
+      });
     }
-    toast.success("Tiket berhasil dibuat!", {
-      description: "Tiket baru telah berhasil dibuat.",
-    });
   };
 
   return (
@@ -32,7 +30,9 @@ export default function Page() {
       <HelpdeskLayout>
         <h1 className="text-2xl font-bold mb-6">Buat Tiket Baru</h1>
         <CreateTicketForm
-          onSubmit={handleFormSubmit}
+          onSubmit={(formData, attachment) =>
+            handleFormSubmit(formData, attachment)
+          }
           onCancel={() => router.back()}
         />
       </HelpdeskLayout>
