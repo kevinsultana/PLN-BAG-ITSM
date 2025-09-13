@@ -4,12 +4,22 @@ import CKEditorWrapper from "@/components/CKEditorWrapper";
 import { toast } from "sonner";
 import { Switch } from "@mui/material";
 
-export default function CreateTicketStatusForm() {
+export default function CreateTicketStatusForm({
+  data = {},
+  onSubmit,
+  onCancel,
+  submitLabel = "Save",
+}) {
   const [form, setForm] = useState({
-    namaTicket: "",
-    code: "",
-    deskripsi: "",
-    status: true, // Default to active
+    name: data.name || data.Name || "",
+    code: data.code || data.Code || "",
+    description: data.description || data.Description || "",
+    status:
+      typeof data.Status !== "undefined"
+        ? data.Status
+        : typeof data.status !== "undefined"
+        ? data.status
+        : true,
   });
 
   const [errors, setErrors] = useState({});
@@ -28,9 +38,9 @@ export default function CreateTicketStatusForm() {
 
   const validate = () => {
     const newErrors = {};
-    if (!form.namaTicket.trim()) newErrors.namaTicket = true;
+    if (!form.name.trim()) newErrors.name = true;
     if (!form.code.trim()) newErrors.code = true;
-    if (!form.deskripsi.trim()) newErrors.deskripsi = true;
+    if (!form.description.trim()) newErrors.description = true;
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -43,17 +53,16 @@ export default function CreateTicketStatusForm() {
       });
       return;
     }
-    // Logic to submit form
-    console.log("Submitted Data:", form);
-    toast.success("Status Tiket berhasil dibuat!", {
-      description: `Status tiket "${form.namaTicket}" telah berhasil ditambahkan.`,
-      duration: 5000,
-    });
+    if (onSubmit) {
+      onSubmit(form);
+    }
   };
 
   return (
     <div className="bg-white rounded-xl p-6 mt-4 border border-gray-200 shadow-sm">
-      <h1 className="text-xl font-bold mb-6">Buat Status Tiket</h1>
+      <h1 className="text-xl font-bold mb-6">
+        {submitLabel === "Save" ? "Buat Status Tiket" : "Edit Status Tiket"}
+      </h1>
       <form
         onSubmit={handleSubmit}
         className="grid grid-cols-1 md:grid-cols-2 gap-6"
@@ -65,10 +74,10 @@ export default function CreateTicketStatusForm() {
           </label>
           <input
             type="text"
-            name="namaTicket"
-            value={form.namaTicket}
+            name="name"
+            value={form.name}
             onChange={handleChange}
-            className={`input ${errors.namaTicket ? "border-red-500" : ""}`}
+            className={`input ${errors.name ? "border-red-500" : ""}`}
             placeholder="Nama Status Tiket"
           />
         </div>
@@ -79,10 +88,10 @@ export default function CreateTicketStatusForm() {
             Deskripsi<span className="text-red-500">*</span>
           </label>
           <CKEditorWrapper
-            value={form.deskripsi}
-            onChange={(data) => setForm({ ...form, deskripsi: data })}
+            value={form.description}
+            onChange={(data) => setForm({ ...form, description: data })}
             className={`ckeditor-container ${
-              errors.deskripsi ? "border-red-500" : ""
+              errors.description ? "border-red-500" : ""
             }`}
             placeholder="Deskripsi"
           />
@@ -129,7 +138,7 @@ export default function CreateTicketStatusForm() {
           <button
             type="button"
             className="px-6 py-2 rounded-lg text-gray-700 bg-gray-200 hover:bg-gray-300 transition"
-            onClick={() => console.log("Cancel")}
+            onClick={onCancel}
           >
             Cancel
           </button>
@@ -137,7 +146,7 @@ export default function CreateTicketStatusForm() {
             type="submit"
             className="px-6 py-2 rounded-lg text-white bg-[#65C7D5] hover:bg-[#4FB3C1] transition"
           >
-            Save
+            {submitLabel}
           </button>
         </div>
       </form>

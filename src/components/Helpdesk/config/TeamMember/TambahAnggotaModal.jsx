@@ -3,31 +3,40 @@ import React, { use, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { RiCloseLine } from "react-icons/ri";
 import { FaCalendarAlt } from "react-icons/fa";
+import { toast } from "sonner";
 
 export default function TambahAnggotaModal({ isOpen, onClose, onSubmit }) {
-  const [selectedFilters, setSelectedFilters] = useState({
+  const [formData, setFormData] = useState({
     name: "",
     email: "",
-    value: "",
   });
 
-  useEffect(() => {
-    setSelectedFilters((prevFilters) => ({
-      ...prevFilters,
-      value: selectedFilters.name.toLocaleLowerCase(),
-    }));
-  }, [selectedFilters.name]);
+  // useEffect(() => {
+  //   setSelectedFilters((prevFilters) => ({
+  //     ...prevFilters,
+  //     value: selectedFilters.name.toLocaleLowerCase(),
+  //   }));
+  // }, [selectedFilters.name]);
 
-  const handleApplyFilter = () => {
-    onSubmit(selectedFilters);
+  const handleSubmit = () => {
+    if (!formData.name || !formData.email) {
+      toast.error("Mohon isi semua field yang diperlukan.");
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      toast.error("Masukkan alamat email yang valid.");
+      return;
+    }
+    onSubmit(formData);
     onClose();
   };
 
-  const handleResetFilter = () => {
-    setSelectedFilters({
+  const handleReset = () => {
+    onClose();
+    setFormData({
       name: "",
       email: "",
-      value: "",
     });
   };
 
@@ -60,16 +69,16 @@ export default function TambahAnggotaModal({ isOpen, onClose, onSubmit }) {
               {/* input name */}
               <div>
                 <label className="font-semibold text-sm block mb-1">
-                  Nama Lengkap <span className="text-red-500">*</span>
+                  Nama <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   className="input"
-                  placeholder="Masukkan name Lengkap"
-                  value={selectedFilters.name}
+                  placeholder="Masukkan Nama"
+                  value={formData.name}
                   onChange={(e) =>
-                    setSelectedFilters({
-                      ...selectedFilters,
+                    setFormData({
+                      ...formData,
                       name: e.target.value,
                     })
                   }
@@ -85,10 +94,10 @@ export default function TambahAnggotaModal({ isOpen, onClose, onSubmit }) {
                   type="email"
                   className="input"
                   placeholder="Masukkan Email"
-                  value={selectedFilters.email}
+                  value={formData.email}
                   onChange={(e) =>
-                    setSelectedFilters({
-                      ...selectedFilters,
+                    setFormData({
+                      ...formData,
                       email: e.target.value,
                     })
                   }
@@ -99,14 +108,14 @@ export default function TambahAnggotaModal({ isOpen, onClose, onSubmit }) {
               <div className="flex justify-end gap-2 pt-4">
                 <button
                   type="button"
-                  onClick={handleResetFilter}
+                  onClick={handleReset}
                   className="px-6 py-2 rounded-lg text-gray-700 bg-gray-200 hover:bg-gray-300 transition"
                 >
                   Batal
                 </button>
                 <button
                   type="button"
-                  onClick={handleApplyFilter}
+                  onClick={handleSubmit}
                   className="px-6 py-2 rounded-lg text-white bg-[#65C7D5] hover:bg-[#4FB3C1] transition"
                 >
                   Tambah

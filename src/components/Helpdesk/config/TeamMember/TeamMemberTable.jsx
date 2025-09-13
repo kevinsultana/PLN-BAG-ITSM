@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -12,55 +12,41 @@ import {
   Pagination,
   TextField,
   InputAdornment,
+  CircularProgress,
 } from "@mui/material";
 import { FaPlus } from "react-icons/fa";
 import { RiSearchLine } from "react-icons/ri";
 
-const initialTeamMembers = [
-  {
-    no: 1,
-    nama: "Functional",
-    slaPolicy: "SLA - Critical Incident",
-    jumlahAgent: 4,
-  },
-  {
-    no: 2,
-    nama: "Technical",
-    slaPolicy: "SLA - Low Priority Request",
-    jumlahAgent: 7,
-  },
-  {
-    no: 3,
-    nama: "Functional",
-    slaPolicy: "SLA - Emergency Access Request",
-    jumlahAgent: 3,
-  },
-  {
-    no: 4,
-    nama: "Technical",
-    slaPolicy: "SLA - IT Procurement Approval",
-    jumlahAgent: 2,
-  },
-  {
-    no: 5,
-    nama: "Functional",
-    slaPolicy: "SLA - Emergency Access Request",
-    jumlahAgent: 3,
-  },
-];
-
 const columns = [
   { label: "No.", key: "no" },
-  { label: "Nama", key: "nama" },
-  { label: "SLA Policy", key: "slaPolicy" },
-  { label: "Jumlah Agent", key: "jumlahAgent" },
+  { label: "Nama", key: "name" },
+  { label: "Deskripsi", key: "description" },
+  { label: "Email", key: "is_email" },
+  { label: "Auto Assign", key: "is_autoassign" },
+  { label: "Jumlah Anggota", key: "team_count" },
 ];
 
-export default function TeamMemberTable({ onClickNew }) {
-  const [teamMembers, setTeamMembers] = useState(initialTeamMembers);
+export default function TeamMemberTable({ onClickNew, data = [] }) {
+  const [teamMembers, setTeamMembers] = useState(data);
   const [page, setPage] = useState(1);
   const [rowsPerPage] = useState(5);
   const [searchTerm, setSearchTerm] = useState("");
+  const [orderBy, setOrderBy] = useState("name");
+  const [order, setOrder] = useState("asc");
+
+  useEffect(() => {
+    setTeamMembers(data);
+  }, [data]);
+
+  // Sorting handler
+  const handleSort = (columnKey) => {
+    if (orderBy === columnKey) {
+      setOrder(order === "asc" ? "desc" : "asc");
+    } else {
+      setOrderBy(columnKey);
+      setOrder("asc");
+    }
+  };
 
   const sortedAndFilteredMembers = useMemo(() => {
     let filteredList = teamMembers.filter((member) =>
@@ -68,9 +54,25 @@ export default function TeamMemberTable({ onClickNew }) {
         String(value).toLowerCase().includes(searchTerm.toLowerCase())
       )
     );
-
+    // Sorting
+    if (orderBy && orderBy !== "no") {
+      filteredList = [...filteredList].sort((a, b) => {
+        let aValue = a[orderBy];
+        let bValue = b[orderBy];
+        // For boolean columns, sort false before true
+        if (typeof aValue === "boolean" && typeof bValue === "boolean") {
+          return order === "asc" ? aValue - bValue : bValue - aValue;
+        }
+        // For string columns
+        aValue = aValue ? aValue.toString().toLowerCase() : "";
+        bValue = bValue ? bValue.toString().toLowerCase() : "";
+        if (aValue < bValue) return order === "asc" ? -1 : 1;
+        if (aValue > bValue) return order === "asc" ? 1 : -1;
+        return 0;
+      });
+    }
     return filteredList;
-  }, [teamMembers, searchTerm]);
+  }, [teamMembers, searchTerm, orderBy, order]);
 
   const paginatedMembers = useMemo(() => {
     const start = (page - 1) * rowsPerPage;
@@ -116,17 +118,40 @@ export default function TeamMemberTable({ onClickNew }) {
           <TableHead>
             <TableRow className="bg-gray-50">
               {columns.map((column) => (
-                <TableCell key={column.key}>{column.label}</TableCell>
+                <TableCell key={column.key}>
+                  {column.key === "no" ? (
+                    column.label
+                  ) : (
+                    <TableSortLabel
+                      active={orderBy === column.key}
+                      direction={orderBy === column.key ? order : "asc"}
+                      onClick={() => handleSort(column.key)}
+                    >
+                      {column.label}
+                    </TableSortLabel>
+                  )}
+                </TableCell>
               ))}
             </TableRow>
           </TableHead>
           <TableBody>
-            {paginatedMembers.map((row) => (
-              <TableRow key={row.no} hover>
-                <TableCell>{row.no}</TableCell>
-                <TableCell>{row.nama}</TableCell>
-                <TableCell>{row.slaPolicy}</TableCell>
-                <TableCell>{row.jumlahAgent}</TableCell>
+            {data.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={columns.length} align="center">
+                  <CircularProgress />
+                </TableCell>
+              </TableRow>
+            )}
+            {paginatedMembers.map((row, idx) => (
+              <TableRow key={row.id || idx} hover>
+                <TableCell>{(page - 1) * rowsPerPage + idx + 1}</TableCell>
+                <TableCell>{row.name}</TableCell>
+                <TableCell>
+                  <span dangerouslySetInnerHTML={{ __html: row.description }} />
+                </TableCell>
+                <TableCell>{row.is_email ? "Ya" : "Tidak"}</TableCell>
+                <TableCell>{row.is_autoassign ? "Ya" : "Tidak"}</TableCell>
+                <TableCell>{row.team_count}</TableCell>
               </TableRow>
             ))}
           </TableBody>

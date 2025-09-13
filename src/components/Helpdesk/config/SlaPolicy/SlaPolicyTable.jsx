@@ -13,60 +13,39 @@ import {
   TextField,
   InputAdornment,
   IconButton,
+  CircularProgress,
 } from "@mui/material";
 import { FaPlus } from "react-icons/fa";
 import { RiSearchLine, RiMore2Fill } from "react-icons/ri";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
-const initialSlaPolicies = [
-  {
-    no: 1,
-    nama: "SLA - Critical Incident",
-    reach: "In Progress",
-    final: "Resolved",
-    target: "1 Jam",
-  },
-  {
-    no: 2,
-    nama: "SLA - Low Priority",
-    reach: "In Progress",
-    final: "Resolved",
-    target: "5 Jam",
-  },
-  {
-    no: 3,
-    nama: "SLA - Emergency Access",
-    reach: "In Progress",
-    final: "Resolved",
-    target: "3 Jam",
-  },
-  {
-    no: 4,
-    nama: "SLA - High Approval",
-    reach: "In Progress",
-    final: "Resolved",
-    target: "6 Jam",
-  },
-  {
-    no: 5,
-    nama: "SLA - Emergency Access",
-    reach: "In Progress",
-    final: "Resolved",
-    target: "4 Jam",
-  },
-];
+const initialSlaPolicies = [];
 
 const columns = [
   { label: "No.", key: "no" },
-  { label: "Nama", key: "nama" },
-  { label: "Reach", key: "reach", disableSorting: true },
-  { label: "Final", key: "final", disableSorting: true },
-  { label: "Target", key: "target" },
+  { label: "Nama", key: "Name" },
+  { label: "Deskripsi", key: "Description" },
+  { label: "Prioritas", key: "Priority" },
+  { label: "Response Time", key: "ResponseTime" },
+  { label: "Resolve Time", key: "ResolveTime" },
   { label: "Aksi", key: "aksi", disableSorting: true },
 ];
 
-export default function SlaPolicyTable({ onClickNewSLAPolicy }) {
-  const [slaPolicies, setSlaPolicies] = useState(initialSlaPolicies);
+export default function SlaPolicyTable({
+  data = [],
+  onClickNewSLAPolicy,
+  onClickEdit,
+  onClickDelete,
+  loading,
+}) {
+  const mappedData = useMemo(() => {
+    if (!data || !Array.isArray(data)) return initialSlaPolicies;
+    return data.map((item, idx) => ({
+      no: idx + 1,
+      ...item,
+    }));
+  }, [data]);
+
+  const [slaPolicies, setSlaPolicies] = useState(mappedData);
   const [orderBy, setOrderBy] = useState("no");
   const [order, setOrder] = useState("asc");
   const [page, setPage] = useState(1);
@@ -86,15 +65,18 @@ export default function SlaPolicyTable({ onClickNewSLAPolicy }) {
   };
 
   const handleEdit = (row) => {
-    console.log("Edit item:", row);
+    onClickEdit(row);
     setOpenMenuId(null);
   };
 
   const handleDelete = (row) => {
-    console.log("Delete item:", row);
-    setSlaPolicies(slaPolicies.filter((item) => item.no !== row.no));
+    onClickDelete(row);
     setOpenMenuId(null);
   };
+
+  useEffect(() => {
+    setSlaPolicies(mappedData);
+  }, [mappedData]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -106,7 +88,7 @@ export default function SlaPolicyTable({ onClickNewSLAPolicy }) {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [menuRef]);
+  }, []);
 
   const sortedAndFilteredPolicies = useMemo(() => {
     let filteredList = slaPolicies.filter((policy) =>
@@ -189,54 +171,58 @@ export default function SlaPolicyTable({ onClickNewSLAPolicy }) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {paginatedPolicies.map((row) => (
-              <TableRow key={row.no} hover>
-                <TableCell>{row.no}</TableCell>
-                <TableCell>{row.nama}</TableCell>
-                <TableCell>
-                  <span className="flex items-center gap-2">
-                    <AccessTimeIcon
-                      fontSize="small"
-                      className="text-gray-500"
-                    />
-                    {row.reach}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <span className="flex items-center gap-2">
-                    <AccessTimeIcon
-                      fontSize="small"
-                      className="text-gray-500"
-                    />
-                    {row.final}
-                  </span>
-                </TableCell>
-                <TableCell>{row.target}</TableCell>
-                <TableCell className="relative" ref={menuRef}>
-                  <IconButton onClick={() => handleOpenMenu(row.no)}>
-                    <RiMore2Fill />
-                  </IconButton>
-                  {openMenuId === row.no && (
-                    <div className="absolute right-28  -translate-y-1/2 w-32 bg-white rounded-md shadow-lg border border-gray-200 z-10">
-                      <ul className="py-1">
-                        <li
-                          onClick={() => handleEdit(row)}
-                          className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                        >
-                          Edit
-                        </li>
-                        <li
-                          onClick={() => handleDelete(row)}
-                          className="px-4 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
-                        >
-                          Delete
-                        </li>
-                      </ul>
-                    </div>
-                  )}
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={columns.length} align="center">
+                  <CircularProgress />
                 </TableCell>
               </TableRow>
-            ))}
+            ) : (
+              paginatedPolicies.map((row) => (
+                <TableRow key={row.ID || row.no} hover>
+                  <TableCell>{row.no}</TableCell>
+                  <TableCell>{row.Name}</TableCell>
+                  <TableCell>
+                    {row.Description ? (
+                      <div
+                        dangerouslySetInnerHTML={{ __html: row.Description }}
+                      />
+                    ) : (
+                      "No Description"
+                    )}
+                  </TableCell>
+                  <TableCell>{row.Priority}</TableCell>
+                  <TableCell>{row.ResponseTime}</TableCell>
+                  <TableCell>{row.ResolveTime}</TableCell>
+                  <TableCell className="relative">
+                    <IconButton onClick={() => handleOpenMenu(row.no)}>
+                      <RiMore2Fill />
+                    </IconButton>
+                    {openMenuId === row.no && (
+                      <div
+                        className="absolute right-28  -translate-y-1/2 w-32 bg-white rounded-md shadow-lg border border-gray-200 z-10"
+                        ref={menuRef}
+                      >
+                        <ul className="py-1">
+                          <li
+                            onClick={() => handleEdit(row)}
+                            className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                          >
+                            Edit
+                          </li>
+                          <li
+                            onClick={() => handleDelete(row)}
+                            className="px-4 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
+                          >
+                            Delete
+                          </li>
+                        </ul>
+                      </div>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
         <div className="flex items-center justify-between px-4 py-3">

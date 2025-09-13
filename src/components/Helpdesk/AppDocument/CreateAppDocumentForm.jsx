@@ -4,32 +4,45 @@ import CKEditorWrapper from "@/components/CKEditorWrapper";
 import { toast } from "sonner";
 import { Checkbox, FormControlLabel } from "@mui/material";
 
-export default function CreateAppDocumentForm() {
+export default function CreateAppDocumentForm({
+  appList = [],
+  data = null,
+  onCancel,
+  onSubmit,
+  submitLabel = "Save",
+}) {
   const [form, setForm] = useState({
-    namaDokumen: "",
-    aplikasi: "",
-    deskripsi: "",
-    lampiran: null,
-    publish: false,
+    id: data?.id || "",
+    title: data?.title || "",
+    application_id: data?.application_id || "",
+    description: data?.description || "",
+    file_url: data?.file_url || null,
+    is_publish: data?.is_publish || false,
   });
 
-  const [fileName, setFileName] = useState("");
+  const [fileName, setFileName] = useState(
+    data?.file_url
+      ? typeof data.file_url === "string"
+        ? data.file_url.split("/").pop()
+        : ""
+      : ""
+  );
   const [errors, setErrors] = useState({});
   const fileInputRef = useRef(null);
 
-  const dataAplikasi = [
-    { name: "ERP CRM", value: "erp-crm" },
-    { name: "ERP FM", value: "erp-fm" },
-    { name: "ERP MM", value: "erp-mm" },
-    { name: "ERP HCM", value: "erp-hcm" },
-    { name: "e-Procurement", value: "e-procurement" },
-    { name: "Ship Tracking", value: "ship-tracking" },
-    { name: "PMS", value: "pms" },
-    { name: "Email", value: "email" },
-    { name: "Website", value: "website" },
-    { name: "BAg Cloud", value: "bag-cloud" },
-    { name: "Fuel Mentoring", value: "fuel-mentoring" },
-  ];
+  // const dataAplikasi = [
+  //   { name: "ERP CRM", value: "erp-crm" },
+  //   { name: "ERP FM", value: "erp-fm" },
+  //   { name: "ERP MM", value: "erp-mm" },
+  //   { name: "ERP HCM", value: "erp-hcm" },
+  //   { name: "e-Procurement", value: "e-procurement" },
+  //   { name: "Ship Tracking", value: "ship-tracking" },
+  //   { name: "PMS", value: "pms" },
+  //   { name: "Email", value: "email" },
+  //   { name: "Website", value: "website" },
+  //   { name: "BAg Cloud", value: "bag-cloud" },
+  //   { name: "Fuel Mentoring", value: "fuel-mentoring" },
+  // ];
 
   const handleChange = (e) => {
     const { name, value, checked, type } = e.target;
@@ -48,18 +61,18 @@ export default function CreateAppDocumentForm() {
         });
         return;
       }
-      setForm({ ...form, lampiran: file });
+      setForm({ ...form, file_url: file });
       setFileName(file.name);
     }
   };
 
   const validate = () => {
     const newErrors = {};
-    if (!form.namaDokumen.trim()) newErrors.namaDokumen = true;
-    if (!form.aplikasi) newErrors.aplikasi = true;
-    if (!form.deskripsi.trim()) newErrors.deskripsi = true;
-    if (!form.lampiran) newErrors.lampiran = true;
-    if (!form.publish) newErrors.publish = true;
+    if (!form.title.trim()) newErrors.title = true;
+    if (!form.application_id) newErrors.application_id = true;
+    if (!form.description.trim()) newErrors.description = true;
+    // if (!form.file_url) newErrors.file_url = true;
+    // if (!form.is_publish) newErrors.is_publish = true;
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -72,17 +85,16 @@ export default function CreateAppDocumentForm() {
       });
       return;
     }
-    // Logic to submit form
-    console.log("Submitted Data:", form);
-    toast.success("Dokumen berhasil dibuat!", {
-      description: `Dokumen "${form.namaDokumen}" telah berhasil ditambahkan.`,
-      duration: 5000,
-    });
+    if (onSubmit) {
+      onSubmit(form);
+    }
   };
 
   return (
     <div className="bg-white rounded-xl p-6 mt-4 border border-gray-200 shadow-sm">
-      <h1 className="text-xl font-bold mb-6">Buat Dokumen</h1>
+      <h1 className="text-xl font-bold mb-6">
+        {data ? "Edit Dokumen Aplikasi" : "Buat Dokumen Aplikasi"}
+      </h1>
       <form
         onSubmit={handleSubmit}
         className="grid grid-cols-1 md:grid-cols-2 gap-6"
@@ -94,10 +106,10 @@ export default function CreateAppDocumentForm() {
           </label>
           <input
             type="text"
-            name="namaDokumen"
-            value={form.namaDokumen}
+            name="title"
+            value={form.title}
             onChange={handleChange}
-            className={`input ${errors.namaDokumen ? "border-red-500" : ""}`}
+            className={`input ${errors.title ? "border-red-500" : ""}`}
             placeholder="Nama Document"
           />
         </div>
@@ -108,10 +120,10 @@ export default function CreateAppDocumentForm() {
             Deskripsi<span className="text-red-500">*</span>
           </label>
           <CKEditorWrapper
-            value={form.deskripsi}
-            onChange={(data) => setForm({ ...form, deskripsi: data })}
+            value={form.description}
+            onChange={(data) => setForm({ ...form, description: data })}
             className={`ckeditor-container ${
-              errors.deskripsi ? "border-red-500" : ""
+              errors.description ? "border-red-500" : ""
             }`}
             placeholder="Deskripsi"
           />
@@ -123,15 +135,15 @@ export default function CreateAppDocumentForm() {
             Aplikasi<span className="text-red-500">*</span>
           </label>
           <select
-            name="aplikasi"
-            value={form.aplikasi}
+            name="application_id"
+            value={form.application_id}
             onChange={handleChange}
-            className={`input ${errors.aplikasi ? "border-red-500" : ""}`}
+            className={`input ${errors.application_id ? "border-red-500" : ""}`}
           >
             <option value="">Pilih Aplikasi</option>
-            {dataAplikasi.map((item, index) => (
-              <option key={index} value={item.value}>
-                {item.name}
+            {appList.map((item, index) => (
+              <option key={index} value={item.ID}>
+                {item.Name}
               </option>
             ))}
           </select>
@@ -145,7 +157,7 @@ export default function CreateAppDocumentForm() {
           </label>
           <div
             className={`flex items-center input px-3 py-2 cursor-pointer ${
-              errors.lampiran ? "border-red-500" : ""
+              errors.file_url ? "border-red-500" : ""
             }`}
             onClick={() => fileInputRef.current.click()}
           >
@@ -181,11 +193,11 @@ export default function CreateAppDocumentForm() {
           <FormControlLabel
             control={
               <Checkbox
-                checked={form.publish}
+                checked={form.is_publish}
                 onChange={handleChange}
-                name="publish"
+                name="is_publish"
                 sx={{
-                  color: errors.publish ? "#ef4444" : "#65C7D5",
+                  color: errors.is_publish ? "#ef4444" : "#65C7D5",
                   "&.Mui-checked": {
                     color: "#65C7D5",
                   },
@@ -195,7 +207,7 @@ export default function CreateAppDocumentForm() {
             label={
               <span
                 className={`font-semibold text-sm ${
-                  errors.publish ? "text-red-500" : ""
+                  errors.is_publish ? "text-red-500" : ""
                 }`}
               >
                 Publish to Portal ITSM<span className="text-red-500">*</span>
@@ -209,7 +221,7 @@ export default function CreateAppDocumentForm() {
           <button
             type="button"
             className="px-6 py-2 rounded-lg text-gray-700 bg-gray-200 hover:bg-gray-300 transition"
-            onClick={() => console.log("Cancel")}
+            onClick={onCancel}
           >
             Cancel
           </button>
@@ -217,7 +229,7 @@ export default function CreateAppDocumentForm() {
             type="submit"
             className="px-6 py-2 rounded-lg text-white bg-[#65C7D5] hover:bg-[#4FB3C1] transition"
           >
-            Save
+            {submitLabel}
           </button>
         </div>
       </form>

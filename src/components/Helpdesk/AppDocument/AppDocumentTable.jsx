@@ -1,5 +1,10 @@
 "use client";
 import React, { useState, useMemo, useRef, useEffect } from "react";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import Button from "@mui/material/Button";
 import {
   Table,
   TableBody,
@@ -12,57 +17,45 @@ import {
   TextField,
   InputAdornment,
   IconButton,
+  CircularProgress,
 } from "@mui/material";
 import { FaPlus } from "react-icons/fa";
 import { RiSearchLine, RiMore2Fill } from "react-icons/ri";
 
-const initialAppDocuments = [
-  {
-    no: 1,
-    nama: "User Guide BAg Daily",
-    aplikasi: "BAg Daily",
-    fileTemplate: "UserguideBAgDaily.pdf",
-  },
-  {
-    no: 2,
-    nama: "Draft Kontrak Tender Non Kapal",
-    aplikasi: "e-Procurement",
-    fileTemplate: "Kontraknonkapal.docx",
-  },
-  {
-    no: 3,
-    nama: "RKS Tender Kapal",
-    aplikasi: "e-Procurement",
-    fileTemplate: "RKSKapal.pdf",
-  },
-  {
-    no: 4,
-    nama: "SOP Divisi Pengusul B/J",
-    aplikasi: "ShipTracking",
-    fileTemplate: "SOPVendor.pdf",
-  },
-  {
-    no: 5,
-    nama: "User Guide BAg Daily",
-    aplikasi: "BAg Daily",
-    fileTemplate: "UserguideBAgDaily.pdf",
-  },
-];
+const initialAppDocuments = [];
 
 const columns = [
   { label: "No.", key: "no" },
-  { label: "Nama", key: "nama" },
-  { label: "Aplikasi", key: "aplikasi" },
-  { label: "File Template", key: "fileTemplate" },
+  { label: "Name", key: "Title" },
+  { label: "Aplikasi", key: "ApplicationID" },
+  { label: "File", key: "FileURL" },
   { label: "Aksi", key: "aksi", disableSorting: true },
 ];
 
-export default function AppDocumentTable({ onClickNewDocApps }) {
-  const [appDocuments, setAppDocuments] = useState(initialAppDocuments);
+export default function AppDocumentTable({
+  onClickNewDocApps,
+  data = [],
+  onClickEdit,
+  onClickDelete,
+  loading,
+}) {
+  const mappedData = useMemo(() => {
+    if (!data || !Array.isArray(data)) return initialAppDocuments;
+    return data.map((item, idx) => ({
+      no: idx + 1,
+      ...item,
+    }));
+  }, [data]);
+
+  const [appDocuments, setAppDocuments] = useState(mappedData);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedRow, setSelectedRow] = useState(null);
   const [page, setPage] = useState(1);
   const [rowsPerPage] = useState(5);
   const [searchTerm, setSearchTerm] = useState("");
   const [openMenuId, setOpenMenuId] = useState(null);
+  const [orderBy, setOrderBy] = useState("no");
+  const [order, setOrder] = useState("asc");
   const menuRef = useRef(null);
 
   const handleSort = (property) => {
@@ -76,15 +69,25 @@ export default function AppDocumentTable({ onClickNewDocApps }) {
   };
 
   const handleEdit = (row) => {
-    console.log("Edit item:", row);
+    if (onClickEdit) onClickEdit(row);
     setOpenMenuId(null);
   };
 
   const handleDelete = (row) => {
-    console.log("Delete item:", row);
-    setAppDocuments(appDocuments.filter((item) => item.no !== row.no));
+    setSelectedRow(row);
+    setDeleteModalOpen(true);
     setOpenMenuId(null);
   };
+
+  const confirmDelete = () => {
+    if (onClickDelete) onClickDelete(selectedRow);
+    setDeleteModalOpen(false);
+    setSelectedRow(null);
+  };
+
+  useEffect(() => {
+    setAppDocuments(mappedData);
+  }, [mappedData]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -96,7 +99,7 @@ export default function AppDocumentTable({ onClickNewDocApps }) {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [menuRef]);
+  }, []);
 
   const sortedAndFilteredDocuments = useMemo(() => {
     let filteredList = appDocuments.filter((doc) =>
@@ -105,8 +108,17 @@ export default function AppDocumentTable({ onClickNewDocApps }) {
       )
     );
 
+    if (orderBy && columns.some((col) => col.key === orderBy)) {
+      filteredList = [...filteredList].sort((a, b) => {
+        const aValue = a[orderBy];
+        const bValue = b[orderBy];
+        if (aValue < bValue) return order === "asc" ? -1 : 1;
+        if (aValue > bValue) return order === "asc" ? 1 : -1;
+        return 0;
+      });
+    }
     return filteredList;
-  }, [appDocuments, searchTerm]);
+  }, [appDocuments, searchTerm, orderBy, order]);
 
   const paginatedDocuments = useMemo(() => {
     const start = (page - 1) * rowsPerPage;
@@ -152,42 +164,87 @@ export default function AppDocumentTable({ onClickNewDocApps }) {
           <TableHead>
             <TableRow className="bg-gray-50">
               {columns.map((column) => (
-                <TableCell key={column.key}>{column.label}</TableCell>
+                <TableCell
+                  key={column.key}
+                  sortDirection={orderBy === column.key ? order : false}
+                >
+                  {column.disableSorting ? (
+                    column.label
+                  ) : (
+                    <span
+                      className="cursor-pointer select-none"
+                      onClick={() => handleSort(column.key)}
+                    >
+                      {column.label}
+                      {orderBy === column.key
+                        ? order === "asc"
+                          ? " ▲"
+                          : " ▼"
+                        : null}
+                    </span>
+                  )}
+                </TableCell>
               ))}
             </TableRow>
           </TableHead>
           <TableBody>
-            {paginatedDocuments.map((row) => (
-              <TableRow key={row.no} hover>
-                <TableCell>{row.no}</TableCell>
-                <TableCell>{row.nama}</TableCell>
-                <TableCell>{row.aplikasi}</TableCell>
-                <TableCell>{row.fileTemplate}</TableCell>
-                <TableCell className="relative" ref={menuRef}>
-                  <IconButton onClick={() => handleOpenMenu(row.no)}>
-                    <RiMore2Fill />
-                  </IconButton>
-                  {openMenuId === row.no && (
-                    <div className="absolute right-8 top-1/2 -translate-y-1/2 w-32 bg-white rounded-md shadow-lg border border-gray-200 z-10">
-                      <ul className="py-1">
-                        <li
-                          onClick={() => handleEdit(row)}
-                          className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                        >
-                          Edit
-                        </li>
-                        <li
-                          onClick={() => handleDelete(row)}
-                          className="px-4 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
-                        >
-                          Delete
-                        </li>
-                      </ul>
-                    </div>
-                  )}
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={columns.length} align="center">
+                  <CircularProgress />
                 </TableCell>
               </TableRow>
-            ))}
+            ) : (
+              paginatedDocuments.map((row) => (
+                <TableRow key={row.ID || row.no} hover>
+                  <TableCell>{row.no}</TableCell>
+                  <TableCell>{row.Title}</TableCell>
+                  <TableCell>
+                    {row.ApplicationID ? row.ApplicationID : "-"}
+                  </TableCell>
+                  <TableCell>
+                    {row.FileURL ? (
+                      <a
+                        href={row.FileURL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[#65C7D5] underline"
+                      >
+                        Download
+                      </a>
+                    ) : (
+                      "-"
+                    )}
+                  </TableCell>
+                  <TableCell className="relative">
+                    <IconButton onClick={() => handleOpenMenu(row.no)}>
+                      <RiMore2Fill />
+                    </IconButton>
+                    {openMenuId === row.no && (
+                      <div
+                        className="absolute right-8 top-1/2 -translate-y-1/2 w-32 bg-white rounded-md shadow-lg border border-gray-200 z-10"
+                        ref={menuRef}
+                      >
+                        <ul className="py-1">
+                          <li
+                            onClick={() => handleEdit(row)}
+                            className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                          >
+                            Edit
+                          </li>
+                          <li
+                            onClick={() => handleDelete(row)}
+                            className="px-4 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
+                          >
+                            Delete
+                          </li>
+                        </ul>
+                      </div>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
         <div className="flex items-center justify-between px-4 py-3">
@@ -214,6 +271,20 @@ export default function AppDocumentTable({ onClickNewDocApps }) {
           />
         </div>
       </TableContainer>
+      <Dialog open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
+        <DialogTitle>Konfirmasi Hapus</DialogTitle>
+        <DialogContent>
+          Apakah Anda yakin ingin menghapus dokumen <b>{selectedRow?.Title}</b>?
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteModalOpen(false)} color="inherit">
+            Batal
+          </Button>
+          <Button onClick={confirmDelete} color="error" variant="contained">
+            Hapus
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }

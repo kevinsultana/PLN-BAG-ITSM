@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   RiHome4Line,
   RiFileEditLine,
@@ -18,7 +18,18 @@ import { BiPhoneCall } from "react-icons/bi";
 
 export default function SidebarAgent({ show }) {
   const pathname = usePathname();
-  const [openDropdown, setOpenDropdown] = useState(null);
+  const [openDropdown, setOpenDropdown] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("sidebarOpenDropdown") || null;
+    }
+    return null;
+  });
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("sidebarOpenDropdown", openDropdown || "");
+    }
+  }, [openDropdown]);
 
   const getLinkClassName = (paths) => {
     const isActive = Array.isArray(paths)
@@ -165,6 +176,7 @@ export default function SidebarAgent({ show }) {
               className={getLinkClassName([
                 "/helpdesk/apps-document",
                 "/helpdesk/apps-document/new",
+                "/helpdesk/apps-document/edit/[id]",
               ])}
             >
               <LuClipboardList />
@@ -174,14 +186,15 @@ export default function SidebarAgent({ show }) {
 
           <li>
             <Link
-              href="/helpdesk/user"
+              href="/helpdesk/user-previlege"
               className={getLinkClassName([
-                "/helpdesk/user",
-                "/helpdesk/user/new",
+                "/helpdesk/user-previlege",
+                "/helpdesk/user-previlege/new",
+                "/helpdesk/user-previlege/edit/[id]",
               ])}
             >
               <RiUser3Line />
-              User
+              User Previlege
             </Link>
           </li>
 
@@ -236,7 +249,11 @@ export default function SidebarAgent({ show }) {
               <li>
                 <Link
                   href="/helpdesk/config/tiket-status"
-                  className={getLinkClassName("/helpdesk/config/tiket-status")}
+                  className={getLinkClassName([
+                    "/helpdesk/config/tiket-status",
+                    "/helpdesk/config/tiket-status/new",
+                    "/helpdesk/config/tiket-status/edit/[id]",
+                  ])}
                 >
                   Status Tiket
                 </Link>
@@ -252,7 +269,11 @@ export default function SidebarAgent({ show }) {
               <li>
                 <Link
                   href="/helpdesk/config/ticket-type"
-                  className={getLinkClassName("/helpdesk/config/ticket-type")}
+                  className={getLinkClassName([
+                    "/helpdesk/config/ticket-type",
+                    "/helpdesk/config/ticket-type/edit/[id]",
+                    "/helpdesk/config/ticket-type/new",
+                  ])}
                 >
                   Tipe Tiket
                 </Link>
@@ -260,17 +281,13 @@ export default function SidebarAgent({ show }) {
               <li>
                 <Link
                   href="/helpdesk/config/application"
-                  className={getLinkClassName("/helpdesk/config/application")}
+                  className={getLinkClassName([
+                    "/helpdesk/config/application",
+                    "/helpdesk/config/application/new",
+                    "/helpdesk/config/application/edit/[id]",
+                  ])}
                 >
                   Aplikasi
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/helpdesk/config/apps-features"
-                  className={getLinkClassName("/helpdesk/config/apps-features")}
-                >
-                  Feature Aplikasi
                 </Link>
               </li>
               <li>

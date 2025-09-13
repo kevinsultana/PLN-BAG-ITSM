@@ -13,28 +13,37 @@ import {
   TextField,
   InputAdornment,
   IconButton,
+  CircularProgress,
 } from "@mui/material";
 import { FaPlus } from "react-icons/fa";
 import { RiSearchLine, RiMore2Fill } from "react-icons/ri";
 
-const initialTicketStatus = [
-  { no: 1, nama: "Open", code: "OPEN" },
-  { no: 2, nama: "In Progress", code: "INPS" },
-  { no: 3, nama: "Waiting Customer", code: "WTCS" },
-  { no: 4, nama: "Resolved", code: "SLVD" },
-  { no: 5, nama: "Closed", code: "CLSD" },
-  { no: 6, nama: "Hold", code: "HOLD" },
-];
+const initialTicketStatus = [];
 
 const columns = [
   { label: "No.", key: "no" },
-  { label: "Nama", key: "nama" },
-  { label: "Code", key: "code" },
+  { label: "Nama", key: "Name" },
+  { label: "Code", key: "Code" },
   { label: "Aksi", key: "aksi", disableSorting: true },
 ];
 
-export default function TicketStatusTable({ onClickNewTiketStats }) {
-  const [ticketStatus, setTicketStatus] = useState(initialTicketStatus);
+export default function TicketStatusTable({
+  data,
+  onClickNewTiketStats,
+  onClickEdit,
+  onClickDelete,
+  loading,
+}) {
+  // Map API data to table format with no
+  const mappedData = useMemo(() => {
+    if (!data || !Array.isArray(data)) return initialTicketStatus;
+    return data.map((item, idx) => ({
+      no: idx + 1,
+      ...item,
+    }));
+  }, [data]);
+
+  const [ticketStatus, setTicketStatus] = useState(mappedData);
   const [orderBy, setOrderBy] = useState("no");
   const [order, setOrder] = useState("asc");
   const [page, setPage] = useState(1);
@@ -54,15 +63,18 @@ export default function TicketStatusTable({ onClickNewTiketStats }) {
   };
 
   const handleEdit = (row) => {
-    console.log("Edit item:", row);
+    if (onClickEdit) onClickEdit(row);
     setOpenMenuId(null);
   };
 
   const handleDelete = (row) => {
-    console.log("Delete item:", row);
-    setTicketStatus(ticketStatus.filter((item) => item.no !== row.no));
+    if (onClickDelete) onClickDelete(row);
     setOpenMenuId(null);
   };
+
+  useEffect(() => {
+    setTicketStatus(mappedData);
+  }, [mappedData]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -74,7 +86,7 @@ export default function TicketStatusTable({ onClickNewTiketStats }) {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [menuRef]);
+  }, []);
 
   const sortedAndFilteredStatus = useMemo(() => {
     let filteredList = ticketStatus.filter((status) =>
@@ -157,36 +169,47 @@ export default function TicketStatusTable({ onClickNewTiketStats }) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {paginatedStatus.map((row) => (
-              <TableRow key={row.no} hover>
-                <TableCell>{row.no}</TableCell>
-                <TableCell>{row.nama}</TableCell>
-                <TableCell>{row.code}</TableCell>
-                <TableCell className="relative" ref={menuRef}>
-                  <IconButton onClick={() => handleOpenMenu(row.no)}>
-                    <RiMore2Fill />
-                  </IconButton>
-                  {openMenuId === row.no && (
-                    <div className="absolute right-8 top-1/2 -translate-y-1/2 w-32 bg-white rounded-md shadow-lg border border-gray-200 z-10">
-                      <ul className="py-1">
-                        <li
-                          onClick={() => handleEdit(row)}
-                          className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                        >
-                          Edit
-                        </li>
-                        <li
-                          onClick={() => handleDelete(row)}
-                          className="px-4 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
-                        >
-                          Delete
-                        </li>
-                      </ul>
-                    </div>
-                  )}
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={columns.length} align="center">
+                  <CircularProgress />
                 </TableCell>
               </TableRow>
-            ))}
+            ) : (
+              paginatedStatus.map((row) => (
+                <TableRow key={row.ID || row.no} hover>
+                  <TableCell>{row.no}</TableCell>
+                  <TableCell>{row.Name}</TableCell>
+                  <TableCell>{row.Code}</TableCell>
+                  <TableCell className="relative">
+                    <IconButton onClick={() => handleOpenMenu(row.no)}>
+                      <RiMore2Fill />
+                    </IconButton>
+                    {openMenuId === row.no && (
+                      <div
+                        className="absolute right-8 top-1/2 -translate-y-1/2 w-32 bg-white rounded-md shadow-lg border border-gray-200 z-10"
+                        ref={menuRef}
+                      >
+                        <ul className="py-1">
+                          <li
+                            onClick={() => handleEdit(row)}
+                            className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                          >
+                            Edit
+                          </li>
+                          <li
+                            onClick={() => handleDelete(row)}
+                            className="px-4 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
+                          >
+                            Delete
+                          </li>
+                        </ul>
+                      </div>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
         <div className="flex items-center justify-between px-4 py-3">

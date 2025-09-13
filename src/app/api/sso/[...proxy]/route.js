@@ -1,8 +1,8 @@
 // src/app/api/sso/[...proxy]/route.js
 import { NextResponse } from "next/server";
 
-const SSO_API_URL = "https://itsm-helpdesk-be.unotek.co.id";
-// const SSO_API_URL = "http://localhost:8080";
+// const SSO_API_URL = "https://itsm-helpdesk-be.unotek.co.id";
+const SSO_API_URL = "http://localhost:8080";
 
 async function handler(req) {
   const { pathname, search } = new URL(req.url);

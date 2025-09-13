@@ -6,6 +6,7 @@ import { HiOutlineMenuAlt2 } from "react-icons/hi";
 import { CgArrowsExpandRight } from "react-icons/cg";
 import { IoClose } from "react-icons/io5";
 import { useAuth } from "@/context/AuthContext";
+import Link from "next/link";
 
 export default function NavbarAgent({ onClick }) {
   const { user, loading, login, logout } = useAuth();
@@ -115,6 +116,12 @@ export default function NavbarAgent({ onClick }) {
 
         <div className="flex gap-6 items-center relative">
           {/* Bell + dropdown */}
+          <Link
+            href="/beranda"
+            className="text-gray-500 hover:text-gray-800 transition-all duration-300 hover:bg-sky-600/40 bg-sky-600/20 px-3 py-2 rounded-lg text-sm font-semibold"
+          >
+            Beranda
+          </Link>
           <div className="relative" ref={notifRef}>
             <FaBell
               className="text-xl text-gray-600 cursor-pointer"
@@ -200,8 +207,11 @@ export default function NavbarAgent({ onClick }) {
               <p className="text-xs">belum login</p>
             </div>
           )}
-          <button onClick={handleAuthAction}>
-            {user ? "Sign out" : "Sign in"}
+          <button
+            className="px-4 py-2 rounded-lg text-white bg-[#65C7D5] hover:bg-[#4FB3C1] transition cursor-pointer"
+            onClick={handleAuthAction}
+          >
+            {user ? "Sign Out" : "Sign In"}
           </button>
         </div>
       </div>

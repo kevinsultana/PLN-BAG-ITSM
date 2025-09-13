@@ -13,26 +13,37 @@ import {
   TextField,
   InputAdornment,
   IconButton,
+  CircularProgress,
 } from "@mui/material";
 import { FaPlus } from "react-icons/fa";
 import { RiSearchLine, RiMore2Fill } from "react-icons/ri";
 
-const initialTicketTypes = [
-  { no: 1, nama: "Information Request", code: "INFR" },
-  { no: 2, nama: "Service Request", code: "SCRQ" },
-  { no: 3, nama: "Incident Support", code: "INSP" },
-  { no: 4, nama: "Change Request", code: "CRQS" },
-];
+const initialTicketTypes = [];
 
 const columns = [
   { label: "No.", key: "no" },
-  { label: "Nama", key: "nama" },
-  { label: "Code", key: "code" },
+  { label: "Nama", key: "Name" },
+  { label: "Code", key: "Code" },
   { label: "Aksi", key: "aksi", disableSorting: true },
 ];
 
-export default function TicketTypeTable({ onClickNewTicketType }) {
-  const [ticketTypes, setTicketTypes] = useState(initialTicketTypes);
+export default function TicketTypeTable({
+  onClickNewTicketType,
+  data,
+  onClickEdit,
+  onClickDelete,
+  loading,
+}) {
+  // Map API data to table format with no
+  const mappedData = useMemo(() => {
+    if (!data || !Array.isArray(data)) return initialTicketTypes;
+    return data.map((item, idx) => ({
+      no: idx + 1,
+      ...item,
+    }));
+  }, [data]);
+
+  const [ticketTypes, setTicketTypes] = useState(mappedData);
   const [orderBy, setOrderBy] = useState("no");
   const [order, setOrder] = useState("asc");
   const [page, setPage] = useState(1);
@@ -52,15 +63,18 @@ export default function TicketTypeTable({ onClickNewTicketType }) {
   };
 
   const handleEdit = (row) => {
-    console.log("Edit item:", row);
+    onClickEdit(row);
     setOpenMenuId(null);
   };
 
   const handleDelete = (row) => {
-    console.log("Delete item:", row);
-    setTicketTypes(ticketTypes.filter((item) => item.no !== row.no));
+    onClickDelete(row);
     setOpenMenuId(null);
   };
+
+  useEffect(() => {
+    setTicketTypes(mappedData);
+  }, [mappedData]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -72,7 +86,7 @@ export default function TicketTypeTable({ onClickNewTicketType }) {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [menuRef]);
+  }, []);
 
   const sortedAndFilteredTypes = useMemo(() => {
     let filteredList = ticketTypes.filter((type) =>
@@ -155,36 +169,47 @@ export default function TicketTypeTable({ onClickNewTicketType }) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {paginatedTypes.map((row) => (
-              <TableRow key={row.no} hover>
-                <TableCell>{row.no}</TableCell>
-                <TableCell>{row.nama}</TableCell>
-                <TableCell>{row.code}</TableCell>
-                <TableCell className="relative" ref={menuRef}>
-                  <IconButton onClick={() => handleOpenMenu(row.no)}>
-                    <RiMore2Fill />
-                  </IconButton>
-                  {openMenuId === row.no && (
-                    <div className="absolute right-8 top-1/2 -translate-y-1/2 w-32 bg-white rounded-md shadow-lg border border-gray-200 z-10">
-                      <ul className="py-1">
-                        <li
-                          onClick={() => handleEdit(row)}
-                          className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                        >
-                          Edit
-                        </li>
-                        <li
-                          onClick={() => handleDelete(row)}
-                          className="px-4 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
-                        >
-                          Delete
-                        </li>
-                      </ul>
-                    </div>
-                  )}
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={columns.length} align="center">
+                  <CircularProgress />
                 </TableCell>
               </TableRow>
-            ))}
+            ) : (
+              paginatedTypes.map((row) => (
+                <TableRow key={row.ID || row.no} hover>
+                  <TableCell>{row.no}</TableCell>
+                  <TableCell>{row.Name}</TableCell>
+                  <TableCell>{row.Code}</TableCell>
+                  <TableCell className="relative">
+                    <IconButton onClick={() => handleOpenMenu(row.no)}>
+                      <RiMore2Fill />
+                    </IconButton>
+                    {openMenuId === row.no && (
+                      <div
+                        className="absolute right-8 top-1/2 -translate-y-1/2 w-32 bg-white rounded-md shadow-lg border border-gray-200 z-10"
+                        ref={menuRef}
+                      >
+                        <ul className="py-1">
+                          <li
+                            onClick={() => handleEdit(row)}
+                            className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                          >
+                            Edit
+                          </li>
+                          <li
+                            onClick={() => handleDelete(row)}
+                            className="px-4 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
+                          >
+                            Delete
+                          </li>
+                        </ul>
+                      </div>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
         <div className="flex items-center justify-between px-4 py-3">
