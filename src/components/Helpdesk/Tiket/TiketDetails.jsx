@@ -277,7 +277,7 @@ export default function TiketDetails({ data }) {
                       <img
                         src={att.url}
                         alt={att.name}
-                        style={{ maxWidth: 100, maxHeight: 100 }}
+                        style={{ maxWidth: 50, maxHeight: 50 }}
                       />
                     ) : null}
                     <a
@@ -315,7 +315,7 @@ export default function TiketDetails({ data }) {
       </div>
 
       {/* feedback */}
-      {data?.status === "Resolved" && (
+      {data?.status === "OPEN" && (
         <>
           <div className="wfull h-[1px] bg-gray-200 " />
           <div className="flex flex-col gap-2 space-y-2 py-4">
