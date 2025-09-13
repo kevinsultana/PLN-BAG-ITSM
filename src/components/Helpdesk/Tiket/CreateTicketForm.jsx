@@ -11,7 +11,7 @@ export default function CreateTicketForm({ onSubmit }) {
     team_id: "",
     application_id: "",
     assigned_to: "",
-    requester: "",
+    user_id: "",
     priority_id: "",
     division_id: "",
     ticket_type_id: "",
@@ -100,7 +100,7 @@ export default function CreateTicketForm({ onSubmit }) {
     if (!form.team_id) newErrors.team_id = true;
     if (!form.application_id) newErrors.application_id = true;
     if (!String(form.assigned_to || "").trim()) newErrors.assigned_to = true;
-    if (!String(form.requester || "").trim()) newErrors.requester = true;
+    if (!String(form.user_id || "").trim()) newErrors.user_id = true;
     if (!form.priority_id) newErrors.priority_id = true;
     if (!form.division_id) newErrors.division_id = true;
     if (!form.ticket_type_id) newErrors.ticket_type_id = true;
@@ -246,10 +246,10 @@ export default function CreateTicketForm({ onSubmit }) {
           <label className="font-semibold text-sm">
             Requester<span className="text-red-500">*</span>
           </label>
-          <FormControl fullWidth size="small" error={!!errors.requester}>
+          <FormControl fullWidth size="small" error={!!errors.user_id}>
             <Select
-              name="requester"
-              value={form.requester}
+              name="user_id"
+              value={form.user_id}
               onChange={handleChange}
               displayEmpty
               sx={{ backgroundColor: "white", borderRadius: 2 }}
