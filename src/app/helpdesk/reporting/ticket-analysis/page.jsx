@@ -1,25 +1,10 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import HelpdeskLayout from "@/components/Helpdesk/layout/HelpdeskLayout";
 import TicketAnalysisChart from "@/components/Helpdesk/Reporting/TicketAnalysisChart";
 import FilterModal from "@/components/Helpdesk/Reporting/FilterModal";
 import { RiFilter2Line } from "react-icons/ri";
-
-const dataFunctional = [
-  { name: "New", value: 10 },
-  { name: "In Progress", value: 20 },
-  { name: "On Hold", value: 25 },
-  { name: "Resolved", value: 45 },
-  { name: "Closed", value: 10 },
-];
-
-const dataTechnical = [
-  { name: "New", value: 15 },
-  { name: "In Progress", value: 25 },
-  { name: "On Hold", value: 15 },
-  { name: "Resolved", value: 45 },
-  { name: "Closed", value: 20 },
-];
+import { ProxyUrl } from "@/api/BaseUrl";
 
 export default function Page() {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
@@ -30,6 +15,38 @@ export default function Page() {
 
   const handleCloseFilter = () => {
     setIsFilterModalOpen(false);
+  };
+
+  const [data, setData] = useState([]);
+
+  const getData = async () => {
+    try {
+      const res = await ProxyUrl.get("/reports/tickets/analysis");
+      setData(res.data.data || []);
+    } catch (error) {
+      console.error("Error fetching ticket data:", error);
+    }
+  };
+
+  useEffect(() => {
+    getData();
+  }, []);
+
+  const handleApplyFilter = async (filters) => {
+    console.log("Applied Filters:", filters);
+    try {
+      const res = await ProxyUrl.get(
+        "/reports/tickets/analysis?category=" +
+          filters.kategori +
+          "&start_date=" +
+          filters.tanggal +
+          "&end_date=" +
+          filters.tanggalend
+      );
+      setData(res.data.data || []);
+    } catch (error) {
+      console.error("Error applying filters:", error);
+    }
   };
 
   return (
@@ -55,13 +72,26 @@ export default function Page() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <TicketAnalysisChart title="Functional" data={dataFunctional} />
-            <TicketAnalysisChart title="Technical" data={dataTechnical} />
+            {data.map((item, index) => (
+              <div key={index} className="p-4 border rounded-lg">
+                <TicketAnalysisChart
+                  title={item.category_name}
+                  data={item.statuses.map((status) => ({
+                    name: status.status,
+                    value: status.total,
+                  }))}
+                />
+              </div>
+            ))}
           </div>
         </div>
       </HelpdeskLayout>
 
-      <FilterModal isOpen={isFilterModalOpen} onClose={handleCloseFilter} />
+      <FilterModal
+        isOpen={isFilterModalOpen}
+        onClose={handleCloseFilter}
+        onClickApply={handleApplyFilter}
+      />
     </div>
   );
 }

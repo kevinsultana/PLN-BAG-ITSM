@@ -10,11 +10,11 @@ import {
 } from "recharts";
 
 const COLORS = {
-  Open: "#82ca9d",
-  "In Progress": "#ffc658",
-  "On Hold": "#ff7300",
-  Resolved: "#ff8042",
-  Closed: "#d0d0d0",
+  OPEN: "#82ca9d",
+  "IN PROGRESS": "#ffc658",
+  "ON HOLD": "#ff7300",
+  RESOLVED: "#ff8042",
+  CLOSED: "#d0d0d0",
 };
 
 const CustomTooltip = ({ active, payload }) => {
