@@ -12,7 +12,7 @@ async function handler(req) {
   const headers = new Headers(req.headers);
   headers.set("host", new URL(BACKEND_URL).host);
   headers.delete("connection");
-  headers.delete("content-length");
+  // headers.delete("content-length");
 
   // Handle body jika bukan GET/HEAD
   let body;
