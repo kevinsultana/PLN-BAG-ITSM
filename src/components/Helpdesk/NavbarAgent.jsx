@@ -7,11 +7,15 @@ import { CgArrowsExpandRight } from "react-icons/cg";
 import { IoClose } from "react-icons/io5";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function NavbarAgent({ onClick }) {
   const { user, loading, login, logout } = useAuth();
   const [showNotifications, setShowNotifications] = useState(false);
+  const [logoutLoading, setLogoutLoading] = useState(false);
   const notifRef = useRef(null);
+  const router = useRouter();
 
   const notifications = [
     {
@@ -89,13 +93,29 @@ export default function NavbarAgent({ onClick }) {
     return date.toLocaleDateString("id-ID", options);
   };
 
-  const handleAuthAction = () => {
+  const handleAuthAction = async () => {
     if (user) {
-      logout();
+      setLogoutLoading(true);
+      // toast.loading("Logging out...");
+      try {
+        await logout();
+        toast.success("Berhasil logout!");
+        router.replace("/");
+      } catch (err) {
+        toast.error("Logout gagal!");
+      } finally {
+        setLogoutLoading(false);
+      }
     } else {
       login();
     }
   };
+
+  useEffect(() => {
+    if (!user) {
+      router.replace("/");
+    }
+  }, [user, router]);
 
   return (
     <div className="relative">
@@ -194,24 +214,30 @@ export default function NavbarAgent({ onClick }) {
           </div>
 
           <FaUser className="text-xl text-gray-600" />
-          {loading ? (
-            <p>Loading...</p>
-          ) : user ? (
-            <div className="flex flex-col">
-              <h4 className="text-sm font-semibold">{user.data.name}</h4>
-              <p className="text-xs">{user.data.email}</p>
-            </div>
-          ) : (
-            <div className="flex flex-col">
-              <h4 className="text-sm font-semibold">Tamu</h4>
-              <p className="text-xs">belum login</p>
-            </div>
-          )}
+          <div className="flex flex-col">
+            {loading ? (
+              <p>Loading...</p>
+            ) : user ? (
+              <>
+                <h4 className="text-sm font-semibold">{user.data.name}</h4>
+                <p className="text-xs">{user.data.email}</p>
+              </>
+            ) : (
+              <>
+                <h4 className="text-sm font-semibold">Tamu</h4>
+                <p className="text-xs">belum login</p>
+              </>
+            )}
+          </div>
           <button
-            className="px-4 py-2 rounded-lg text-white bg-[#65C7D5] hover:bg-[#4FB3C1] transition cursor-pointer"
             onClick={handleAuthAction}
+            className="px-4 py-2 rounded-lg text-white bg-[#65C7D5] hover:bg-[#4FB3C1] transition flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+            disabled={logoutLoading}
           >
-            {user ? "Sign Out" : "Sign In"}
+            {logoutLoading && (
+              <span className="loader mr-2 w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+            )}
+            {user ? "Sign Out" : "Login"}
           </button>
         </div>
       </div>

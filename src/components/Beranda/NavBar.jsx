@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
+import { toast } from "sonner";
 import Image from "next/image";
 import { FaBell, FaUser } from "react-icons/fa6";
 import { HiOutlineMenuAlt2 } from "react-icons/hi";
@@ -7,11 +8,14 @@ import { CgArrowsExpandRight } from "react-icons/cg";
 import { IoClose } from "react-icons/io5";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function NavBar({ onClick }) {
   const { user, loading, login, logout } = useAuth();
+  const [logoutLoading, setLogoutLoading] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const notifRef = useRef(null);
+  const router = useRouter();
 
   const notifications = [
     {
@@ -89,13 +93,29 @@ export default function NavBar({ onClick }) {
     return date.toLocaleDateString("id-ID", options);
   };
 
-  const handleAuthAction = () => {
+  const handleAuthAction = async () => {
     if (user) {
-      logout();
+      setLogoutLoading(true);
+      // toast.loading("Logging out...");
+      try {
+        await logout();
+        toast.success("Berhasil logout!");
+        router.replace("/");
+      } catch (err) {
+        toast.error("Logout gagal!");
+      } finally {
+        setLogoutLoading(false);
+      }
     } else {
       login();
     }
   };
+
+  useEffect(() => {
+    if (!user) {
+      router.replace("/");
+    }
+  }, [user, router]);
 
   return (
     <div className="relative">
@@ -213,8 +233,12 @@ export default function NavBar({ onClick }) {
           </div>
           <button
             onClick={handleAuthAction}
-            className="px-4 py-2 rounded-lg text-white bg-[#65C7D5] hover:bg-[#4FB3C1] transition"
+            className="px-4 py-2 rounded-lg text-white bg-[#65C7D5] hover:bg-[#4FB3C1] transition flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+            disabled={logoutLoading}
           >
+            {logoutLoading && (
+              <span className="loader mr-2 w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+            )}
             {user ? "Sign Out" : "Login"}
           </button>
         </div>
