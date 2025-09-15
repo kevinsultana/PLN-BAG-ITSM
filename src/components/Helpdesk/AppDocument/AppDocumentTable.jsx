@@ -203,9 +203,9 @@ export default function AppDocumentTable({
                     {row.application_id ? row.application_id : "-"}
                   </TableCell>
                   <TableCell>
-                    {row.FileURL ? (
+                    {row.attachments ? (
                       <a
-                        href={row.FileURL}
+                        href={row.attachments[0].url}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-[#65C7D5] underline"

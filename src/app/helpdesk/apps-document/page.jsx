@@ -33,7 +33,6 @@ export default function Page() {
     try {
       const res = await ProxyUrl.get("/docs");
       setData(res.data.data);
-      console.log(res.data.data);
       setLoading(false);
     } catch (error) {
       setLoading(false);
