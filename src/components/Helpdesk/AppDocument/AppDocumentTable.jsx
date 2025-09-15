@@ -200,7 +200,7 @@ export default function AppDocumentTable({
                   <TableCell>{row.no}</TableCell>
                   <TableCell>{row.title}</TableCell>
                   <TableCell>
-                    {row.application_id ? row.application_id : "-"}
+                    {row.application_name ? row.application_name : "-"}
                   </TableCell>
                   <TableCell>
                     {row.attachments ? (

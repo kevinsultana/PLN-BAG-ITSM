@@ -21,7 +21,6 @@ export default function Page() {
   const getDataTiket = async () => {
     try {
       const res = await ProxyUrl.get("/tickets");
-      console.log(res.data);
       setDataTiket(res.data.data);
       setDataMetaTiket(res.data.meta);
     } catch (error) {
