@@ -30,20 +30,6 @@ export default function CreateAppDocumentForm({
   const [errors, setErrors] = useState({});
   const fileInputRef = useRef(null);
 
-  // const dataAplikasi = [
-  //   { name: "ERP CRM", value: "erp-crm" },
-  //   { name: "ERP FM", value: "erp-fm" },
-  //   { name: "ERP MM", value: "erp-mm" },
-  //   { name: "ERP HCM", value: "erp-hcm" },
-  //   { name: "e-Procurement", value: "e-procurement" },
-  //   { name: "Ship Tracking", value: "ship-tracking" },
-  //   { name: "PMS", value: "pms" },
-  //   { name: "Email", value: "email" },
-  //   { name: "Website", value: "website" },
-  //   { name: "BAg Cloud", value: "bag-cloud" },
-  //   { name: "Fuel Mentoring", value: "fuel-mentoring" },
-  // ];
-
   const handleChange = (e) => {
     const { name, value, checked, type } = e.target;
     setForm({
@@ -93,7 +79,7 @@ export default function CreateAppDocumentForm({
   return (
     <div className="bg-white rounded-xl p-6 mt-4 border border-gray-200 shadow-sm">
       <h1 className="text-xl font-bold mb-6">
-        {data ? "Edit Dokumen Aplikasi" : "Buat Dokumen Aplikasi"}
+        {data ? `Edit Dokumen Aplikasi ${data.title}` : "Buat Dokumen Aplikasi"}
       </h1>
       <form
         onSubmit={handleSubmit}

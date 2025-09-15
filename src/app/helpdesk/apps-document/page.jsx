@@ -16,7 +16,7 @@ export default function Page() {
   };
 
   const handleEdit = (row) => {
-    router.push(`/helpdesk/apps-document/edit/${row.ID}`);
+    router.push(`/helpdesk/apps-document/edit/${row.id}`);
   };
 
   const handleDelete = async (row) => {
@@ -33,6 +33,7 @@ export default function Page() {
     try {
       const res = await ProxyUrl.get("/docs");
       setData(res.data.data);
+      console.log(res.data.data);
       setLoading(false);
     } catch (error) {
       setLoading(false);

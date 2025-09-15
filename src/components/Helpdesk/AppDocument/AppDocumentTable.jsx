@@ -198,9 +198,9 @@ export default function AppDocumentTable({
               paginatedDocuments.map((row) => (
                 <TableRow key={row.ID || row.no} hover>
                   <TableCell>{row.no}</TableCell>
-                  <TableCell>{row.Title}</TableCell>
+                  <TableCell>{row.title}</TableCell>
                   <TableCell>
-                    {row.ApplicationID ? row.ApplicationID : "-"}
+                    {row.application_id ? row.application_id : "-"}
                   </TableCell>
                   <TableCell>
                     {row.FileURL ? (

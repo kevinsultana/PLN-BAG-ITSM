@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import CKEditorWrapper from "@/components/CKEditorWrapper";
 import { toast } from "sonner";
 import { FaExternalLinkAlt } from "react-icons/fa";
@@ -24,6 +24,8 @@ export default function CreateTicketForm({ onSubmit }) {
     contract_value: null || 0,
     subject: "",
   });
+
+  const fileInputRef = useRef(null);
 
   const [errors, setErrors] = useState({});
   const [files, setFiles] = useState([]);
@@ -62,20 +64,58 @@ export default function CreateTicketForm({ onSubmit }) {
 
   const handleFileChange = (e) => {
     const selected = Array.from(e.target.files || []);
-    const total = totalFilesSize(selected);
+    // Combine with existing files, avoiding duplicates by name+size
+    const combined = [...files, ...selected].filter(
+      (f, i, arr) =>
+        arr.findIndex((x) => x.name === f.name && x.size === f.size) === i
+    );
+    const total = totalFilesSize(combined);
     if (total > MAX_TOTAL_BYTES) {
       toast.error(
         "Total lampiran melebihi 50 MB. Silakan pilih file lebih kecil."
       );
       return;
     }
-    setFiles(selected);
+    setFiles(combined);
     setForm((prev) => ({
       ...prev,
-      lampiran: selected.map((f) => f.name).join(", "),
+      lampiran: combined.map((f) => f.name).join(", "),
     }));
     setErrors((prev) => ({ ...prev, lampiran: false }));
   };
+
+  // Paste handler for clipboard files/images
+  useEffect(() => {
+    const handlePaste = (e) => {
+      if (
+        e.clipboardData &&
+        e.clipboardData.files &&
+        e.clipboardData.files.length > 0
+      ) {
+        const pastedFiles = Array.from(e.clipboardData.files);
+        const combined = [...files, ...pastedFiles].filter(
+          (f, i, arr) =>
+            arr.findIndex((x) => x.name === f.name && x.size === f.size) === i
+        );
+        const total = totalFilesSize(combined);
+        if (total > MAX_TOTAL_BYTES) {
+          toast.error(
+            "Total lampiran melebihi 50 MB. Silakan pilih file lebih kecil."
+          );
+          return;
+        }
+        setFiles(combined);
+        setForm((prev) => ({
+          ...prev,
+          lampiran: combined.map((f) => f.name).join(", "),
+        }));
+        setErrors((prev) => ({ ...prev, lampiran: false }));
+        toast.success("File dari clipboard berhasil ditambahkan!");
+      }
+    };
+    window.addEventListener("paste", handlePaste);
+    return () => window.removeEventListener("paste", handlePaste);
+  }, [files]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -466,7 +506,6 @@ export default function CreateTicketForm({ onSubmit }) {
             </div>
           </>
         )}
-
         {/* Email */}
         <div className="flex flex-col gap-2">
           <label className="font-semibold text-sm">
@@ -481,7 +520,6 @@ export default function CreateTicketForm({ onSubmit }) {
             placeholder="Email"
           />
         </div>
-
         {/* SLA Policy - MUI Select */}
         <div className="flex flex-col gap-2">
           <label className="font-semibold text-sm">
@@ -506,7 +544,6 @@ export default function CreateTicketForm({ onSubmit }) {
             </Select>
           </FormControl>
         </div>
-
         {/* No. Whatsapp */}
         <div className="flex flex-col gap-2">
           <label className="font-semibold text-sm">
@@ -522,61 +559,8 @@ export default function CreateTicketForm({ onSubmit }) {
           />
         </div>
 
-        {/* Lampiran */}
-        <div className="flex flex-col gap-2">
-          <label className="font-semibold text-sm">
-            Lampiran<span className="text-red-500">*</span>{" "}
-            <span className="text-sm text-gray-500">(Maks 50MB)</span>
-          </label>
-          <input
-            type="file"
-            name="lampiran"
-            multiple
-            onChange={handleFileChange}
-            className={`file-input ${errors.lampiran ? "border-red-500" : ""}`}
-            accept="*/*"
-          />
-          <div className="text-sm text-gray-600">
-            {files.length > 0 ? (
-              <ul className="list-disc ml-5">
-                {files.map((f, i) => (
-                  <li key={i} className="flex items-center justify-between">
-                    <span>
-                      {f.name} ({(f.size / 1024 / 1024).toFixed(2)} MB)
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const next = files.filter((_, idx) => idx !== i);
-                        setFiles(next);
-                        setForm((prev) => ({
-                          ...prev,
-                          lampiran: next.map((x) => x.name).join(", "),
-                        }));
-                      }}
-                      className="text-red-500 ml-3"
-                    >
-                      Hapus
-                    </button>
-                  </li>
-                ))}
-                <li>
-                  Total: {(totalFilesSize(files) / 1024 / 1024).toFixed(2)} MB
-                </li>
-              </ul>
-            ) : (
-              <div className="input flex items-center px-3 py-2">
-                <span className="flex-grow text-gray-500">
-                  {form.lampiran || "Lampirkan Dokumen / Foto"}
-                </span>
-                <FaExternalLinkAlt className="text-gray-500" />
-              </div>
-            )}
-          </div>
-        </div>
-
         {/* Deskripsi */}
-        <div className="flex flex-col gap-2 row-span-2">
+        <div className="flex flex-col gap-2 col-span-2">
           <label className="font-semibold text-sm">
             Deskripsi<span className="text-red-500">*</span>
           </label>
@@ -590,6 +574,81 @@ export default function CreateTicketForm({ onSubmit }) {
           />
         </div>
 
+        {/* Lampiran */}
+        <div className="flex flex-col gap-2 col-span-2">
+          <label className="font-semibold text-sm mb-1">
+            Lampiran<span className="text-red-500">*</span>
+            <span className="text-xs text-gray-500 ml-2">(Maks 50MB)</span>
+          </label>
+          <div
+            className={`relative flex flex-col items-center justify-center border-2 border-dashed rounded-lg py-4 px-2 cursor-pointer bg-gray-50 transition focus:outline-none focus:ring-2 focus:ring-[#65C7D5] ${
+              errors.lampiran ? "border-red-500" : "border-gray-200"
+            }`}
+            tabIndex={0}
+            onClick={() => fileInputRef.current?.click()}
+            onDrop={(e) => {
+              e.preventDefault();
+              const dropped = Array.from(e.dataTransfer.files || []);
+              if (dropped.length)
+                handleFileChange({ target: { files: dropped } });
+            }}
+            onDragOver={(e) => e.preventDefault()}
+          >
+            <span className="text-gray-500 text-center select-none">
+              Paste gambar di sini atau drag & drop file di sini
+            </span>
+            <input
+              type="file"
+              name="lampiran"
+              multiple
+              ref={fileInputRef}
+              style={{ display: "none" }}
+              onChange={handleFileChange}
+              accept="*/*"
+            />
+          </div>
+          {errors.lampiran && (
+            <span className="text-xs text-red-500 mt-1">
+              Lampiran wajib diisi dan maksimal 50MB
+            </span>
+          )}
+          <div className="text-sm text-gray-600 mt-2">
+            {files.length > 0 ? (
+              <ul className="list-disc ml-5">
+                {files.map((f, i) => (
+                  <li
+                    key={i}
+                    className="flex items-center justify-between py-1"
+                  >
+                    <span>
+                      {f.name}
+                      <span className="text-xs text-gray-400">
+                        ({(f.size / 1024 / 1024).toFixed(2)} MB)
+                      </span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const next = files.filter((_, idx) => idx !== i);
+                        setFiles(next);
+                        setForm((prev) => ({
+                          ...prev,
+                          lampiran: next.map((x) => x.name).join(", "),
+                        }));
+                      }}
+                      className="px-2 py-1 rounded text-xs bg-red-100 text-red-600 hover:bg-red-200 ml-3"
+                    >
+                      Hapus
+                    </button>
+                  </li>
+                ))}
+                <li className="mt-2 text-xs text-gray-500 font-semibold">
+                  Total: {(totalFilesSize(files) / 1024 / 1024).toFixed(2)} MB
+                </li>
+              </ul>
+            ) : null}
+          </div>
+        </div>
         {/* Buttons */}
         <div className="md:col-span-2 flex  gap-4 mt-4">
           <button
