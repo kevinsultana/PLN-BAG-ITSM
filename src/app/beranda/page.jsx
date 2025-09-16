@@ -14,8 +14,8 @@ export default function Page() {
 
   const router = useRouter();
 
-  const handleRowClick = (item, index) => {
-    router.push(`/beranda/ticket-details/${index}`, { state: item });
+  const handleRowClick = (item) => {
+    router.push(`/beranda/ticket-details/${item.id}`);
   };
 
   const getDataTiket = async () => {
