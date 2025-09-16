@@ -4,69 +4,14 @@ import MainLayout from "@/components/Beranda/Layout/MainLayout";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { ProxyUrl } from "@/api/BaseUrl";
+import { toast } from "sonner";
 
 export default function Page() {
   const [data, setData] = useState(null);
+  const [feedback, setFeedback] = useState(null);
 
   const params = useParams();
   const tiketId = params.id;
-
-  const dataTiket = {
-    ticket_detail: {
-      created_name: "Faye Puteri",
-      division_name: "IT",
-      email: "faye@gmail.com",
-      whatsapp_number: "08123456789",
-      application_name: "e-Procurement",
-      ticket_subject: "Tidak bisa meng-input field Deskripsi Tender",
-      ticket_description:
-        "<p>Mohon bantuannya, field Deskripsi Tender tidak dapat diinput.</p>",
-      attachments: [
-        {
-          file_name: "photo.jpg",
-          file_type: "image/jpg",
-          file_size_kb: 571,
-          file_base64: "<BASE64_STRING>",
-        },
-      ],
-      submitted_at: "2025-07-30 13:10:00+07:00",
-      ticket_status: "Resolved",
-    },
-    comment_thread: [
-      {
-        timestamp: "2025-07-30 13:11:00+07:00",
-        role: "User",
-        comment_by: "Faye Puteri",
-        message: "Mohon segera dibantu ya, ini urgent. 🙏",
-      },
-      {
-        timestamp: "2025-07-30 13:25:00+07:00",
-        role: "Helpdesk",
-        comment_by: "Nando (Helpdesk)",
-        message: "Tiket sudah kami terima, akan diteruskan ke tim terkait.",
-      },
-      {
-        timestamp: "2025-07-30 14:10:00+07:00",
-        role: "IT Support",
-        comment_by: "Sarah (IT Support)",
-        message:
-          "Kami sedang cek modul e-Procurement-nya ya kak. Tunggu update selanjutnya.",
-      },
-      {
-        timestamp: "2025-07-30 15:00:00+07:00",
-        role: "IT Support",
-        comment_by: "Sarah (IT Support)",
-        message: "Sudah kami perbaiki. Silakan dicoba kembali. 🙌",
-      },
-      {
-        timestamp: "2025-07-30 15:05:00+07:00",
-        role: "User",
-        comment_by: "Faye Puteri",
-        message:
-          "Oke, sekarang sudah bisa input. Terima kasih banyak ya tim IT! 🤝",
-      },
-    ],
-  };
 
   const getDataTiketById = async (id) => {
     try {
@@ -77,9 +22,34 @@ export default function Page() {
     }
   };
 
+  const getDataFeedback = async (id) => {
+    try {
+      const res = await ProxyUrl.get(`/tickets/${id}/feedback`);
+      setFeedback(res.data.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     getDataTiketById(tiketId);
+    getDataFeedback(tiketId);
   }, [tiketId]);
+
+  const handleSubmitFeedback = async (feedback) => {
+    const data = { description: feedback };
+    const toastId = toast.loading("Mengirim feedback...");
+    try {
+      await ProxyUrl.post(`/tickets/${tiketId}/feedback`, data);
+      getDataFeedback(tiketId);
+      toast.success("Feedback berhasil dikirim", { duration: 3000 });
+    } catch (error) {
+      toast.error("Gagal mengirim feedback", { duration: 3000 });
+      console.log(error);
+    } finally {
+      toast.dismiss(toastId);
+    }
+  };
 
   return (
     <div className="bg-slate-100 min-h-screen">
@@ -92,7 +62,11 @@ export default function Page() {
             </button>
           </div>
 
-          <DetailTicketForm data={dataTiket} />
+          <DetailTicketForm
+            data={data}
+            feedback={feedback}
+            onClickSubmitFeedback={handleSubmitFeedback}
+          />
         </div>
       </MainLayout>
     </div>
