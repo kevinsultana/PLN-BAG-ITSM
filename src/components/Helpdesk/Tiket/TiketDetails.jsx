@@ -1,21 +1,52 @@
 import CKEditorWrapper from "@/components/CKEditorWrapper";
+import Dropdown from "@/components/Dropdown";
+import PriorityDropdown from "@/components/PriorityDropdown";
 import renderDescription from "@/utils/RenderDesc";
 import React, { useState } from "react";
 import { FaCircleStop } from "react-icons/fa6";
 import { HiPlay } from "react-icons/hi";
 import { MdOutlinePauseCircleFilled } from "react-icons/md";
 
+function mapUpdatedTiketToPayload(updatedTiket) {
+  return {
+    application_id: updatedTiket?.application?.id || "",
+    assigned_to: updatedTiket?.assigned_to?.id || "",
+    attachment_ids: Array.isArray(updatedTiket?.attachments)
+      ? updatedTiket.attachments.map((att) => att.id)
+      : [],
+    bpo_id: updatedTiket?.bpo?.id || "",
+    contract_number: updatedTiket?.contract_number || "",
+    contract_value: updatedTiket?.contract_value || 0,
+    description: updatedTiket?.description || "",
+    division_id: updatedTiket?.division?.id || "",
+    email: updatedTiket?.email || updatedTiket?.requester?.email || "",
+    fullname: updatedTiket?.fullname || updatedTiket?.requester?.name || "",
+    priority_id: updatedTiket?.priority?.id || "",
+    sla_policy_id: updatedTiket?.sla_policy?.id || "",
+    status: updatedTiket?.status || "",
+    subject: updatedTiket?.subject || "",
+    team_id: updatedTiket?.team?.id || "",
+    ticket_type_id: updatedTiket?.ticket_type?.id || "",
+    user_id: updatedTiket?.user?.id || "",
+    whatsapp: updatedTiket?.whatsapp || "",
+  };
+}
 export default function TiketDetails({
+  // Fungsi mapping state ke payload API
   data,
   onClickStart,
   onClickPause,
   onClickEnd,
   feedback,
   onClickSubmitFeedback,
+  selections,
+  onClickUpdateTiket,
 }) {
   const status = ["OPEN", "IN PROGRESS", "ON HOLD", "RESOLVED", "CLOSED"];
 
   const [feedbackTiket, setFeedbackTiket] = useState("");
+
+  const [updatedTiket, setUpdatedTiket] = useState(data);
 
   function timeAgo(dateInput) {
     const date = new Date(dateInput);
@@ -31,8 +62,6 @@ export default function TiketDetails({
     if (diffMin > 0) return `${diffMin} menit yang lalu`;
     return "Baru saja";
   }
-
-  // console.log(feedback);
 
   return (
     <div key={data?.id} className="bg-white rounded-xl p-4">
@@ -157,20 +186,20 @@ export default function TiketDetails({
       <div className="border border-gray-200 rounded-xl p-4 space-y-2 my-6">
         <form className="grid grid-cols-2 gap-4">
           {/* Team */}
-          <div className="flex flex-col gap-2">
-            <label className="text-lg font-semibold">
-              Team <span className="text-red-500">*</span>
-            </label>
-            <select
-              className="border border-gray-500 rounded-lg p-2 w-full"
-              value={data?.team?.name || data?.assign_to?.name || ""}
-              onChange={() => {}}
-            >
-              <option value="">
-                {data?.team?.name || data?.assign_to?.name || "- Pilih Team -"}
-              </option>
-            </select>
-          </div>
+          <Dropdown
+            label="Team"
+            value={updatedTiket?.team?.id || ""}
+            dataMenus={selections?.teams || []}
+            disabled={data?.status !== "OPEN"}
+            handleChange={(e) =>
+              setUpdatedTiket((prev) => ({
+                ...prev,
+                team: { id: e.target.value },
+              }))
+            }
+            isRequired={true}
+            initMenu="- Pilih Team -"
+          />
           {/* Nama Aplikasi */}
           <div className="flex flex-col gap-2">
             <label className="text-lg font-semibold">
@@ -184,22 +213,20 @@ export default function TiketDetails({
             />
           </div>
           {/* Assigned To */}
-          <div className="flex flex-col gap-2">
-            <label className="text-lg font-semibold">
-              Assigned To <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              value={
-                data?.assigned_to?.name ||
-                data?.assign_to?.name ||
-                data?.nama_assigned_to ||
-                ""
-              }
-              className="input p-2"
-              readOnly
-            />
-          </div>
+          <Dropdown
+            label="Assigned To"
+            value={updatedTiket?.assigned_to?.id || ""}
+            dataMenus={selections?.users || []}
+            disabled={data?.status !== "OPEN"}
+            handleChange={(e) =>
+              setUpdatedTiket((prev) => ({
+                ...prev,
+                assigned_to: { id: e.target.value },
+              }))
+            }
+            isRequired={true}
+            initMenu="- Pilih Assigned To -"
+          />
           {/* Requester */}
           <div className="flex flex-col gap-2">
             <label className="text-lg font-semibold">
@@ -218,22 +245,78 @@ export default function TiketDetails({
             />
           </div>
           {/* Priority */}
-          <div className="flex flex-col gap-2">
-            <label className="text-lg font-semibold">
-              Priority <span className="text-red-500">*</span>
-            </label>
-            <select
-              className="border border-gray-500 rounded-lg p-2 w-full"
-              value={data?.priority?.level || data?.priority || ""}
-              onChange={() => {}}
-            >
-              <option value="">
-                {data?.priority?.level ||
-                  data?.priority ||
-                  "- Pilih Priority -"}
-              </option>
-            </select>
-          </div>
+          <PriorityDropdown
+            label="Priority"
+            value={updatedTiket?.priority?.id || ""}
+            dataPriorities={selections?.priorities || []}
+            disabled={data?.status !== "OPEN"}
+            onChange={(e) =>
+              setUpdatedTiket((prev) => ({
+                ...prev,
+                priority: { id: e.target.value },
+              }))
+            }
+            required={true}
+            initMenu="- Pilih Priority -"
+          />
+
+          {/* kalau tipe tiket CR maka tampilkan field tambahan */}
+          {data?.ticket_type?.name === "Change Request" && (
+            <>
+              {/* BPO */}
+              <Dropdown
+                label="BPO"
+                value={updatedTiket?.bpo?.id || ""}
+                dataMenus={selections?.bpos || []}
+                disabled={data?.status !== "OPEN"}
+                handleChange={(e) =>
+                  setUpdatedTiket((prev) => ({
+                    ...prev,
+                    bpo: { id: e.target.value },
+                  }))
+                }
+                isRequired={true}
+                initMenu="- Pilih BPO -"
+              />
+              {/* Contract Value */}
+              <div className="flex flex-col gap-2">
+                <label className="text-lg font-semibold">
+                  Contract Value <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={updatedTiket?.contract_value || ""}
+                  className="input p-2"
+                  onChange={(e) =>
+                    setUpdatedTiket((prev) => ({
+                      ...prev,
+                      contract_value: e.target.value,
+                    }))
+                  }
+                  required
+                />
+              </div>
+              {/* Contract Number */}
+              <div className="flex flex-col gap-2">
+                <label className="text-lg font-semibold">
+                  Contract Number <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={updatedTiket?.contract_number || ""}
+                  className="input p-2"
+                  onChange={(e) =>
+                    setUpdatedTiket((prev) => ({
+                      ...prev,
+                      contract_number: e.target.value,
+                    }))
+                  }
+                  required
+                />
+              </div>
+            </>
+          )}
+
           {/* Nama Divisi */}
           <div className="flex flex-col gap-2">
             <label className="text-lg font-semibold">
@@ -247,20 +330,20 @@ export default function TiketDetails({
             />
           </div>
           {/* Tipe */}
-          <div className="flex flex-col gap-2">
-            <label className="text-lg font-semibold">
-              Tipe <span className="text-red-500">*</span>
-            </label>
-            <select
-              className="border border-gray-500 rounded-lg p-2 w-full"
-              value={data?.ticket_type?.name || data?.tipe || ""}
-              onChange={() => {}}
-            >
-              <option value="">
-                {data?.ticket_type?.name || data?.tipe || "- Pilih Tipe -"}
-              </option>
-            </select>
-          </div>
+          <Dropdown
+            label="Tipe"
+            value={updatedTiket?.ticket_type?.id || ""}
+            dataMenus={selections?.ticket_types || []}
+            disabled={data?.status !== "OPEN"}
+            handleChange={(e) =>
+              setUpdatedTiket((prev) => ({
+                ...prev,
+                ticket_type: { id: e.target.value },
+              }))
+            }
+            isRequired={true}
+            initMenu="- Pilih Tipe -"
+          />
           {/* Email */}
           <div className="flex flex-col gap-2">
             <label className="text-lg font-semibold">
@@ -274,20 +357,20 @@ export default function TiketDetails({
             />
           </div>
           {/* SLA Policy */}
-          <div className="flex flex-col gap-2">
-            <label className="text-lg font-semibold">
-              SLA Policy <span className="text-red-500">*</span>
-            </label>
-            <select
-              className="border border-gray-500 rounded-lg p-2 w-full"
-              value={data?.sla_policy?.name || data?.sla_policy || ""}
-              onChange={() => {}}
-            >
-              <option value="">
-                {data?.sla_policy?.name || data?.sla_policy || "- Pilih SLA -"}
-              </option>
-            </select>
-          </div>
+          <Dropdown
+            label="SLA Policy"
+            value={updatedTiket?.sla_policy?.id || ""}
+            dataMenus={selections?.sla_policies || []}
+            disabled={data?.status !== "OPEN"}
+            handleChange={(e) =>
+              setUpdatedTiket((prev) => ({
+                ...prev,
+                sla_policy: { id: e.target.value },
+              }))
+            }
+            isRequired={true}
+            initMenu="- Pilih SLA -"
+          />
           {/* No. Whatsapp */}
           <div className="flex flex-col gap-2">
             <label className="text-lg font-semibold">
@@ -343,12 +426,31 @@ export default function TiketDetails({
             </div>
           </div>
           {/* Deskripsi */}
-          <div className="flex flex-col gap-2">
-            <label className="text-lg font-semibold">
-              Deskripsi <span className="text-red-500">*</span>
+          <div className="flex flex-col gap-2 row-span-2">
+            <label className="font-semibold text-sm">
+              Deskripsi Tiket<span className="text-red-500">*</span>
             </label>
-            <CKEditorWrapper value={data?.description || ""} />
+            <div
+              className="input min-h-30 "
+              dangerouslySetInnerHTML={{ __html: data?.description || "" }}
+            ></div>
           </div>
+
+          {/* button update tiket */}
+          {data?.status === "OPEN" && (
+            <div className="col-span-2">
+              <button
+                type="button"
+                className="bg-sky-500 cursor-pointer p-2 text-white w-full rounded-full mt-6"
+                onClick={() => {
+                  const payload = mapUpdatedTiketToPayload(updatedTiket);
+                  onClickUpdateTiket(payload);
+                }}
+              >
+                Update Tiket
+              </button>
+            </div>
+          )}
         </form>
       </div>
 
@@ -372,18 +474,21 @@ export default function TiketDetails({
         </button>
       </div>
       <div className="wfull h-[3px] bg-gray-200 mb-4" />
-      {feedback?.map((item, index) => (
-        <div key={index} className="flex flex-col gap-2 space-y-2 py-4">
-          <h1 className="font-bold text-lg">
-            {item.user.name}{" "}
-            <span className="text-gray-500 font-medium text-base">
-              {timeAgo(item.created_at)}
-            </span>
-          </h1>
-          <div>{renderDescription(item.description)}</div>
-          {/* <p dangerouslySetInnerHTML={{ __html: item.description }}></p> */}
-        </div>
-      ))}
+      {Array.isArray(feedback) &&
+        feedback
+          .slice()
+          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+          .map((item, index) => (
+            <div key={index} className="flex flex-col gap-2 space-y-2 py-4">
+              <h1 className="font-bold text-lg">
+                {item.user.name}{" "}
+                <span className="text-gray-500 font-medium text-base">
+                  {timeAgo(item.created_at)}
+                </span>
+              </h1>
+              <div>{renderDescription(item.description)}</div>
+            </div>
+          ))}
     </div>
   );
 }

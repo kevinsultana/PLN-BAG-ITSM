@@ -34,8 +34,8 @@ export function AuthProvider({ children }) {
   const login = () => {
     // Langsung arahkan (redirect) browser ke halaman login SSO backend.
     // Backend akan menangani redirect kembali ke halaman aplikasi Anda setelah login.
-    // window.location.href = "https://itsm-helpdesk-be.unotek.co.id/auth/login";
-    window.location.href = "http://localhost:8080/auth/login";
+    window.location.href = "https://itsm-helpdesk-be.unotek.co.id/auth/login";
+    // window.location.href = "http://localhost:8080/auth/login";
   };
 
   const logout = async () => {
