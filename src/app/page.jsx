@@ -50,11 +50,11 @@ export default function page() {
 
   return (
     <div className="flex flex-col gap-8 w-screen h-screen justify-center items-center bg-[url('/bgLoginPage.png')] bg-cover bg-center">
-      <div className="bg-white rounded-[32px] shadow-lg p-8 flex flex-col items-center w-full max-w-md border border-gray-200">
+      <div className="bg-white/50 rounded-[32px] shadow-lg p-8 flex flex-col items-center w-full max-w-md border border-gray-200">
         <img src="/logoNavbar.png" alt="Logo" className="w-40 mb-4" />
         <h1 className="text-3xl font-bold mb-2 text-gray-900">Login</h1>
-        <p className="text-gray-500 mb-6 text-center text-lg">
-          Identity Access Management BAg
+        <p className="text-gray-900 mb-6 text-center text-2xl font-bold">
+          IT Service Management BAg
         </p>
         <form className="w-full flex flex-col gap-4" onSubmit={handleLogin}>
           <div className="flex flex-col gap-2">
@@ -91,36 +91,17 @@ export default function page() {
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </button>
           </div>
-          <div className="flex justify-end mb-2">
+          {/* <div className="flex justify-end mb-2">
             <Link
               href="#"
-              className="text-[#65C7D5] text-sm font-medium hover:underline"
+              className="text-[#000000] text-sm font-medium hover:underline"
             >
               Forgot Password?
             </Link>
-          </div>
-          {/* <div className="bg-gray-50 rounded-xl border border-gray-200 p-4 flex items-center gap-2 mb-2">
-            <input
-              type="checkbox"
-              checked={isRobot}
-              onChange={(e) => setIsRobot(e.target.checked)}
-              className="w-5 h-5 border-gray-300 rounded"
-              id="robot-check"
-            />
-            <label htmlFor="robot-check" className="text-gray-700 text-base">
-              I'm not a robot
-            </label>
-            <div className="ml-auto">
-              <img
-                src="/recaptcha.png"
-                alt="reCAPTCHA"
-                className="w-16 h-6 object-contain"
-              />
-            </div>
           </div> */}
           <button
             type="submit"
-            className="bg-[#65C7D5] hover:bg-[#4FB3C1] cursor-pointer text-white font-semibold rounded-xl py-3 mt-2 shadow transition text-lg disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="bg-[#35dbf5] hover:bg-[#4FB3C1] cursor-pointer text-white font-semibold rounded-xl py-3 mt-2 shadow transition text-lg  disabled:cursor-not-allowed flex items-center justify-center gap-2"
             disabled={!username || !password || loading}
           >
             {loading ? (
