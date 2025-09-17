@@ -206,14 +206,16 @@ export default function EditPrivilegeUserPage() {
   // Checklist All handler for column
   const handleCheckAllColumn = (colKey) => {
     const colKeys = getColumnKeys(colKey);
-    const allChecked = colKeys.every((key) => checkedPrivileges.includes(key));
+    const allChecked = colKeys.every((key) =>
+      (checkedPrivileges || []).includes(key)
+    );
     if (allChecked) {
       setCheckedPrivileges((prev) =>
-        prev.filter((key) => !colKeys.includes(key))
+        (prev || []).filter((key) => !colKeys.includes(key))
       );
     } else {
       setCheckedPrivileges((prev) =>
-        Array.from(new Set([...prev, ...colKeys]))
+        Array.from(new Set([...(prev || []), ...colKeys]))
       );
     }
   };
@@ -221,14 +223,16 @@ export default function EditPrivilegeUserPage() {
   // Checklist All handler for row
   const handleCheckAllRow = (row) => {
     const rowKeys = getRowKeys(row);
-    const allChecked = rowKeys.every((key) => checkedPrivileges.includes(key));
+    const allChecked = rowKeys.every((key) =>
+      (checkedPrivileges || []).includes(key)
+    );
     if (allChecked) {
       setCheckedPrivileges((prev) =>
-        prev.filter((key) => !rowKeys.includes(key))
+        (prev || []).filter((key) => !rowKeys.includes(key))
       );
     } else {
       setCheckedPrivileges((prev) =>
-        Array.from(new Set([...prev, ...rowKeys]))
+        Array.from(new Set([...(prev || []), ...rowKeys]))
       );
     }
   };
@@ -237,9 +241,9 @@ export default function EditPrivilegeUserPage() {
 
   const handleCheck = (privKey) => {
     setCheckedPrivileges((prev) =>
-      prev.includes(privKey)
-        ? prev.filter((k) => k !== privKey)
-        : [...prev, privKey]
+      (prev || []).includes(privKey)
+        ? (prev || []).filter((k) => k !== privKey)
+        : [...(prev || []), privKey]
     );
   };
 
@@ -266,7 +270,7 @@ export default function EditPrivilegeUserPage() {
   const getDataDetailRole = async (id) => {
     try {
       const res = await ProxyUrl.get("/role-permissions/" + id);
-      setCheckedPrivileges(res.data.data.permissions);
+      setCheckedPrivileges(res.data.data.permissions || []);
       setRoleName(res.data.data.role_name);
     } catch (error) {
       console.log(error);
@@ -309,13 +313,13 @@ export default function EditPrivilegeUserPage() {
                             type="checkbox"
                             checked={privilegeRows.every((row) =>
                               getRowKeys(row).every((key) =>
-                                checkedPrivileges.includes(key)
+                                (checkedPrivileges || []).includes(key)
                               )
                             )}
                             onChange={() => {
                               const allChecked = privilegeRows.every((row) =>
                                 getRowKeys(row).every((key) =>
-                                  checkedPrivileges.includes(key)
+                                  (checkedPrivileges || []).includes(key)
                                 )
                               );
                               if (allChecked) {
@@ -345,7 +349,7 @@ export default function EditPrivilegeUserPage() {
                               <input
                                 type="checkbox"
                                 checked={getColumnKeys(colKey).every((key) =>
-                                  checkedPrivileges.includes(key)
+                                  (checkedPrivileges || []).includes(key)
                                 )}
                                 onChange={() => handleCheckAllColumn(colKey)}
                                 className="w-5 h-5 accent-green-300"
@@ -366,7 +370,7 @@ export default function EditPrivilegeUserPage() {
                             <input
                               type="checkbox"
                               checked={getRowKeys(row).every((key) =>
-                                checkedPrivileges.includes(key)
+                                (checkedPrivileges || []).includes(key)
                               )}
                               onChange={() => handleCheckAllRow(row)}
                               className="w-5 h-5 accent-green-300"
@@ -385,17 +389,19 @@ export default function EditPrivilegeUserPage() {
                             >
                               <input
                                 type="checkbox"
-                                checked={checkedPrivileges.includes(
+                                checked={(checkedPrivileges || []).includes(
                                   row.keys[key]
                                 )}
                                 onChange={() => handleCheck(row.keys[key])}
                                 className={
-                                  checkedPrivileges.includes(row.keys[key])
+                                  (checkedPrivileges || []).includes(
+                                    row.keys[key]
+                                  )
                                     ? "accent-green-300 w-5 h-5 border-2 border-green-300 focus:ring-2 focus:ring-green-300"
                                     : "w-5 h-5 border-2 border-gray-300 focus:ring-2 focus:ring-gray-300"
                                 }
                                 style={{
-                                  boxShadow: checkedPrivileges.includes(
+                                  boxShadow: (checkedPrivileges || []).includes(
                                     row.keys[key]
                                   )
                                     ? "0 0 0 2px #22c55e"

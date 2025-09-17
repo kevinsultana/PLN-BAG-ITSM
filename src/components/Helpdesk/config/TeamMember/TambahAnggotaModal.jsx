@@ -9,6 +9,7 @@ export default function TambahAnggotaModal({ isOpen, onClose, onSubmit }) {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    password: "",
   });
 
   // useEffect(() => {
@@ -99,6 +100,25 @@ export default function TambahAnggotaModal({ isOpen, onClose, onSubmit }) {
                     setFormData({
                       ...formData,
                       email: e.target.value,
+                    })
+                  }
+                />
+              </div>
+
+              {/* input password */}
+              <div>
+                <label className="font-semibold text-sm block mb-1">
+                  Password <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="password"
+                  className="input"
+                  placeholder="Masukkan Password"
+                  value={formData.password}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      password: e.target.value,
                     })
                   }
                 />
