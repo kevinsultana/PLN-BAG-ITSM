@@ -134,7 +134,7 @@ export default function ListTicketTable({
                   onClick={() => onRowClick?.(row.raw, index)}
                   className="border border-gray-200 hover:underline transition-all duration-300 cursor-pointer"
                 >
-                  {row.ticket_id}
+                  {row.ticket_code ? row.ticket_code : "-"}
                 </TableCell>
                 <TableCell className="border border-gray-200">
                   {row.ticket_detail}
