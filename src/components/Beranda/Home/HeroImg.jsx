@@ -5,7 +5,7 @@ export default function HeroImg() {
   return (
     <div className="flex justify-center items-center">
       <Image
-        src="/heroImg.png"
+        src="/bannerHero.png"
         alt="Hero"
         width={1328}
         height={526}
