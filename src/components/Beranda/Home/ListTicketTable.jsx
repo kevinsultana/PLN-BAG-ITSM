@@ -11,27 +11,31 @@ import {
   TableSortLabel,
   Pagination,
 } from "@mui/material";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import HourglassTopIcon from "@mui/icons-material/HourglassTop";
-import TimelapseIcon from "@mui/icons-material/Timelapse";
-import CancelIcon from "@mui/icons-material/Cancel";
 import Link from "next/link";
 import { FaPlus } from "react-icons/fa";
+import { TbClockCheck, TbProgressCheck } from "react-icons/tb";
+import { LuTimerReset } from "react-icons/lu";
+import { MdOutlineTimerOff } from "react-icons/md";
 
 // Mapping status ke ikon
 const statusIcon = (status) => {
-  switch (status) {
-    case "Resolved":
-      return <CheckCircleOutlineIcon className="text-green-500" />;
-    case "In Progress":
-      return <TimelapseIcon className="text-yellow-500" />;
-    case "Waiting":
-      return <HourglassTopIcon className="text-blue-500" />;
-    case "Closed":
-      return <CancelIcon className="text-gray-400" />;
-    default:
-      return null;
-  }
+  const s = (status || "").toString().toUpperCase();
+  let icon = <HourglassTopIcon fontSize="small" />;
+
+  if (s === "RESOLVED" || s === "DONE")
+    icon = <TbClockCheck fontSize="small" />;
+  else if (s === "IN PROGRESS" || s === "ON PROGRESS")
+    icon = <TbProgressCheck fontSize="small" />;
+  else if (s === "WAITING" || s === "PENDING" || s === "ON HOLD")
+    icon = <LuTimerReset fontSize="small" />;
+  else if (s === "CLOSED") icon = <MdOutlineTimerOff fontSize="small" />;
+
+  return (
+    <span className="inline-flex items-center gap-2 rounded-full bg-gray-100 text-gray-700 px-3 py-1 text-sm">
+      {icon} {status || "-"}
+    </span>
+  );
 };
 
 // Kolom tabel: label & properti data
@@ -43,51 +47,15 @@ const columns = [
   { label: "Status", key: "status" },
 ];
 
-// Data dummy
-const initialTickets = [
-  {
-    ticket_id: "SCRQ – ERP MM – 29/07/2025 - 001",
-    ticket_detail: "User meminta akses ke modul ERP MM.",
-    created_by: "Nadia Salsabila",
-    created_date: "25 Juli 2025 08.45 WIB",
-    status: "Open",
-  },
-  {
-    ticket_id: "SCRQ – ERP MM – 29/07/2025 - 002",
-    ticket_detail: "Reset password email untuk akun Budi Santoso.",
-    created_by: "Budi Santoso",
-    created_date: "26 Juli 2025 10.30 WIB",
-    status: "In Progress",
-  },
-  {
-    ticket_id: "INFR – ERP e-Proc – 29/07/2025 - 001",
-    ticket_detail: "Vendor baru PT INDAH JAYA status DPT Active.",
-    created_by: "Siti Nurhaliza",
-    created_date: "27 Juli 2025 13.15 WIB",
-    status: "Resolved",
-  },
-  {
-    ticket_id: "INFR – HRIS – 29/07/2025 - 002",
-    ticket_detail: "Ubah jatah cuti employee BAG12345.",
-    created_by: "Rizky Hidayat",
-    created_date: "27 Juli 2025 14.50 WIB",
-    status: "Closed",
-  },
-  {
-    ticket_id: "INSP – ERP FM – 29/07/2025 - 001",
-    ticket_detail: "Vendor bill tidak bisa diubah menjadi PAID.",
-    created_by: "Yuli Andriani",
-    created_date: "28 Juli 2025 09.00 WIB",
-    status: "Waiting",
-  },
-];
-
-export default function ListTicketTable({ onRowClick }) {
-  const [tickets, setTickets] = useState(initialTickets);
+export default function ListTicketTable({
+  onRowClick,
+  dataTiket = [],
+  dataMetaTiket = {},
+}) {
   const [orderBy, setOrderBy] = useState("ticket_id");
   const [order, setOrder] = useState("asc");
-  const [page, setPage] = useState(1);
-  const rowsPerPage = 5;
+  const [page, setPage] = useState(dataMetaTiket.page || 1);
+  const rowsPerPage = dataMetaTiket.page_size || 10;
 
   const handleSort = (property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -95,20 +63,34 @@ export default function ListTicketTable({ onRowClick }) {
     setOrderBy(property);
   };
 
+  // Map API data to table columns
+  const mappedTickets = useMemo(() => {
+    return (dataTiket.items || []).map((item) => ({
+      ticket_id: item.id,
+      ticket_detail: item.subject,
+      created_by: item.requester?.name || item.fullname || item.email,
+      created_date: item.created_at
+        ? new Date(item.created_at).toLocaleString("id-ID")
+        : "",
+      status: item.status,
+      raw: item, // keep original for row click
+    }));
+  }, [dataTiket]);
+
   const sortedTickets = useMemo(() => {
-    return [...tickets].sort((a, b) => {
+    return [...mappedTickets].sort((a, b) => {
       const aVal = a[orderBy]?.toString().toLowerCase();
       const bVal = b[orderBy]?.toString().toLowerCase();
       if (aVal < bVal) return order === "asc" ? -1 : 1;
       if (aVal > bVal) return order === "asc" ? 1 : -1;
       return 0;
     });
-  }, [tickets, orderBy, order]);
+  }, [mappedTickets, orderBy, order]);
 
   const paginatedTickets = useMemo(() => {
     const start = (page - 1) * rowsPerPage;
     return sortedTickets.slice(start, start + rowsPerPage);
-  }, [sortedTickets, page]);
+  }, [sortedTickets, page, rowsPerPage]);
 
   return (
     <div className="p-5 bg-white">
@@ -149,7 +131,7 @@ export default function ListTicketTable({ onRowClick }) {
                   {(page - 1) * rowsPerPage + index + 1}
                 </TableCell>
                 <TableCell
-                  onClick={() => onRowClick?.(row, index)}
+                  onClick={() => onRowClick?.(row.raw, index)}
                   className="border border-gray-200 hover:underline transition-all duration-300 cursor-pointer"
                 >
                   {row.ticket_id}
@@ -166,7 +148,6 @@ export default function ListTicketTable({ onRowClick }) {
                 <TableCell className="border border-gray-200">
                   <div className="flex items-center gap-2">
                     {statusIcon(row.status)}
-                    <span>{row.status}</span>
                   </div>
                 </TableCell>
               </TableRow>
@@ -177,11 +158,11 @@ export default function ListTicketTable({ onRowClick }) {
         <div className="flex justify-between p-4">
           <div>
             <p className="text-sm">
-              Page {page} of {Math.ceil(tickets.length / rowsPerPage)}
+              Page {page} of {dataMetaTiket.total_pages || 1}
             </p>
           </div>
           <Pagination
-            count={Math.ceil(tickets.length / rowsPerPage)}
+            count={dataMetaTiket.total_pages || 1}
             page={page}
             onChange={(e, value) => setPage(value)}
             sx={{

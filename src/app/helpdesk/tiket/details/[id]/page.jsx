@@ -11,6 +11,7 @@ export default function Page() {
   const ticketNo = params.id;
   const [data, setData] = useState(null);
   const [dataFeedback, setDataFeedback] = useState([]);
+  const [dataSelection, setDataSelection] = useState({});
 
   const getDataTicket = async () => {
     try {
@@ -32,9 +33,20 @@ export default function Page() {
     }
   };
 
+  const getDataSelection = async () => {
+    try {
+      const res = await ProxyUrl.get("/tickets/selections");
+      const selection = res.data.data || {};
+      setDataSelection(selection);
+    } catch (error) {
+      console.error("Error fetching ticket selections:", error);
+    }
+  };
+
   useEffect(() => {
     getDataTicket();
     getDataFeedback();
+    getDataSelection();
   }, [ticketNo]);
 
   const handleClickStart = async (status) => {
@@ -71,7 +83,21 @@ export default function Page() {
     }
   };
 
-  // console.log(data);
+  const handleUpdateTiket = async (updatedData) => {
+    console.log(updatedData);
+    // try {
+    //   const res = await ProxyUrl.put(`/tickets/${ticketNo}`, updatedData);
+    //   if (res.data.status === "success") {
+    //     getDataTicket();
+    //     toast.success("Ticket updated successfully");
+    //   } else {
+    //     throw new Error(res.data.message || "Failed to update ticket");
+    //   }
+    // } catch (error) {
+    //   console.error("Error updating ticket:", error);
+    //   toast.error("Failed to update ticket");
+    // }
+  };
 
   return (
     <div className="bg-slate-100 h-full">
@@ -82,10 +108,12 @@ export default function Page() {
         <TiketDetails
           data={data}
           feedback={dataFeedback}
+          selections={dataSelection}
           onClickStart={() => handleClickStart("IN PROGRESS")}
           onClickPause={() => handleClickStart("ON HOLD")}
           onClickEnd={() => handleClickStart("RESOLVED")}
           onClickSubmitFeedback={handleSubmitFeedback}
+          onClickUpdateTiket={handleUpdateTiket}
         />
       </HelpdeskLayout>
     </div>

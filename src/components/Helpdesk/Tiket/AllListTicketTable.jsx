@@ -13,11 +13,11 @@ import {
   Pagination,
   CircularProgress,
 } from "@mui/material";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import HourglassTopIcon from "@mui/icons-material/HourglassTop";
-import TimelapseIcon from "@mui/icons-material/Timelapse";
-import CancelIcon from "@mui/icons-material/Cancel";
 import { FaPlus } from "react-icons/fa";
+import { TbClockCheck, TbProgressCheck } from "react-icons/tb";
+import { LuTimerReset } from "react-icons/lu";
+import { MdOutlineTimerOff } from "react-icons/md";
 
 const initialTickets = []; // fallback jika belum ada data API
 
@@ -35,12 +35,12 @@ const StatusPill = ({ status }) => {
   let icon = <HourglassTopIcon fontSize="small" />;
 
   if (s === "RESOLVED" || s === "DONE")
-    icon = <CheckCircleOutlineIcon fontSize="small" />;
+    icon = <TbClockCheck fontSize="small" />;
   else if (s === "IN PROGRESS" || s === "ON PROGRESS")
-    icon = <TimelapseIcon fontSize="small" />;
-  else if (s === "WAITING" || s === "PENDING")
-    icon = <HourglassTopIcon fontSize="small" />;
-  else if (s === "CLOSED") icon = <CancelIcon fontSize="small" />;
+    icon = <TbProgressCheck fontSize="small" />;
+  else if (s === "WAITING" || s === "PENDING" || s === "ON HOLD")
+    icon = <LuTimerReset fontSize="small" />;
+  else if (s === "CLOSED") icon = <MdOutlineTimerOff fontSize="small" />;
 
   return (
     <span className="inline-flex items-center gap-2 rounded-full bg-gray-100 text-gray-700 px-3 py-1 text-sm">
@@ -75,16 +75,53 @@ const normalizeDate = (str) => {
   return isNaN(d.getTime()) ? null : d;
 };
 
-const formatSLA = (str) => {
-  const d = normalizeDate(str);
-  if (!d) return "-";
-  const tanggal = d.toLocaleDateString("id-ID", {
+// Calculate SLA deadline: created_at + resolve_time (working hours only)
+function addWorkingHours(startDate, hoursToAdd) {
+  let date = new Date(startDate);
+  let hoursLeft = hoursToAdd;
+  while (hoursLeft > 0) {
+    // If outside working hours, move to next working day 08:00
+    if (
+      date.getHours() < 8 ||
+      date.getHours() >= 17 ||
+      date.getDay() === 0 ||
+      date.getDay() === 6
+    ) {
+      // Move to next weekday
+      date.setDate(date.getDate() + 1);
+      date.setHours(8, 0, 0, 0);
+      continue;
+    }
+    // Calculate remaining working hours today
+    const endHour = 17;
+    const currentHour = date.getHours() + date.getMinutes() / 60;
+    const hoursToday = endHour - currentHour;
+    if (hoursLeft <= hoursToday) {
+      date.setHours(date.getHours() + hoursLeft);
+      break;
+    } else {
+      // Use up today's hours, move to next day
+      date.setHours(endHour, 0, 0, 0);
+      hoursLeft -= hoursToday;
+      date.setDate(date.getDate() + 1);
+      date.setHours(8, 0, 0, 0);
+    }
+  }
+  return date;
+}
+
+const formatSLA = (created_at, sla_policy) => {
+  if (!created_at || !sla_policy || !sla_policy.resolve_time) return "-";
+  const start = normalizeDate(created_at);
+  if (!start) return "-";
+  const deadline = addWorkingHours(start, sla_policy.resolve_time);
+  const tanggal = deadline.toLocaleDateString("id-ID", {
     weekday: "long",
     day: "numeric",
     month: "long",
     year: "numeric",
   });
-  const jam = d.toLocaleTimeString("id-ID", {
+  const jam = deadline.toLocaleTimeString("id-ID", {
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
@@ -103,7 +140,6 @@ export default function AllListTicketTable({
   const itemsFromApi = useMemo(() => {
     return (items || []).map((it) => ({
       id: it?.id ?? "-",
-      // API sometimes returns priority as object like {id, level}
       priority:
         it?.priority && typeof it.priority === "object"
           ? it.priority.level || it.priority.name || ""
@@ -114,6 +150,8 @@ export default function AllListTicketTable({
       requester: it?.fullname || it?.requester?.name || it?.requester || "-",
       sla_deadline: it?.sla_deadline || "",
       status: it?.status || "-",
+      created_at: it?.created_at,
+      sla_policy: it?.sla_policy,
     }));
   }, [items]);
 
@@ -301,7 +339,7 @@ export default function AllListTicketTable({
                     {row.requester || "-"}
                   </TableCell>
                   <TableCell className="text-gray-800">
-                    {formatSLA(row.sla_policy)}
+                    {formatSLA(row.created_at, row.sla_policy)}
                   </TableCell>
                   <TableCell>
                     <StatusPill status={row.status} />

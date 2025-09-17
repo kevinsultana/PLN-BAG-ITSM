@@ -2,44 +2,27 @@
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import CKEditorWrapper from "@/components/CKEditorWrapper";
+import { useAuth } from "@/context/AuthContext";
+import Dropdown from "@/components/Dropdown";
+import { PostProxyUrl } from "@/api/BaseUrl";
 
-export default function TicketForm() {
+export default function TicketForm({ dataSelection, onSubmit }) {
+  const { user } = useAuth();
+  // console.log(user);
   const [form, setForm] = useState({
-    created_name: "",
-    division_name: "",
+    division_id: "",
     email: "",
-    whatsapp_number: "",
-    application_name: "",
-    ticket_subject: "",
-    ticket_description: "",
+    whatsapp: "",
+    application_id: "",
+    subject: "",
+    description: "",
     lampiran: null,
   });
 
-  const [fileName, setFileName] = useState("");
-  const [preview, setPreview] = useState(null);
+  const [files, setFiles] = useState([]);
   const [errors, setErrors] = useState({});
   const fileInputRef = useRef(null);
   const dropAreaRef = useRef(null);
-
-  const dataNamaAplikasi = [
-    { name: "ERP MM", value: "ERP MM" },
-    { name: "ERP FM", value: "ERP FM" },
-    { name: "HRIS", value: "HRIS" },
-    { name: "e-Procurement", value: "e-Procurement" },
-    { name: "ShipTracking", value: "ShipTracking" },
-    { name: "Bag Daily", value: "Bag Daily" },
-    { name: "Fuel Monitoring", value: "Fuel Monitoring" },
-  ];
-
-  const dataNamaDivisi = [
-    { name: "Accounting", value: "Accounting" },
-    { name: "HCM Umum", value: "HCM Umum" },
-    { name: "Niaga", value: "Niaga" },
-    { name: "Treasury", value: "Treasury" },
-    { name: "IT", value: "IT" },
-    { name: "Pengadaan", value: "Pengadaan" },
-    { name: "Satuan Audit Internal", value: "Satuan Audit Internal" },
-  ];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -47,66 +30,74 @@ export default function TicketForm() {
   };
 
   const handleChangeDeskripsiTiket = (input) => {
-    setForm({ ...form, ticket_description: input });
+    setForm({ ...form, description: input });
   };
 
-  const validateImage = (file) => {
-    if (!file.type.startsWith("image/"))
-      return "Hanya file gambar yang diperbolehkan";
-    if (file.size > 5 * 1024 * 1024) return "Ukuran file maksimal 5MB";
-    return null;
-  };
-
-  const setImageFile = (file) => {
-    // const error = validateImage(file);
-    // if (error) {
-    //   alert(error);
-    //   return;
-    // }
-    setForm({ ...form, lampiran: file });
-    setFileName(file.name || "Pasted image");
-    setPreview(URL.createObjectURL(file));
-  };
+  const MAX_TOTAL_BYTES = 50 * 1024 * 1024; // 50 MB
+  const totalFilesSize = (arr) => arr.reduce((s, f) => s + (f?.size || 0), 0);
 
   const handleFileInput = (e) => {
-    const file = e.target.files[0];
-    if (file) setImageFile(file);
+    const selected = Array.from(e.target.files || []);
+    const combined = [...files, ...selected].filter(
+      (f, i, arr) =>
+        arr.findIndex((x) => x.name === f.name && x.size === f.size) === i
+    );
+    const total = totalFilesSize(combined);
+    if (total > MAX_TOTAL_BYTES) {
+      toast.error(
+        "Total lampiran melebihi 50 MB. Silakan pilih file lebih kecil."
+      );
+      return;
+    }
+    setFiles(combined);
+    setForm((prev) => ({ ...prev, lampiran: combined }));
+    setErrors((prev) => ({ ...prev, lampiran: false }));
   };
 
-  const handlePaste = (e) => {
-    const item = [...e.clipboardData.items].find((i) =>
-      i.type.includes("image")
-    );
-    if (item) {
-      const blob = item.getAsFile();
-      setImageFile(blob);
-    }
-  };
+  useEffect(() => {
+    const handlePaste = (e) => {
+      if (
+        e.clipboardData &&
+        e.clipboardData.files &&
+        e.clipboardData.files.length > 0
+      ) {
+        const pastedFiles = Array.from(e.clipboardData.files);
+        const combined = [...files, ...pastedFiles].filter(
+          (f, i, arr) =>
+            arr.findIndex((x) => x.name === f.name && x.size === f.size) === i
+        );
+        const total = totalFilesSize(combined);
+        if (total > MAX_TOTAL_BYTES) {
+          toast.error(
+            "Total lampiran melebihi 50 MB. Silakan pilih file lebih kecil."
+          );
+          return;
+        }
+        setFiles(combined);
+        setForm((prev) => ({ ...prev, lampiran: combined }));
+        setErrors((prev) => ({ ...prev, lampiran: false }));
+        toast.success("File dari clipboard berhasil ditambahkan!");
+      }
+    };
+    window.addEventListener("paste", handlePaste);
+    return () => window.removeEventListener("paste", handlePaste);
+  }, [files]);
 
   const handleDrop = (e) => {
     e.preventDefault();
-    if (e.dataTransfer.files.length > 0) {
-      const file = e.dataTransfer.files[0];
-      setImageFile(file);
-    }
+    const dropped = Array.from(e.dataTransfer.files || []);
+    if (dropped.length) handleFileInput({ target: { files: dropped } });
   };
 
   const handleDragOver = (e) => {
     e.preventDefault();
   };
 
-  useEffect(() => {
-    const area = dropAreaRef.current;
-    if (!area) return;
-    area.addEventListener("paste", handlePaste);
-    return () => area.removeEventListener("paste", handlePaste);
-  }, []);
-
   const validate = () => {
     const newErrors = {};
 
     for (const [key, val] of Object.entries(form)) {
-      if (key === "ticket_description") {
+      if (key === "description") {
         const tempDiv = document.createElement("div");
         tempDiv.innerHTML = val;
         const plainText = tempDiv.innerText.trim();
@@ -126,28 +117,49 @@ export default function TicketForm() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validate()) {
-      toast.error("lengkapi data di bawah ini", {
-        description: "Silahkan lengkapi data di bawah ini",
-      });
-      return;
+    // if (!validate()) {
+    //   toast.error("lengkapi data di bawah ini", {
+    //     description: "Silahkan lengkapi data di bawah ini",
+    //   });
+    //   return;
+    // }
+    try {
+      const payload = { ...form };
+      let mappedData = payload.attachment_ids || [];
+      // Upload lampiran jika ada file
+      if (files && files.length > 0) {
+        const attForm = new FormData();
+        files.forEach((f) => attForm.append("files", f, f.name));
+
+        const uploadPromise = PostProxyUrl.post("/attachments", attForm);
+
+        toast.promise(uploadPromise, {
+          loading: "Mengunggah lampiran...",
+          success: "Lampiran berhasil diunggah",
+          error: "Gagal mengunggah lampiran",
+        });
+
+        const res = await uploadPromise;
+        mappedData =
+          (res?.data?.data && res.data.data.map((i) => i.id)) ||
+          (Array.isArray(res?.data) && res.data.map((i) => i.id)) ||
+          [];
+        payload.attachment_ids = mappedData;
+      }
+      // Panggil onSubmit dengan payload dan attachment_ids
+      if (onSubmit) await onSubmit(payload, mappedData || []);
+    } catch (error) {
+      toast.error("Terjadi kesalahan saat mengirim data. Coba lagi.");
     }
-    const formData = new FormData();
-    Object.entries(form).forEach(([key, val]) => formData.append(key, val));
-    // console.log("Submitted Data:", Object.fromEntries(formData.entries()));
-    toast.success("Tiket berhasil dibuat!", {
-      description: "Tiket id : SCRQ – ERP HRIS – 09/01/202025 – 001",
-      duration: 5000,
-    });
   };
 
-  const handleClearFile = () => {
-    setForm({ ...form, lampiran: null });
-    setFileName("");
-    setPreview(null);
-    fileInputRef.current.value = null;
+  const handleClearFile = (idx) => {
+    const next = files.filter((_, i) => i !== idx);
+    setFiles(next);
+    setForm((prev) => ({ ...prev, lampiran: next }));
+    if (fileInputRef.current) fileInputRef.current.value = null;
   };
 
   return (
@@ -164,50 +176,35 @@ export default function TicketForm() {
         <input
           type="text"
           name="created_name"
-          value={form.created_name}
+          value={user?.data.name}
           onChange={handleChange}
+          readOnly
           className={`input ${errors.created_name ? "border-red-500" : ""}`}
           placeholder="Nama Lengkap"
         />
       </div>
 
-      <div className="flex flex-col gap-2">
-        <label className="font-semibold text-sm">
-          Nama Aplikasi<span className="text-red-500">*</span>
-        </label>
-        <select
-          name="application_name"
-          value={form.application_name}
-          onChange={handleChange}
-          className={`input ${errors.application_name ? "border-red-500" : ""}`}
-        >
-          <option value="">Pilih Aplikasi</option>
-          {dataNamaAplikasi.map((item, index) => (
-            <option key={index} value={item.value}>
-              {item.name}
-            </option>
-          ))}
-        </select>
-      </div>
+      <Dropdown
+        dataMenus={dataSelection.applications || []}
+        initMenu={"Pilih Aplikasi"}
+        label={"Nama Aplikasi"}
+        name={"application_id"}
+        value={form.application_id}
+        handleChange={handleChange}
+        errors={errors.application_id}
+        isRequired={true}
+      />
 
-      <div className="flex flex-col gap-2">
-        <label className="font-semibold text-sm">
-          Nama Divisi<span className="text-red-500">*</span>
-        </label>
-        <select
-          name="division_name"
-          value={form.division_name}
-          onChange={handleChange}
-          className={`input ${errors.division_name ? "border-red-500" : ""}`}
-        >
-          <option value="">Pilih Divisi</option>
-          {dataNamaDivisi.map((item, index) => (
-            <option key={index} value={item.value}>
-              {item.name}
-            </option>
-          ))}
-        </select>
-      </div>
+      <Dropdown
+        dataMenus={dataSelection.divisions || []}
+        initMenu={"Pilih Divisi"}
+        label={"Nama Divisi"}
+        name={"division_id"}
+        value={form.division_id}
+        handleChange={handleChange}
+        errors={errors.division_id}
+        isRequired={true}
+      />
 
       <div className="flex flex-col gap-2">
         <label className="font-semibold text-sm">
@@ -215,10 +212,10 @@ export default function TicketForm() {
         </label>
         <input
           type="text"
-          name="ticket_subject"
-          value={form.ticket_subject}
+          name="subject"
+          value={form.subject}
           onChange={handleChange}
-          className={`input ${errors.ticket_subject ? "border-red-500" : ""}`}
+          className={`input ${errors.subject ? "border-red-500" : ""}`}
           placeholder="Contoh: Reset Password Email"
         />
       </div>
@@ -243,10 +240,10 @@ export default function TicketForm() {
         </label>
         <input
           type="text"
-          name="whatsapp_number"
-          value={form.whatsapp_number}
+          name="whatsapp"
+          value={form.whatsapp}
           onChange={handleChange}
-          className={`input ${errors.whatsapp_number ? "border-red-500" : ""}`}
+          className={`input ${errors.whatsapp ? "border-red-500" : ""}`}
           placeholder="08xxxxxxxxxx"
         />
       </div>
@@ -259,58 +256,72 @@ export default function TicketForm() {
           onChange={(e) => {
             handleChangeDeskripsiTiket(e);
           }}
-          value={form.ticket_description}
+          value={form.description}
           className={`border ${
-            errors.ticket_description ? "border-red-500" : "border-slate-400"
+            errors.description ? "border-red-500" : "border-slate-400"
           }`}
         />
       </div>
 
       <div className="flex flex-col gap-2 md:col-span-2">
-        <label className="font-semibold text-sm">
-          Lampiran{" "}
-          <span className="text-sm text-gray-500">
-            (Klik, drag & drop, atau paste gambar – maks 5MB)
-          </span>
-          <span className="text-red-500">*</span>
+        <label className="font-semibold text-sm mb-1">
+          Lampiran<span className="text-red-500">*</span>
+          <span className="text-xs text-gray-500 ml-2">(Maks 50MB)</span>
         </label>
-
         <div
           ref={dropAreaRef}
-          className={`border-dashed border-2 rounded-md p-4 text-center text-gray-500 hover:bg-gray-50 cursor-pointer ${
-            errors.lampiran ? "border-red-500" : "border-gray-300"
+          className={`relative flex flex-col items-center justify-center border-2 border-dashed rounded-lg py-4 px-2 cursor-pointer bg-gray-50 transition focus:outline-none focus:ring-2 focus:ring-[#65C7D5] ${
+            errors.lampiran ? "border-red-500" : "border-gray-200"
           }`}
-          onClick={() => fileInputRef.current.click()}
+          tabIndex={0}
+          onClick={() => fileInputRef.current?.click()}
           onDrop={handleDrop}
           onDragOver={handleDragOver}
         >
-          {fileName
-            ? `✅ ${fileName}`
-            : "Klik, tarik atau paste gambar di sini"}
+          <span className="text-gray-500 text-center select-none">
+            Paste gambar di sini atau drag & drop file di sini
+          </span>
           <input
             type="file"
+            name="lampiran"
+            multiple
             ref={fileInputRef}
-            className="hidden"
+            style={{ display: "none" }}
             onChange={handleFileInput}
+            accept="*/*"
           />
         </div>
-
-        {preview && (
-          <div className="mt-3 relative w-fit">
-            <img
-              src={preview}
-              alt="Preview"
-              className="max-h-48 rounded border"
-            />
-            <button
-              type="button"
-              onClick={handleClearFile}
-              className="absolute top-1 right-1 bg-red-600 text-white rounded-full px-2 py-1 text-xs hover:bg-red-700"
-            >
-              Hapus
-            </button>
-          </div>
+        {errors.lampiran && (
+          <span className="text-xs text-red-500 mt-1">
+            Lampiran wajib diisi dan maksimal 50MB
+          </span>
         )}
+        <div className="text-sm text-gray-600 mt-2">
+          {files.length > 0 ? (
+            <ul className="list-disc ml-5">
+              {files.map((f, i) => (
+                <li key={i} className="flex items-center justify-between py-1">
+                  <span>
+                    {f.name}
+                    <span className="text-xs text-gray-400">
+                      ({(f.size / 1024 / 1024).toFixed(2)} MB)
+                    </span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleClearFile(i)}
+                    className="px-2 py-1 rounded text-xs bg-red-100 text-red-600 hover:bg-red-200 ml-3"
+                  >
+                    Hapus
+                  </button>
+                </li>
+              ))}
+              <li className="mt-2 text-xs text-gray-500 font-semibold">
+                Total: {(totalFilesSize(files) / 1024 / 1024).toFixed(2)} MB
+              </li>
+            </ul>
+          ) : null}
+        </div>
       </div>
 
       <div className="md:col-span-2">

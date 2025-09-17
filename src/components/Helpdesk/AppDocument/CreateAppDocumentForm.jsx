@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import CKEditorWrapper from "@/components/CKEditorWrapper";
 import { toast } from "sonner";
 import { Checkbox, FormControlLabel } from "@mui/material";
@@ -16,33 +16,24 @@ export default function CreateAppDocumentForm({
     title: data?.title || "",
     application_id: data?.application_id || "",
     description: data?.description || "",
-    file_url: data?.file_url || null,
+    file_url: null, // always null initially, handle display separately
     is_publish: data?.is_publish || false,
   });
 
-  const [fileName, setFileName] = useState(
-    data?.file_url
-      ? typeof data.file_url === "string"
-        ? data.file_url.split("/").pop()
-        : ""
-      : ""
+  // If there's an attachment from API, show it
+  const initialApiAttachment = data?.attachments?.[0]?.url || null;
+  const initialApiAttachmentName = initialApiAttachment
+    ? initialApiAttachment.split("/").pop()
+    : "";
+
+  const [apiAttachment, setApiAttachment] = useState(
+    initialApiAttachment
+      ? { url: initialApiAttachment, name: initialApiAttachmentName }
+      : null
   );
+  const [fileObj, setFileObj] = useState(null); // for new file
   const [errors, setErrors] = useState({});
   const fileInputRef = useRef(null);
-
-  // const dataAplikasi = [
-  //   { name: "ERP CRM", value: "erp-crm" },
-  //   { name: "ERP FM", value: "erp-fm" },
-  //   { name: "ERP MM", value: "erp-mm" },
-  //   { name: "ERP HCM", value: "erp-hcm" },
-  //   { name: "e-Procurement", value: "e-procurement" },
-  //   { name: "Ship Tracking", value: "ship-tracking" },
-  //   { name: "PMS", value: "pms" },
-  //   { name: "Email", value: "email" },
-  //   { name: "Website", value: "website" },
-  //   { name: "BAg Cloud", value: "bag-cloud" },
-  //   { name: "Fuel Mentoring", value: "fuel-mentoring" },
-  // ];
 
   const handleChange = (e) => {
     const { name, value, checked, type } = e.target;
@@ -62,9 +53,35 @@ export default function CreateAppDocumentForm({
         return;
       }
       setForm({ ...form, file_url: file });
-      setFileName(file.name);
+      setFileObj(file);
+      setApiAttachment(null); // remove API file if new file selected
     }
   };
+
+  // Paste handler for clipboard files/images (only first file)
+  useEffect(() => {
+    const handlePaste = (e) => {
+      if (
+        e.clipboardData &&
+        e.clipboardData.files &&
+        e.clipboardData.files.length > 0
+      ) {
+        const file = e.clipboardData.files[0];
+        if (file.size > 5 * 1024 * 1024) {
+          toast.error("Ukuran file melebihi batas", {
+            description: "Ukuran file maksimal adalah 5MB.",
+          });
+          return;
+        }
+        setForm({ ...form, file_url: file });
+        setFileObj(file);
+        setApiAttachment(null); // remove API file if new file pasted
+        toast.success("File dari clipboard berhasil ditambahkan!");
+      }
+    };
+    window.addEventListener("paste", handlePaste);
+    return () => window.removeEventListener("paste", handlePaste);
+  }, [form]);
 
   const validate = () => {
     const newErrors = {};
@@ -93,7 +110,7 @@ export default function CreateAppDocumentForm({
   return (
     <div className="bg-white rounded-xl p-6 mt-4 border border-gray-200 shadow-sm">
       <h1 className="text-xl font-bold mb-6">
-        {data ? "Edit Dokumen Aplikasi" : "Buat Dokumen Aplikasi"}
+        {data ? `Edit Dokumen Aplikasi ${data.title}` : "Buat Dokumen Aplikasi"}
       </h1>
       <form
         onSubmit={handleSubmit}
@@ -151,41 +168,86 @@ export default function CreateAppDocumentForm({
 
         {/* Lampiran */}
         <div className="flex flex-col gap-2">
-          <label className="font-semibold text-sm">
-            Lampiran<span className="text-red-500">*</span>{" "}
-            <span className="text-sm text-gray-500">(Maks 5MB)</span>
+          <label className="font-semibold text-sm mb-1">
+            Lampiran<span className="text-red-500">*</span>
+            <span className="text-xs text-gray-500 ml-2">(Maks 5MB)</span>
           </label>
-          <div
-            className={`flex items-center input px-3 py-2 cursor-pointer ${
-              errors.file_url ? "border-red-500" : ""
-            }`}
-            onClick={() => fileInputRef.current.click()}
-          >
-            <span className="flex-grow text-gray-500">
-              {fileName || "Lampirkan Dokumen / Foto"}
-            </span>
-            <input
-              type="file"
-              name="lampiran"
-              ref={fileInputRef}
-              onChange={handleFileChange}
-              className="hidden"
-            />
-            <span className="text-[#65C7D5] ml-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
+          {/* If API attachment exists and no new file selected, show API file */}
+          {apiAttachment && !fileObj ? (
+            <div className="flex items-center justify-between border border-gray-200 rounded-lg px-4 py-2 bg-gray-50">
+              <span className="truncate">
+                <a
+                  href={apiAttachment.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 underline"
+                >
+                  {data.attachments[0].name}
+                </a>
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setApiAttachment(null);
+                  setForm({ ...form, file_url: null });
+                }}
+                className="px-2 py-1 rounded text-xs bg-red-100 text-red-600 hover:bg-red-200 ml-3"
               >
-                <path
-                  fillRule="evenodd"
-                  d="M8 4a3 3 0 00-3 3v4a5 5 0 0010 0V7a1 1 0 112 0v4a7 7 0 11-14 0V7a5 5 0 0110 0v4a1 1 0 11-2 0V7a3 3 0 00-3-3z"
-                  clipRule="evenodd"
+                Hapus
+              </button>
+            </div>
+          ) : (
+            <>
+              <div
+                className={`relative flex flex-col items-center justify-center border-2 border-dashed rounded-lg py-8 px-4 cursor-pointer bg-gray-50 transition focus:outline-none focus:ring-2 focus:ring-[#65C7D5] ${
+                  errors.file_url ? "border-red-500" : "border-gray-200"
+                }`}
+                tabIndex={0}
+                onClick={() => fileInputRef.current?.click()}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  const dropped = Array.from(e.dataTransfer.files || []);
+                  if (dropped.length)
+                    handleFileChange({ target: { files: [dropped[0]] } });
+                }}
+                onDragOver={(e) => e.preventDefault()}
+              >
+                <span className="text-gray-500 text-center select-none">
+                  Paste gambar di sini atau drag & drop file di sini
+                </span>
+                <input
+                  type="file"
+                  name="lampiran"
+                  ref={fileInputRef}
+                  style={{ display: "none" }}
+                  onChange={handleFileChange}
+                  accept="*/*"
                 />
-              </svg>
-            </span>
-          </div>
+              </div>
+              <div className="text-sm text-gray-600 mt-2">
+                {fileObj ? (
+                  <div className="flex items-center justify-between py-1">
+                    <span>
+                      {fileObj.name}{" "}
+                      <span className="text-xs text-gray-400">
+                        ({(fileObj.size / 1024 / 1024).toFixed(2)} MB)
+                      </span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFileObj(null);
+                        setForm({ ...form, file_url: null });
+                      }}
+                      className="px-2 py-1 rounded text-xs bg-red-100 text-red-600 hover:bg-red-200 ml-3"
+                    >
+                      Hapus
+                    </button>
+                  </div>
+                ) : null}
+              </div>
+            </>
+          )}
         </div>
 
         {/* Publish to Portal ITSM */}

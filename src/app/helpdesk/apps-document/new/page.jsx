@@ -1,5 +1,5 @@
 "use client";
-import { ProxyUrl } from "@/api/BaseUrl";
+import { PostProxyUrl, ProxyUrl } from "@/api/BaseUrl";
 import CreateAppDocumentForm from "@/components/Helpdesk/AppDocument/CreateAppDocumentForm";
 import HelpdeskLayout from "@/components/Helpdesk/layout/HelpdeskLayout";
 import { useRouter } from "next/navigation";
@@ -13,7 +13,14 @@ export default function Page() {
 
   const handleSubmit = async (form) => {
     try {
-      await ProxyUrl.post("/docs", form);
+      const formData = new FormData();
+      formData.append("files", form.file_url);
+      const res = await PostProxyUrl.post("/attachments", formData);
+
+      await ProxyUrl.post("/docs", {
+        ...form,
+        attachment_ids: [res.data.data[0].id],
+      });
       router.back();
       toast.success("Dokumen berhasil dibuat!", {
         description: `Dokumen "${form.title}" telah berhasil ditambahkan.`,

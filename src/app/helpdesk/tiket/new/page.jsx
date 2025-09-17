@@ -13,10 +13,14 @@ export default function Page() {
     const newFormData = { ...formData, attachment_ids: attachment };
     try {
       const res = await ProxyUrl.post("/tickets", newFormData);
-      toast.success("Tiket berhasil dibuat!", {
-        description: "Tiket baru telah berhasil dibuat.",
-      });
-      router.back();
+      if (res.data.success === true) {
+        toast.success("Tiket berhasil dibuat!", {
+          description: "Tiket baru telah berhasil dibuat.",
+        });
+        router.back();
+      } else {
+        throw new Error(res.data.message || "Gagal membuat tiket.");
+      }
     } catch (error) {
       console.error("Error submitting ticket:", error);
       toast.error("Gagal membuat tiket.", {

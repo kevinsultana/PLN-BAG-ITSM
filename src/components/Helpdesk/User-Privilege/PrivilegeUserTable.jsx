@@ -15,16 +15,23 @@ import {
 } from "@mui/material";
 import { RiSearchLine, RiMore2Fill } from "react-icons/ri";
 
-const initialRoles = [
-  { no: 1, roleName: "TAD" },
-  { no: 2, roleName: "Staff" },
-  { no: 3, roleName: "Manager" },
-  { no: 4, roleName: "VP" },
-  { no: 5, roleName: "Direktur" },
-];
+export default function PrivilegeUserTable({
+  onClickEdit,
+  onClickDelete,
+  data = [],
+}) {
+  const [roles, setRoles] = useState([]);
 
-export default function PrivilegeUserTable({ onClickEdit, onClickDelete }) {
-  const [roles, setRoles] = useState(initialRoles);
+  useEffect(() => {
+    setRoles(
+      data.length
+        ? data.map((item, idx) => ({
+            ...item,
+            no: idx + 1, // for table numbering
+          }))
+        : []
+    );
+  }, [data]);
   const [page, setPage] = useState(1);
   const [rowsPerPage] = useState(5);
   const [searchTerm, setSearchTerm] = useState("");
@@ -43,7 +50,7 @@ export default function PrivilegeUserTable({ onClickEdit, onClickDelete }) {
     if (onClickDelete) {
       onClickDelete(row);
     } else {
-      setRoles((prev) => prev.filter((r) => r.no !== row.no));
+      setRoles((prev) => prev.filter((r) => r.id !== row.id));
       console.log("Delete role:", row);
     }
     setOpenMenuId(null);
@@ -60,7 +67,7 @@ export default function PrivilegeUserTable({ onClickEdit, onClickDelete }) {
 
   const filtered = useMemo(() => {
     const q = searchTerm.toLowerCase();
-    return roles.filter((r) => r.roleName.toLowerCase().includes(q));
+    return roles.filter((r) => r.name.toLowerCase().includes(q));
   }, [roles, searchTerm]);
 
   const paginated = useMemo(() => {
@@ -118,22 +125,27 @@ export default function PrivilegeUserTable({ onClickEdit, onClickDelete }) {
           </TableHead>
           <TableBody>
             {paginated.map((row) => (
-              <TableRow key={row.no} hover>
+              <TableRow key={row.id} hover>
                 <TableCell sx={{ width: 60, textAlign: "left" }}>
                   {row.no}.
                 </TableCell>
                 <TableCell sx={{ width: "auto", textAlign: "left" }}>
-                  {row.roleName}
+                  <div className="font-semibold">{row.name}</div>
+                  {row.description && (
+                    <div className="text-xs text-gray-500">
+                      {row.description}
+                    </div>
+                  )}
                 </TableCell>
                 <TableCell
                   sx={{ width: 80, textAlign: "left" }}
                   className="relative"
                   ref={menuRef}
                 >
-                  <IconButton onClick={() => handleOpenMenu(row.no)}>
+                  <IconButton onClick={() => handleOpenMenu(row.id)}>
                     <RiMore2Fill />
                   </IconButton>
-                  {openMenuId === row.no && (
+                  {openMenuId === row.id && (
                     <div
                       ref={menuRef}
                       className="absolute right-14 top-10/10 -translate-y-1/2 w-32 bg-white rounded-md shadow-lg border border-gray-200 z-10"

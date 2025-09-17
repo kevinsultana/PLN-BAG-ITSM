@@ -1,83 +1,61 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
-import Image from "next/image";
+import { useState, useEffect } from "react";
 import CKEditorWrapper from "@/components/CKEditorWrapper";
+import renderDescription from "@/utils/RenderDesc";
 
-export default function DetailTicketForm({ data }) {
+export default function DetailTicketForm({
+  data,
+  feedback,
+  onClickSubmitFeedback,
+}) {
+  // Data mapping dari API
   const [form, setForm] = useState({
-    namaLengkap: data.ticket_detail.created_name,
-    namaDivisi: data.ticket_detail.division_name,
-    email: data.ticket_detail.email,
-    whatsapp: data.ticket_detail.whatsapp_number,
-    namaAplikasi: data.ticket_detail.application_name,
-    subjekTiket: data.ticket_detail.ticket_subject,
-    deskripsiTiket: data.ticket_detail.ticket_description,
-    lampiran: "",
+    namaLengkap: data?.requester?.name || "",
+    namaDivisi: data?.division?.name || "",
+    email: data?.email || "",
+    whatsapp: data?.whatsapp || "",
+    namaAplikasi: data?.application?.name || "",
+    subjekTiket: data?.subject || "",
+    deskripsiTiket: data?.description || "",
+    lampiran: data?.attachments || [],
   });
-  const [catatanTiket, setCatatanTiket] = useState("");
 
-  const [fileName, setFileName] = useState("");
-  const [preview, setPreview] = useState(null);
+  // Sync form state with API data when data changes
+  useEffect(() => {
+    setForm({
+      namaLengkap: data?.requester?.name || "",
+      namaDivisi: data?.division?.name || "",
+      email: data?.email || "",
+      whatsapp: data?.whatsapp || "",
+      namaAplikasi: data?.application?.name || "",
+      subjekTiket: data?.subject || "",
+      deskripsiTiket: data?.description || "",
+      lampiran: data?.attachments || [],
+    });
+  }, [data]);
+
+  const [feedbackTiket, setFeedbackTiket] = useState("");
+  function timeAgo(dateInput) {
+    const date = new Date(dateInput);
+    const now = new Date();
+    const diffMs = now - date;
+    if (isNaN(diffMs)) return "-";
+    const diffSec = Math.floor(diffMs / 1000);
+    const diffMin = Math.floor(diffSec / 60);
+    const diffHour = Math.floor(diffMin / 60);
+    const diffDay = Math.floor(diffHour / 24);
+    if (diffDay > 0) return `${diffDay} hari yang lalu`;
+    if (diffHour > 0) return `${diffHour} jam yang lalu`;
+    if (diffMin > 0) return `${diffMin} menit yang lalu`;
+    return "Baru saja";
+  }
+
   const [errors, setErrors] = useState({});
-  const fileInputRef = useRef(null);
-  const dropAreaRef = useRef(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
   };
-
-  const validateImage = (file) => {
-    if (!file.type.startsWith("image/"))
-      return "Hanya file gambar yang diperbolehkan";
-    if (file.size > 5 * 1024 * 1024) return "Ukuran file maksimal 5MB";
-    return null;
-  };
-
-  const setImageFile = (file) => {
-    const error = validateImage(file);
-    if (error) {
-      alert(error);
-      return;
-    }
-    setForm({ ...form, lampiran: file });
-    setFileName(file.name || "Pasted image");
-    setPreview(URL.createObjectURL(file));
-  };
-
-  const handleFileInput = (e) => {
-    const file = e.target.files[0];
-    if (file) setImageFile(file);
-  };
-
-  const handlePaste = (e) => {
-    const item = [...e.clipboardData.items].find((i) =>
-      i.type.includes("image")
-    );
-    if (item) {
-      const blob = item.getAsFile();
-      setImageFile(blob);
-    }
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    if (e.dataTransfer.files.length > 0) {
-      const file = e.dataTransfer.files[0];
-      setImageFile(file);
-    }
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-  };
-
-  useEffect(() => {
-    const area = dropAreaRef.current;
-    if (!area) return;
-    area.addEventListener("paste", handlePaste);
-    return () => area.removeEventListener("paste", handlePaste);
-  }, []);
 
   const validate = () => {
     const newErrors = {};
@@ -101,23 +79,6 @@ export default function DetailTicketForm({ data }) {
     console.log("Submitted Data:", Object.fromEntries(formData.entries()));
     alert("Tiket berhasil dikirim!");
   };
-
-  const handleClearFile = () => {
-    setForm({ ...form, lampiran: null });
-    setFileName("");
-    setPreview(null);
-    fileInputRef.current.value = null;
-  };
-
-  function formatDateTimeDMY(dateInput) {
-    const date = new Date(dateInput);
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-    const hour = String(date.getHours()).padStart(2, "0");
-    const minute = String(date.getMinutes()).padStart(2, "0");
-    return `${day}/${month}/${year} ${hour}:${minute}`;
-  }
 
   return (
     <div className="flex flex-col gap-6 bg-white">
@@ -148,18 +109,13 @@ export default function DetailTicketForm({ data }) {
           <label className="font-semibold text-sm">
             Nama Aplikasi<span className="text-red-500">*</span>
           </label>
-          <select
+          <input
+            type="text"
             name="namaAplikasi"
             value={form.namaAplikasi}
-            onChange={handleChange}
             className={`input ${errors.namaAplikasi ? "border-red-500" : ""}`}
-            disabled
-          >
-            <option value="">Pilih Aplikasi</option>
-            <option value="Sistem Absensi">Sistem Absensi</option>
-            <option value="Dashboard SDM">Dashboard SDM</option>
-            <option value="e-Procurement">e-Procurement</option>
-          </select>
+            readOnly
+          />
         </div>
 
         {/* nama divisi */}
@@ -167,17 +123,13 @@ export default function DetailTicketForm({ data }) {
           <label className="font-semibold text-sm">
             Nama Divisi<span className="text-red-500">*</span>
           </label>
-          <select
+          <input
+            type="text"
             name="namaDivisi"
             value={form.namaDivisi}
-            onChange={handleChange}
             className={`input ${errors.namaDivisi ? "border-red-500" : ""}`}
-            disabled
-          >
-            <option value="">Pilih Divisi</option>
-            <option value="IT">IT</option>
-            <option value="Keuangan">Keuangan</option>
-          </select>
+            readOnly
+          />
         </div>
 
         {/* subjek tiket */}
@@ -217,10 +169,6 @@ export default function DetailTicketForm({ data }) {
           <label className="font-semibold text-sm">
             Deskripsi Tiket<span className="text-red-500">*</span>
           </label>
-          {/* <CKEditorWrapper
-            value={form.deskripsiTiket}
-            onChange={(i) => handleChangeDeskripsiTiket("deskripsiTiket", i)}
-          /> */}
           <div
             className="input h-full"
             dangerouslySetInnerHTML={{ __html: form.deskripsiTiket }}
@@ -246,90 +194,85 @@ export default function DetailTicketForm({ data }) {
         {/* lampiran */}
         <div className="flex flex-col gap-2">
           <label className="font-semibold text-sm">
-            Lampiran{" "}
-            <span className="text-sm text-gray-500">
-              (Klik, drag & drop, atau paste gambar – maks 5MB)
-            </span>
-            <span className="text-red-500">*</span>
+            Lampiran <span className="text-red-500">*</span>
           </label>
-
-          <div
-            ref={dropAreaRef}
-            className={`border-dashed border-2 rounded-md p-4 text-center text-gray-500 hover:bg-gray-50 cursor-pointer ${
-              errors.lampiran ? "border-red-500" : "border-gray-300"
-            }`}
-            onClick={() => fileInputRef.current.click()}
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-          >
-            {fileName
-              ? `✅ ${fileName}`
-              : "Klik, tarik atau paste gambar di sini"}
-            <input
-              type="file"
-              accept="image/*"
-              ref={fileInputRef}
-              className="hidden"
-              onChange={handleFileInput}
-            />
+          <div className="input flex flex-col gap-2">
+            {/* Array of attachments */}
+            {Array.isArray(data?.attachments) && data.attachments.length > 0 ? (
+              data.attachments.map((att) => (
+                <div key={att.id} className="flex items-center gap-2">
+                  {att.mime_type.startsWith("image/") ? (
+                    <img
+                      src={att.url}
+                      alt={att.name}
+                      style={{ maxWidth: 50, maxHeight: 50 }}
+                    />
+                  ) : null}
+                  <a
+                    href={att.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 underline"
+                  >
+                    {att.name}
+                  </a>
+                  <span className="text-xs text-gray-500">
+                    {Math.round(att.size / 1024)} KB
+                  </span>
+                </div>
+              ))
+            ) : Array.isArray(data?.lampiran) && data.lampiran.length > 0 ? (
+              data.lampiran.map((name, idx) => (
+                <div key={idx} className="flex items-center gap-2">
+                  <span>{name}</span>
+                </div>
+              ))
+            ) : (
+              <span>-</span>
+            )}
           </div>
-
-          {preview && (
-            <div className="mt-3 relative w-fit">
-              <Image
-                src={preview}
-                alt="Preview"
-                className="max-h-48 rounded border"
-                width={192}
-                height={192}
-              />
-              <button
-                type="button"
-                onClick={handleClearFile}
-                className="absolute top-1 right-1 bg-red-600 text-white rounded-full px-2 py-1 text-xs hover:bg-red-700"
-              >
-                Hapus
-              </button>
-            </div>
-          )}
         </div>
       </form>
 
-      {/* catatan tiket */}
-      <div className="px-6 mb-4 space-y-4">
-        <h1 className="text-xl font-semibold">Catatan Tiket</h1>
-        <CKEditorWrapper
-          placeholder={"Tulis catatan disini"}
-          value={catatanTiket}
-          onChange={(e) => {
-            setCatatanTiket(e);
-          }}
-        />
-        <div className="md:col-span-2">
-          <button className="bg-[#65C7D5] hover:bg-[#4FB3C1] text-white font-semibold px-6 py-2 rounded">
-            Submit
-          </button>
-        </div>
-      </div>
+      {/* garis*/}
+      <div className="wfull h-[1px] bg-gray-200 " />
 
-      {/* history */}
-      <div className="border-t-4 border-slate-200 bg-white mb-2" />
-      <div className="px-6 mb-4">
-        <div className="border border-slate-200 rounded-2xl p-5 flex flex-col gap-4">
-          {data.comment_thread
-            .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+      {/* feedback */}
+      <div className="flex flex-col gap-2 space-y-2 py-4 px-4">
+        <label className="text-lg font-semibold">
+          Feedback Tiket <span className="text-red-500">*</span>
+        </label>
+        <CKEditorWrapper value={feedbackTiket} onChange={setFeedbackTiket} />
+        <button
+          onClick={() => {
+            onClickSubmitFeedback(feedbackTiket);
+            setFeedbackTiket("");
+          }}
+          className="bg-sky-500 cursor-pointer p-2 text-white w-1/10 rounded-full"
+        >
+          Submit
+        </button>
+      </div>
+      <div className="wfull h-[3px] bg-gray-200" />
+      <div className=" p-5 pt-0 flex flex-col gap-4">
+        {Array.isArray(feedback) &&
+          feedback
+            .slice()
+            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
             .map((item, index) => (
-              <div key={index} className="space-y-2">
-                <h1 className="font-bold text-black">
-                  {item.comment_by} -{" "}
-                  <span className="font-light text-black/50">
-                    {formatDateTimeDMY(item.timestamp)}
+              <div
+                key={index}
+                className="flex flex-col gap-2 space-y-2 py-4 border-b"
+              >
+                <h1 className="font-bold text-lg">
+                  {item.user.name}{" "}
+                  <span className="text-gray-500 font-medium text-base">
+                    {timeAgo(item.created_at)}
                   </span>
                 </h1>
-                <p>{item.message}</p>
+                <div>{renderDescription(item.description)}</div>
               </div>
             ))}
-        </div>
       </div>
     </div>
   );

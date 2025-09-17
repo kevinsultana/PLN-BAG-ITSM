@@ -2,7 +2,7 @@
 import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import HelpdeskLayout from "@/components/Helpdesk/layout/HelpdeskLayout";
-import { ProxyUrl } from "@/api/BaseUrl";
+import { PostProxyUrl, ProxyUrl } from "@/api/BaseUrl";
 import { CircularProgress } from "@mui/material";
 import { toast } from "sonner";
 import CreateAppDocumentForm from "@/components/Helpdesk/AppDocument/CreateAppDocumentForm";
@@ -41,14 +41,23 @@ export default function EditApplicationPage() {
 
   const handleSave = async (form) => {
     try {
-      await ProxyUrl.put(`/docs/${id}`, form);
+      const formData = new FormData();
+      formData.append("files", form.file_url);
+      const res = await PostProxyUrl.post("/attachments", formData);
+      console.log(res.data.data[0].url);
+      const newForm = {
+        ...form,
+        attachment_ids: [res.data.data[0].id],
+      };
+      const resp = await ProxyUrl.put(`/docs/${id}`, newForm);
+      console.log(resp);
       router.back();
-      toast.success("Aplikasi berhasil diperbarui");
-    } catch (err) {
-      console.log(err);
-      toast.error("Gagal menyimpan perubahan");
-    } finally {
-      setLoading(false);
+      toast.success("Dokumen berhasil diperbarui", {
+        description: `Dokumen "${form.title}" telah berhasil diperbarui.`,
+        duration: 5000,
+      });
+    } catch (error) {
+      console.log(error);
     }
   };
 

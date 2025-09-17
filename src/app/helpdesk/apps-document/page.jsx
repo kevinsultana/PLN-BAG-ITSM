@@ -16,7 +16,7 @@ export default function Page() {
   };
 
   const handleEdit = (row) => {
-    router.push(`/helpdesk/apps-document/edit/${row.ID}`);
+    router.push(`/helpdesk/apps-document/edit/${row.id}`);
   };
 
   const handleDelete = async (row) => {

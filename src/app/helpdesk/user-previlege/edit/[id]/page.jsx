@@ -1,5 +1,6 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { useParams, useRouter } from "next/navigation";
 import HelpdeskLayout from "@/components/Helpdesk/layout/HelpdeskLayout";
 import {
@@ -11,58 +12,281 @@ import {
   TableRow,
   Paper,
 } from "@mui/material";
+import { ProxyUrl } from "@/api/BaseUrl";
 
-const initialPrivileges = [
+const privilegeRows = [
   {
     no: 1,
     access: "Dokumen",
-    create: false,
-    read: false,
-    update: false,
-    delete: true,
+    keys: {
+      create: "user.doc.create",
+      read: "user.doc.read",
+      update: "user.doc.update",
+      delete: "user.doc.delete",
+    },
   },
   {
     no: 2,
     access: "Tiket",
-    create: true,
-    read: false,
-    update: true,
-    delete: true,
+    keys: {
+      create: "user.ticket.create",
+      read: "user.ticket.read",
+      update: "user.ticket.update",
+      delete: "user.ticket.delete",
+    },
+  },
+  {
+    no: 3,
+    access: "Helpdesk",
+    keys: {
+      create: "helpdesk.create",
+      read: "helpdesk.read",
+      update: "helpdesk.update",
+      delete: "helpdesk.delete",
+    },
+  },
+  {
+    no: 4,
+    access: "Tiket => Tiket Saya",
+    keys: {
+      create: "ticket.my.create",
+      read: "ticket.my.read",
+      update: "ticket.my.update",
+      delete: "ticket.my.delete",
+    },
+  },
+  {
+    no: 5,
+    access: "Tiket => Semua Tiket",
+    keys: {
+      create: "ticket.all.create",
+      read: "ticket.all.read",
+      update: "ticket.all.update",
+      delete: "ticket.all.delete",
+    },
+  },
+  {
+    no: 6,
+    access: "Reporting => Tiket Analisis",
+    keys: {
+      create: "reporting.analysis.create",
+      read: "reporting.analysis.read",
+      update: "reporting.analysis.update",
+      delete: "reporting.analysis.delete",
+    },
+  },
+  {
+    no: 7,
+    access: "Reporting => SLA Analysis",
+    keys: {
+      create: "reporting.sla.create",
+      read: "reporting.sla.read",
+      update: "reporting.sla.update",
+      delete: "reporting.sla.delete",
+    },
+  },
+  {
+    no: 8,
+    access: "Reporting => CR Tracking",
+    keys: {
+      create: "reporting.cr.create",
+      read: "reporting.cr.read",
+      update: "reporting.cr.update",
+      delete: "reporting.cr.delete",
+    },
+  },
+  {
+    no: 9,
+    access: "Dokumen Aplikasi",
+    keys: {
+      create: "document.application.create",
+      read: "document.application.read",
+      update: "document.application.update",
+      delete: "document.application.delete",
+    },
+  },
+  {
+    no: 10,
+    access: "User Privilege",
+    keys: {
+      create: "user.privilege.create",
+      read: "user.privilege.read",
+      update: "user.privilege.update",
+      delete: "user.privilege.delete",
+    },
+  },
+  {
+    no: 11,
+    access: "BPO",
+    keys: {
+      create: "bpo.create",
+      read: "bpo.read",
+      update: "bpo.update",
+      delete: "bpo.delete",
+    },
+  },
+  {
+    no: 12,
+    access: "Konfigurasi Team Member",
+    keys: {
+      create: "config.team.member.create",
+      read: "config.team.member.read",
+      update: "config.team.member.update",
+      delete: "config.team.member.delete",
+    },
+  },
+  {
+    no: 13,
+    access: "Konfigurasi Status Tiket",
+    keys: {
+      create: "config.ticket.status.create",
+      read: "config.ticket.status.read",
+      update: "config.ticket.status.update",
+      delete: "config.ticket.status.delete",
+    },
+  },
+  {
+    no: 14,
+    access: "Konfigurasi SLA Policy",
+    keys: {
+      create: "config.sla.create",
+      read: "config.sla.read",
+      update: "config.sla.update",
+      delete: "config.sla.delete",
+    },
+  },
+  {
+    no: 15,
+    access: "Konfigurasi Tipe Tiket",
+    keys: {
+      create: "config.ticket.type.create",
+      read: "config.ticket.type.read",
+      update: "config.ticket.type.update",
+      delete: "config.ticket.type.delete",
+    },
+  },
+  {
+    no: 16,
+    access: "Konfigurasi Aplikasi",
+    keys: {
+      create: "config.application.create",
+      read: "config.application.read",
+      update: "config.application.update",
+      delete: "config.application.delete",
+    },
+  },
+  {
+    no: 17,
+    access: "Konfigurasi Helpdesk Information",
+    keys: {
+      create: "config.helpdesk.info.create",
+      read: "config.helpdesk.info.read",
+      update: "config.helpdesk.info.update",
+      delete: "config.helpdesk.info.delete",
+    },
   },
 ];
 
 export default function EditPrivilegeUserPage() {
   const params = useParams();
   const router = useRouter();
-  const [privileges, setPrivileges] = useState(initialPrivileges);
+  const [checkedPrivileges, setCheckedPrivileges] = useState([]);
+  // Helper: get all privilege keys
+  const allPrivilegeKeys = privilegeRows.flatMap((row) =>
+    Object.values(row.keys)
+  );
+
+  // Helper: get all keys for a column
+  const getColumnKeys = (colKey) =>
+    privilegeRows.map((row) => row.keys[colKey]);
+
+  // Helper: get all keys for a row
+  const getRowKeys = (row) => Object.values(row.keys);
+
+  // Checklist All handler for column
+  const handleCheckAllColumn = (colKey) => {
+    const colKeys = getColumnKeys(colKey);
+    const allChecked = colKeys.every((key) => checkedPrivileges.includes(key));
+    if (allChecked) {
+      setCheckedPrivileges((prev) =>
+        prev.filter((key) => !colKeys.includes(key))
+      );
+    } else {
+      setCheckedPrivileges((prev) =>
+        Array.from(new Set([...prev, ...colKeys]))
+      );
+    }
+  };
+
+  // Checklist All handler for row
+  const handleCheckAllRow = (row) => {
+    const rowKeys = getRowKeys(row);
+    const allChecked = rowKeys.every((key) => checkedPrivileges.includes(key));
+    if (allChecked) {
+      setCheckedPrivileges((prev) =>
+        prev.filter((key) => !rowKeys.includes(key))
+      );
+    } else {
+      setCheckedPrivileges((prev) =>
+        Array.from(new Set([...prev, ...rowKeys]))
+      );
+    }
+  };
+  const [roleName, setRoleName] = useState("");
   const [saving, setSaving] = useState(false);
 
-  const handleCheck = (rowIdx, key) => {
-    setPrivileges((prev) =>
-      prev.map((row, idx) =>
-        idx === rowIdx ? { ...row, [key]: !row[key] } : row
-      )
+  const handleCheck = (privKey) => {
+    setCheckedPrivileges((prev) =>
+      prev.includes(privKey)
+        ? prev.filter((k) => k !== privKey)
+        : [...prev, privKey]
     );
   };
 
   const handleSave = () => {
     setSaving(true);
-    // Simulasi update, bisa diganti dengan API call
-    setTimeout(() => {
-      setSaving(false);
-      console.log("Updated privilege for id:", params.id, privileges);
-      // router.back(); // jika ingin kembali setelah save
-    }, 800);
+    toast.promise(
+      ProxyUrl.put(`/role-permissions/${params.id}/batch`, checkedPrivileges),
+      {
+        loading: "Saving...",
+        success: (res) => {
+          setSaving(false);
+          console.log(res.data);
+          return "Privileges saved successfully!";
+        },
+        error: (error) => {
+          setSaving(false);
+          console.log(error);
+          return "Failed to save privileges.";
+        },
+      }
+    );
   };
+
+  const getDataDetailRole = async (id) => {
+    try {
+      const res = await ProxyUrl.get("/role-permissions/" + id);
+      setCheckedPrivileges(res.data.data.permissions);
+      setRoleName(res.data.data.role_name);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getDataDetailRole(params.id);
+  }, [params.id]);
 
   return (
     <div className="bg-slate-100 h-full">
       <HelpdeskLayout>
         <div className="bg-slate-100 ">
           <div>
-            <h1 className="text-2xl font-bold mb-6">Privilege User</h1>
+            <h1 className="text-2xl font-bold mb-6">User Privilege</h1>
             <div className="bg-white rounded-2xl border border-gray-200 p-6">
-              <h2 className="text-lg font-bold mb-4">Detail Privilege User</h2>
+              <h2 className="text-lg font-bold mb-4">
+                Detail User Privilege ({roleName})
+              </h2>
               <div className="overflow-x-auto">
                 <TableContainer
                   component={Paper}
@@ -80,29 +304,74 @@ export default function EditPrivilegeUserPage() {
                   >
                     <TableHead>
                       <TableRow className="bg-gray-50">
+                        <TableCell sx={{ width: 80, textAlign: "center" }}>
+                          <input
+                            type="checkbox"
+                            checked={privilegeRows.every((row) =>
+                              getRowKeys(row).every((key) =>
+                                checkedPrivileges.includes(key)
+                              )
+                            )}
+                            onChange={() => {
+                              const allChecked = privilegeRows.every((row) =>
+                                getRowKeys(row).every((key) =>
+                                  checkedPrivileges.includes(key)
+                                )
+                              );
+                              if (allChecked) {
+                                setCheckedPrivileges([]);
+                              } else {
+                                setCheckedPrivileges(allPrivilegeKeys);
+                              }
+                            }}
+                            className="w-5 h-5 accent-green-300 border-black"
+                          />
+                          <div className="font-semibold text-xs mt-1">
+                            Check All
+                          </div>
+                        </TableCell>
                         <TableCell sx={{ width: 60, textAlign: "left" }}>
                           No.
                         </TableCell>
                         <TableCell sx={{ width: "auto", textAlign: "left" }}>
                           Role Access
                         </TableCell>
-                        <TableCell sx={{ width: 100, textAlign: "center" }}>
-                          Create
-                        </TableCell>
-                        <TableCell sx={{ width: 100, textAlign: "center" }}>
-                          Read
-                        </TableCell>
-                        <TableCell sx={{ width: 100, textAlign: "center" }}>
-                          Update
-                        </TableCell>
-                        <TableCell sx={{ width: 100, textAlign: "center" }}>
-                          Delete
-                        </TableCell>
+                        {["create", "read", "update", "delete"].map(
+                          (colKey) => (
+                            <TableCell
+                              sx={{ width: 100, textAlign: "center" }}
+                              key={colKey}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={getColumnKeys(colKey).every((key) =>
+                                  checkedPrivileges.includes(key)
+                                )}
+                                onChange={() => handleCheckAllColumn(colKey)}
+                                className="w-5 h-5 accent-green-300"
+                              />
+                              <div className="mt-1 font-semibold text-xs">
+                                {colKey.charAt(0).toUpperCase() +
+                                  colKey.slice(1)}
+                              </div>
+                            </TableCell>
+                          )
+                        )}
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {privileges.map((row, idx) => (
+                      {privilegeRows.map((row) => (
                         <TableRow key={row.no} hover>
+                          <TableCell sx={{ width: 80, textAlign: "center" }}>
+                            <input
+                              type="checkbox"
+                              checked={getRowKeys(row).every((key) =>
+                                checkedPrivileges.includes(key)
+                              )}
+                              onChange={() => handleCheckAllRow(row)}
+                              className="w-5 h-5 accent-green-300"
+                            />
+                          </TableCell>
                           <TableCell sx={{ width: 60, textAlign: "left" }}>
                             {row.no}.
                           </TableCell>
@@ -116,15 +385,19 @@ export default function EditPrivilegeUserPage() {
                             >
                               <input
                                 type="checkbox"
-                                checked={row[key]}
-                                onChange={() => handleCheck(idx, key)}
+                                checked={checkedPrivileges.includes(
+                                  row.keys[key]
+                                )}
+                                onChange={() => handleCheck(row.keys[key])}
                                 className={
-                                  row[key]
-                                    ? "accent-green-500 w-5 h-5 border-2 border-green-500 focus:ring-2 focus:ring-green-400"
+                                  checkedPrivileges.includes(row.keys[key])
+                                    ? "accent-green-300 w-5 h-5 border-2 border-green-300 focus:ring-2 focus:ring-green-300"
                                     : "w-5 h-5 border-2 border-gray-300 focus:ring-2 focus:ring-gray-300"
                                 }
                                 style={{
-                                  boxShadow: row[key]
+                                  boxShadow: checkedPrivileges.includes(
+                                    row.keys[key]
+                                  )
                                     ? "0 0 0 2px #22c55e"
                                     : "none",
                                 }}

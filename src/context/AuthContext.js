@@ -8,28 +8,26 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   // Cek sesi pengguna saat aplikasi dimuat
-  useEffect(() => {
-    const checkUserSession = async () => {
-      try {
-        // Panggil endpoint /me melalui proxy kita
-        const res = await fetch("/api/sso/me", {
-          credentials: "include",
-        });
-
-        if (res.ok) {
-          const userData = await res.json();
-          setUser(userData);
-        } else {
-          setUser(null);
-        }
-      } catch (error) {
-        console.error("Gagal memeriksa sesi pengguna:", error);
+  const checkUserSession = async () => {
+    try {
+      const res = await fetch("/api/sso/me", {
+        credentials: "include",
+      });
+      if (res.ok) {
+        const userData = await res.json();
+        setUser(userData);
+      } else {
         setUser(null);
-      } finally {
-        setLoading(false);
       }
-    };
+    } catch (error) {
+      console.error("Gagal memeriksa sesi pengguna:", error);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     checkUserSession();
   }, []);
 
@@ -42,19 +40,18 @@ export function AuthProvider({ children }) {
 
   const logout = async () => {
     try {
-      // Panggil endpoint logout di proxy kita untuk memberitahu backend
       await fetch("/api/sso/logout", { method: "POST" });
     } catch (error) {
       console.error("Gagal saat mencoba logout dari server:", error);
     } finally {
-      // Apapun yang terjadi, bersihkan state di frontend dan redirect
-      setUser(null);
-      window.location.href = "/beranda"; // Arahkan ke halaman utama
+      await checkUserSession();
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider
+      value={{ user, loading, login, logout, checkUserSession }}
+    >
       {!loading && children}
     </AuthContext.Provider>
   );

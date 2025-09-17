@@ -198,14 +198,14 @@ export default function AppDocumentTable({
               paginatedDocuments.map((row) => (
                 <TableRow key={row.ID || row.no} hover>
                   <TableCell>{row.no}</TableCell>
-                  <TableCell>{row.Title}</TableCell>
+                  <TableCell>{row.title}</TableCell>
                   <TableCell>
-                    {row.ApplicationID ? row.ApplicationID : "-"}
+                    {row.application_name ? row.application_name : "-"}
                   </TableCell>
                   <TableCell>
-                    {row.FileURL ? (
+                    {row.attachments ? (
                       <a
-                        href={row.FileURL}
+                        href={row.attachments[0].url}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-[#65C7D5] underline"

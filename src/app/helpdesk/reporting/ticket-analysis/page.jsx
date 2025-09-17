@@ -71,7 +71,7 @@ export default function Page() {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {data.map((item, index) => (
               <div key={index} className="p-4 border rounded-lg">
                 <TicketAnalysisChart
