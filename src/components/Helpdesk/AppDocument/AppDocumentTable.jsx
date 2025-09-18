@@ -18,6 +18,8 @@ import {
   InputAdornment,
   IconButton,
   CircularProgress,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import { FaPlus } from "react-icons/fa";
 import { RiSearchLine, RiMore2Fill } from "react-icons/ri";
@@ -54,6 +56,8 @@ export default function AppDocumentTable({
   const [rowsPerPage] = useState(5);
   const [searchTerm, setSearchTerm] = useState("");
   const [openMenuId, setOpenMenuId] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [activeRow, setActiveRow] = useState(null);
   const [orderBy, setOrderBy] = useState("no");
   const [order, setOrder] = useState("asc");
   const menuRef = useRef(null);
@@ -65,18 +69,19 @@ export default function AppDocumentTable({
   };
 
   const handleOpenMenu = (id) => {
-    setOpenMenuId(openMenuId === id ? null : id);
+    // handled by handleOpenMenuWithEvent
+    setOpenMenuId(id);
   };
 
   const handleEdit = (row) => {
     if (onClickEdit) onClickEdit(row);
-    setOpenMenuId(null);
+    handleCloseMenu();
   };
 
   const handleDelete = (row) => {
     setSelectedRow(row);
     setDeleteModalOpen(true);
-    setOpenMenuId(null);
+    handleCloseMenu();
   };
 
   const confirmDelete = () => {
@@ -89,17 +94,17 @@ export default function AppDocumentTable({
     setAppDocuments(mappedData);
   }, [mappedData]);
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setOpenMenuId(null);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+  const handleOpenMenuWithEvent = (event, row) => {
+    setAnchorEl(event.currentTarget);
+    setActiveRow(row);
+    setOpenMenuId(row.no || row.ID || row.id);
+  };
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+    setActiveRow(null);
+    setOpenMenuId(null);
+  };
 
   const sortedAndFilteredDocuments = useMemo(() => {
     let filteredList = appDocuments.filter((doc) =>
@@ -216,37 +221,35 @@ export default function AppDocumentTable({
                       "-"
                     )}
                   </TableCell>
-                  <TableCell className="relative">
-                    <IconButton onClick={() => handleOpenMenu(row.no)}>
+                  <TableCell>
+                    <IconButton
+                      onClick={(e) => handleOpenMenuWithEvent(e, row)}
+                    >
                       <RiMore2Fill />
                     </IconButton>
-                    {openMenuId === row.no && (
-                      <div
-                        className="absolute right-8 top-1/2 -translate-y-1/2 w-32 bg-white rounded-md shadow-lg border border-gray-200 z-10"
-                        ref={menuRef}
-                      >
-                        <ul className="py-1">
-                          <li
-                            onClick={() => handleEdit(row)}
-                            className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                          >
-                            Edit
-                          </li>
-                          <li
-                            onClick={() => handleDelete(row)}
-                            className="px-4 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
-                          >
-                            Delete
-                          </li>
-                        </ul>
-                      </div>
-                    )}
                   </TableCell>
                 </TableRow>
               ))
             )}
           </TableBody>
         </Table>
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleCloseMenu}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          transformOrigin={{ vertical: "top", horizontal: "right" }}
+        >
+          <MenuItem onClick={() => activeRow && handleEdit(activeRow)}>
+            Edit
+          </MenuItem>
+          <MenuItem
+            onClick={() => activeRow && handleDelete(activeRow)}
+            sx={{ color: "error.main" }}
+          >
+            Delete
+          </MenuItem>
+        </Menu>
         <div className="flex items-center justify-between px-4 py-3">
           <div className="text-sm text-gray-600">
             Page <span className="font-medium">{page}</span> of{" "}

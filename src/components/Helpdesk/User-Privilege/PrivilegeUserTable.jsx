@@ -1,5 +1,5 @@
 "use client";
-import React, { useMemo, useRef, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -12,6 +12,8 @@ import {
   TextField,
   InputAdornment,
   IconButton,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import { RiSearchLine, RiMore2Fill } from "react-icons/ri";
 
@@ -36,9 +38,14 @@ export default function PrivilegeUserTable({
   const [rowsPerPage] = useState(5);
   const [searchTerm, setSearchTerm] = useState("");
   const [openMenuId, setOpenMenuId] = useState(null);
-  const menuRef = useRef(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [activeRow, setActiveRow] = useState(null);
 
-  const handleOpenMenu = (id) => setOpenMenuId(openMenuId === id ? null : id);
+  const handleOpenMenu = (event, row) => {
+    setAnchorEl(event.currentTarget);
+    setActiveRow(row);
+    setOpenMenuId(row.id);
+  };
 
   const handleEdit = (row) => {
     if (onClickEdit) {
@@ -53,17 +60,14 @@ export default function PrivilegeUserTable({
       setRoles((prev) => prev.filter((r) => r.id !== row.id));
       console.log("Delete role:", row);
     }
-    setOpenMenuId(null);
+    handleCloseMenu();
   };
 
-  useEffect(() => {
-    const onClick = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target))
-        setOpenMenuId(null);
-    };
-    document.addEventListener("mousedown", onClick);
-    return () => document.removeEventListener("mousedown", onClick);
-  }, []);
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+    setActiveRow(null);
+    setOpenMenuId(null);
+  };
 
   const filtered = useMemo(() => {
     const q = searchTerm.toLowerCase();
@@ -137,42 +141,32 @@ export default function PrivilegeUserTable({
                     </div>
                   )}
                 </TableCell>
-                <TableCell
-                  sx={{ width: 80, textAlign: "left" }}
-                  className="relative"
-                  ref={menuRef}
-                >
-                  <IconButton onClick={() => handleOpenMenu(row.id)}>
+                <TableCell sx={{ width: 80, textAlign: "left" }}>
+                  <IconButton onClick={(e) => handleOpenMenu(e, row)}>
                     <RiMore2Fill />
                   </IconButton>
-                  {openMenuId === row.id && (
-                    <div
-                      ref={menuRef}
-                      className="absolute right-14 top-10/10 -translate-y-1/2 w-32 bg-white rounded-md shadow-lg border border-gray-200 z-10"
-                    >
-                      <ul className="py-1">
-                        <li
-                          onClick={() => {
-                            handleEdit(row);
-                          }}
-                          className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                        >
-                          Edit
-                        </li>
-                        <li
-                          onClick={() => handleDelete(row)}
-                          className="px-4 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
-                        >
-                          Delete
-                        </li>
-                      </ul>
-                    </div>
-                  )}
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleCloseMenu}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          transformOrigin={{ vertical: "top", horizontal: "right" }}
+        >
+          <MenuItem onClick={() => activeRow && handleEdit(activeRow)}>
+            Edit
+          </MenuItem>
+          <MenuItem
+            onClick={() => activeRow && handleDelete(activeRow)}
+            sx={{ color: "error.main" }}
+          >
+            Delete
+          </MenuItem>
+        </Menu>
         <div className="flex items-center justify-between px-4 py-3">
           <div className="text-sm text-gray-600">
             Page <span className="font-medium">{page}</span> of{" "}

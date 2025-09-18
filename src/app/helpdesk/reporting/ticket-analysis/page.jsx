@@ -71,19 +71,25 @@ export default function Page() {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {data.map((item, index) => (
-              <div key={index} className="p-4 border rounded-lg">
-                <TicketAnalysisChart
-                  title={item.category_name}
-                  data={item.statuses.map((status) => ({
-                    name: status.status,
-                    value: status.total,
-                  }))}
-                />
-              </div>
-            ))}
-          </div>
+          {data && data.length ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {data.map((item, index) => (
+                <div key={index} className="p-4 border rounded-lg">
+                  <TicketAnalysisChart
+                    title={item.category_name}
+                    data={item.statuses.map((status) => ({
+                      name: status.status,
+                      value: status.total,
+                    }))}
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="p-8 border rounded-lg text-center text-gray-600">
+              Tidak ada data
+            </div>
+          )}
         </div>
       </HelpdeskLayout>
 
