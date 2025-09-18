@@ -26,7 +26,7 @@ const columns = [
   { label: "Jumlah Anggota", key: "team_count" },
 ];
 
-export default function TeamMemberTable({ onClickNew, data = [] }) {
+export default function TeamMemberTable({ onClickNew, data = [], loading }) {
   const [teamMembers, setTeamMembers] = useState(data);
   const [page, setPage] = useState(1);
   const [rowsPerPage] = useState(5);
@@ -135,10 +135,17 @@ export default function TeamMemberTable({ onClickNew, data = [] }) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {data.length === 0 && (
+            {loading && (
               <TableRow>
                 <TableCell colSpan={columns.length} align="center">
                   <CircularProgress />
+                </TableCell>
+              </TableRow>
+            )}
+            {!loading && paginatedMembers.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={columns.length} align="center">
+                  <h1>Tidak Ada Data</h1>
                 </TableCell>
               </TableRow>
             )}

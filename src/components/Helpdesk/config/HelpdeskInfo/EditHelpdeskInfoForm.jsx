@@ -58,30 +58,33 @@ export default function EditHelpdeskInfoForm({ data }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!validate()) {
-      toast.error("Lengkapi data di bawah ini", {
-        description: "Silahkan lengkapi semua field yang ditandai (*).",
-      });
-      return;
-    }
+    // if (!validate()) {
+    //   toast.error("Lengkapi data di bawah ini", {
+    //     description: "Silahkan lengkapi semua field yang ditandai (*).",
+    //   });
+    //   return;
+    // }
 
     const payload = { ...form };
 
-    toast
-      .promise(ProxyUrl.put("/helpdesk-info", payload), {
-        loading: "Menyimpan helpdesk info...",
-        success: "Helpdesk Info berhasil disimpan",
-        error: ({ error }) => (
-          <div>
-            <b>Gagal menyimpan</b>
-            <div className="text-sm text-red-600">
-              {error?.message || "Terjadi kesalahan"}
-            </div>
+    const req = ProxyUrl.put("/helpdesk-info", payload);
+
+    toast.promise(req, {
+      loading: "Menyimpan helpdesk info...",
+      success: "Helpdesk Info berhasil disimpan",
+      error: ({ error }) => (
+        <div>
+          <b>Gagal menyimpan</b>
+          <div className="text-sm text-red-600">
+            {error?.message || "Terjadi kesalahan"}
           </div>
-        ),
-      })
+        </div>
+      ),
+    });
+
+    req
       .then(() => {
-        // optional: additional actions after success
+        // optional: additional actions after success, e.g. refresh or close modal
       })
       .catch((err) => {
         console.error("Save error:", err);
@@ -137,21 +140,6 @@ export default function EditHelpdeskInfoForm({ data }) {
             onChange={handleChange}
             className={`input ${errors.whatsapp ? "border-red-500" : ""}`}
             placeholder="08xxxxxxxxxx"
-          />
-        </div>
-
-        {/* X */}
-        <div className="flex flex-col gap-2">
-          <label className="font-semibold text-sm">
-            X<span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            name="x"
-            value={form.x || ""}
-            onChange={handleChange}
-            className={`input ${errors.x ? "border-red-500" : ""}`}
-            placeholder="Tambahkan URL"
           />
         </div>
 

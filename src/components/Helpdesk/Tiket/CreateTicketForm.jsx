@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { use, useEffect, useRef, useState } from "react";
 import CKEditorWrapper from "@/components/CKEditorWrapper";
 import { toast } from "sonner";
 import { FaExternalLinkAlt } from "react-icons/fa";
@@ -29,7 +29,7 @@ export default function CreateTicketForm({ onSubmit }) {
 
   const [errors, setErrors] = useState({});
   const [files, setFiles] = useState([]);
-  const [dataTeams, setDataTeams] = useState([]);
+  const [dataTeamsGroups, setDataTeamsGroups] = useState([]);
   const [dataPriorities, setDataPriorities] = useState([]);
   const [dataTipe, setDataTipe] = useState([]);
   const [dataSla, setDataSla] = useState([]);
@@ -37,11 +37,12 @@ export default function CreateTicketForm({ onSubmit }) {
   const [dataDivisions, setDataDivisions] = useState([]);
   const [dataBpo, setDataBpo] = useState([]);
   const [dataUsers, setDataUsers] = useState([]);
+  const [assignedTo, setAssignedTo] = useState([]);
 
   const getDataAllSelections = async () => {
     try {
       const res = await ProxyUrl.get("/tickets/selections");
-      setDataTeams(res.data.data.teams || []);
+      setDataTeamsGroups(res.data.data.team_groups || []);
       setDataPriorities(res.data.data.priorities || []);
       setDataTipe(res.data.data.ticket_types || []);
       setDataSla(res.data.data.sla_policies || []);
@@ -53,6 +54,23 @@ export default function CreateTicketForm({ onSubmit }) {
       console.error("Error fetching all selections:", error);
     }
   };
+
+  const getDataAssignedTo = async (teamId) => {
+    try {
+      const res = await ProxyUrl.get(`/tickets/assign-to`, {
+        params: { team_group_id: teamId },
+      });
+      setAssignedTo(res.data.data.teams || []);
+    } catch (error) {
+      console.error("Error fetching assigned users:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (form.team_id) {
+      getDataAssignedTo(form.team_id);
+    }
+  }, [form.team_id]);
 
   useEffect(() => {
     getDataAllSelections();
@@ -222,7 +240,7 @@ export default function CreateTicketForm({ onSubmit }) {
               <MenuItem value="">
                 <em>Pilih Team</em>
               </MenuItem>
-              {dataTeams.map((team) => (
+              {dataTeamsGroups.map((team) => (
                 <MenuItem key={team.id} value={String(team.id ?? "")}>
                   {team.name}
                 </MenuItem>
@@ -272,7 +290,7 @@ export default function CreateTicketForm({ onSubmit }) {
               <MenuItem value="">
                 <em>Pilih User</em>
               </MenuItem>
-              {dataUsers.map((user) => (
+              {assignedTo.map((user) => (
                 <MenuItem key={user.id} value={String(user.id ?? "")}>
                   {user.name}
                 </MenuItem>

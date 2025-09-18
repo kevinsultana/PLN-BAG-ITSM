@@ -1,6 +1,6 @@
 "use client";
 import { ProxyUrl } from "@/api/BaseUrl";
-import TeamMemberTable from "@/components/Helpdesk/config/TeamMember/TeamMemberTable";
+import AgentManagementTable from "@/components/Helpdesk/config/AgentManagement/AgentManagementTable";
 import HelpdeskLayout from "@/components/Helpdesk/layout/HelpdeskLayout";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -10,34 +10,38 @@ export default function Page() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleNewTeamMember = () => {
-    router.push("/helpdesk/config/team-member/new");
+  const handleNewAgent = () => {
+    router.push("/helpdesk/config/agent-management/new");
   };
 
-  const getData = async () => {
+  const getDataAgent = async () => {
     setLoading(true);
     try {
-      const res = await ProxyUrl.get("/team-groups");
-      setData(res.data.data);
+      const res = await ProxyUrl.get("/teams");
+      const agents = res.data.data || [];
+      setData(agents);
     } catch (error) {
-      console.error("Error fetching team groups:", error);
+      console.error("Error fetching agents data:", error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    getData();
+    getDataAgent();
   }, []);
 
   return (
     <div className="bg-slate-100 h-full">
       <HelpdeskLayout>
         <h1 className="text-2xl font-bold">Konfigurasi</h1>
-        <TeamMemberTable
+        <AgentManagementTable
           data={data}
-          onClickNew={handleNewTeamMember}
+          onClickNewAgent={handleNewAgent}
           loading={loading}
+          onClickEdit={(id) =>
+            router.push(`/helpdesk/config/agent-management/edit/${id}`)
+          }
         />
       </HelpdeskLayout>
     </div>

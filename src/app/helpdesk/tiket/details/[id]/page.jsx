@@ -83,23 +83,25 @@ export default function Page() {
   };
 
   const handleUpdateTiket = async (updatedData) => {
-    try {
-      toast.promise(ProxyUrl.put(`/tickets/${ticketNo}`, updatedData), {
-        loading: `Menyimpan perubahan tiket...`,
-        success: `Tiket berhasil diperbarui`,
-        error: ({ error }) => (
-          <div>
-            <b>Gagal memperbarui tiket</b>
-            <div className="text-sm text-red-600">
-              {error?.message || "Terjadi kesalahan saat memperbarui tiket."}
-            </div>
-          </div>
-        ),
-      });
-      await getDataTicket();
-    } catch (error) {
-      console.error("Error updating ticket:", error);
-    }
+    console.log(updatedData);
+    console.log(ticketNo);
+    // try {
+    //   toast.promise(ProxyUrl.put(`/tickets/${ticketNo}`, updatedData), {
+    //     loading: `Menyimpan perubahan tiket...`,
+    //     success: `Tiket berhasil diperbarui`,
+    //     error: ({ error }) => (
+    //       <div>
+    //         <b>Gagal memperbarui tiket</b>
+    //         <div className="text-sm text-red-600">
+    //           {error?.message || "Terjadi kesalahan saat memperbarui tiket."}
+    //         </div>
+    //       </div>
+    //     ),
+    //   });
+    //   await getDataTicket();
+    // } catch (error) {
+    //   console.error("Error updating ticket:", error);
+    // }
   };
 
   return (

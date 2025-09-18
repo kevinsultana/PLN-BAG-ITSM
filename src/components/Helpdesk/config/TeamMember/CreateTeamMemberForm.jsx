@@ -1,13 +1,18 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
-import { FaTimesCircle, FaCheck } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
 import CKEditorWrapper from "@/components/CKEditorWrapper";
 import { toast } from "sonner";
-import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
-import TambahAnggotaModal from "./TambahAnggotaModal";
 import { useRouter } from "next/navigation";
 import { ProxyUrl } from "@/api/BaseUrl";
-import { FormControl, MenuItem, Select } from "@mui/material";
+import {
+  FormControl,
+  MenuItem,
+  Select,
+  Chip,
+  Checkbox,
+  ListItemText,
+  OutlinedInput,
+} from "@mui/material";
 
 export default function CreateTeamMemberForm({ onSubmit }) {
   const [form, setForm] = useState({
@@ -23,9 +28,6 @@ export default function CreateTeamMemberForm({ onSubmit }) {
   const router = useRouter();
 
   const [errors, setErrors] = useState({});
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [anggotaModal, setAnggotaModal] = useState(false);
-  const dropdownRef = useRef(null);
 
   const [dataAnggotaTeamMember, setDataAnggotaTeamMember] = useState([]);
 
@@ -56,18 +58,6 @@ export default function CreateTeamMemberForm({ onSubmit }) {
     getDataVisibility();
   }, []);
 
-  const handleAddMember = async (memberData) => {
-    try {
-      await ProxyUrl.post("/teams", memberData);
-      getDataAnggota();
-      toast.success("Anggota berhasil ditambahkan!", {
-        description: `Anggota ${memberData.nama} telah berhasil ditambahkan.`,
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm({
@@ -76,30 +66,14 @@ export default function CreateTeamMemberForm({ onSubmit }) {
     });
   };
 
-  const handleMemberSelect = (memberValue) => {
-    setForm((prevForm) => {
-      if (prevForm.anggotaTeam.includes(memberValue)) {
-        return {
-          ...prevForm,
-          anggotaTeam: prevForm.anggotaTeam.filter(
-            (member) => member !== memberValue
-          ),
-        };
-      }
-      return {
-        ...prevForm,
-        anggotaTeam: [...prevForm.anggotaTeam, memberValue],
-      };
-    });
-  };
-
-  const handleRemoveMember = (memberToRemove) => {
-    setForm({
-      ...form,
-      anggotaTeam: form.anggotaTeam.filter(
-        (member) => member !== memberToRemove
-      ),
-    });
+  const handleMembersChange = (event) => {
+    const {
+      target: { value },
+    } = event;
+    setForm((prev) => ({
+      ...prev,
+      anggotaTeam: typeof value === "string" ? value.split(",") : value,
+    }));
   };
 
   const validate = () => {
@@ -133,28 +107,10 @@ export default function CreateTeamMemberForm({ onSubmit }) {
     onSubmit(payload);
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsDropdownOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
   return (
     <div className="bg-white rounded-xl mt-4 p-6 border border-gray-200 shadow-sm">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold mb-6">Buat Team Member</h1>
-        <button
-          onClick={() => setAnggotaModal(true)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-[#65C7D5] text-white rounded-2xl text-sm hover:opacity-90 cursor-pointer"
-        >
-          Tambah Anggota
-        </button>
       </div>
       <form
         onSubmit={handleSubmit}
@@ -175,74 +131,67 @@ export default function CreateTeamMemberForm({ onSubmit }) {
           />
         </div>
 
-        {/* Anggota Team (Multi-select dropdown) */}
-        <div className="flex flex-col gap-2 relative" ref={dropdownRef}>
+        {/* Anggota Team (MUI Multi-select) */}
+        <div className="flex flex-col gap-2">
           <label className="font-semibold text-sm">
             Anggota Team<span className="text-red-500">*</span>
           </label>
-          <div
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className={`relative border rounded-md p-2 pr-10 min-h-[42px] ${
-              errors.anggotaTeam ? "border-red-500" : "border-gray-300"
-            }`}
+          <FormControl
+            fullWidth
+            size="small"
+            error={Boolean(errors.anggotaTeam)}
           >
-            <div className="flex flex-wrap gap-2 w-full pr-10 items-start">
-              {form.anggotaTeam.length > 0 ? (
-                form.anggotaTeam.map((member, index) => (
-                  <span
-                    key={index}
-                    className="flex items-center gap-1 bg-gray-200 rounded-full pl-3 pr-2 py-1 text-sm max-w-full"
-                  >
-                    {dataAnggotaTeamMember.find((m) => m.ID === member)?.Name ||
-                      member}
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRemoveMember(member);
-                      }}
-                      className="text-gray-500 hover:text-gray-700"
-                    >
-                      <FaTimesCircle className="w-3 h-3" />
-                    </button>
-                  </span>
-                ))
-              ) : (
-                <span className="text-gray-400">Pilih anggota</span>
-              )}
-            </div>
-
-            {/* arrow button fixed to top-right of the box */}
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsDropdownOpen(!isDropdownOpen);
+            <Select
+              multiple
+              name="anggotaTeam"
+              value={form.anggotaTeam}
+              onChange={handleMembersChange}
+              displayEmpty
+              input={<OutlinedInput />}
+              renderValue={(selected) => {
+                if ((selected || []).length === 0) {
+                  return <span className="text-gray-400">Pilih anggota</span>;
+                }
+                return (
+                  <div className="flex flex-wrap gap-2">
+                    {selected.map((value) => {
+                      const member = dataAnggotaTeamMember.find(
+                        (m) => m.id === value
+                      );
+                      return (
+                        <Chip
+                          key={value}
+                          size="small"
+                          label={member?.fullname || value}
+                          onMouseDown={(e) => e.stopPropagation()}
+                          onDelete={() =>
+                            setForm((prev) => ({
+                              ...prev,
+                              anggotaTeam: prev.anggotaTeam.filter(
+                                (v) => v !== value
+                              ),
+                            }))
+                          }
+                        />
+                      );
+                    })}
+                  </div>
+                );
               }}
-              className="absolute right-2 top-2 text-gray-500 p-1"
-              aria-label="toggle anggota dropdown"
             >
-              {isDropdownOpen ? <RiArrowUpSLine /> : <RiArrowDownSLine />}
-            </button>
-          </div>
-          {isDropdownOpen && (
-            <div className="absolute z-10 w-full top-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
-              <ul className="py-1 max-h-48 overflow-y-auto">
-                {dataAnggotaTeamMember.map((member, index) => (
-                  <li
-                    key={index}
-                    onClick={() => handleMemberSelect(member.ID)}
-                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm flex justify-between items-center"
-                  >
-                    {member.Name}
-                    {form.anggotaTeam.includes(member.ID) && (
-                      <FaCheck className="text-[#65C7D5]" />
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+              <MenuItem disabled value="">
+                <em>Pilih anggota</em>
+              </MenuItem>
+              {dataAnggotaTeamMember.map((member) => (
+                <MenuItem key={member.id} value={member.id}>
+                  <Checkbox
+                    checked={form.anggotaTeam.indexOf(member.id) > -1}
+                  />
+                  <ListItemText primary={member.fullname} />
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </div>
 
         {/* Visibility */}
@@ -326,11 +275,6 @@ export default function CreateTeamMemberForm({ onSubmit }) {
           </button>
         </div>
       </form>
-      <TambahAnggotaModal
-        isOpen={anggotaModal}
-        onClose={() => setAnggotaModal(false)}
-        onSubmit={handleAddMember}
-      />
     </div>
   );
 }

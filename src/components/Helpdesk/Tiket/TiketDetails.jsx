@@ -1,3 +1,4 @@
+import { ProxyUrl } from "@/api/BaseUrl";
 import CKEditorWrapper from "@/components/CKEditorWrapper";
 import Dropdown from "@/components/Dropdown";
 import PriorityDropdown from "@/components/PriorityDropdown";
@@ -25,7 +26,7 @@ function mapUpdatedTiketToPayload(updatedTiket) {
     sla_policy_id: updatedTiket?.sla_policy?.id || "",
     status: updatedTiket?.status || "",
     subject: updatedTiket?.subject || "",
-    team_id: updatedTiket?.team?.id || "",
+    team_group_id: updatedTiket?.team_group?.id || "",
     ticket_type_id: updatedTiket?.ticket_type?.id || "",
     // user_id: updatedTiket?.user?.id || "",
     whatsapp: updatedTiket?.whatsapp || "",
@@ -65,6 +66,30 @@ export default function TiketDetails({
     if (diffMin > 0) return `${diffMin} menit yang lalu`;
     return "Baru saja";
   }
+
+  const [assignedTo, setAssignedTo] = useState([]);
+
+  const getDataAssignedTo = async () => {
+    try {
+      const response = await ProxyUrl.get("/tickets/assign-to", {
+        params: { team_group_id: updatedTiket?.team_group?.id || "" },
+      });
+      const data = response.data.data.teams || [];
+      setAssignedTo(data);
+    } catch (error) {
+      console.error("Error fetching assigned users:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (updatedTiket?.team_group?.id) {
+      getDataAssignedTo();
+      setUpdatedTiket((prev) => ({
+        ...prev,
+        assign_to: "",
+      }));
+    }
+  }, [updatedTiket?.team_group?.id]);
 
   return (
     <div key={data?.id} className="bg-white rounded-xl p-4">
@@ -189,13 +214,13 @@ export default function TiketDetails({
           <div className="flex flex-col gap-4">
             <Dropdown
               label="Team"
-              value={updatedTiket?.team?.id || ""}
-              dataMenus={selections?.teams || []}
+              value={updatedTiket?.team_group?.id || ""}
+              dataMenus={selections?.team_groups || []}
               disabled={data?.status !== "OPEN"}
               handleChange={(e) =>
                 setUpdatedTiket((prev) => ({
                   ...prev,
-                  team: { id: e.target.value },
+                  team_group: { id: e.target.value },
                 }))
               }
               isRequired={true}
@@ -205,7 +230,9 @@ export default function TiketDetails({
             <Dropdown
               label="Assigned To"
               value={updatedTiket?.assign_to?.id || ""}
-              dataMenus={selections?.users || []}
+              dataMenus={
+                assignedTo.length > 0 ? assignedTo : selections?.users || []
+              }
               disabled={data?.status !== "OPEN"}
               handleChange={(e) =>
                 setUpdatedTiket((prev) => ({
