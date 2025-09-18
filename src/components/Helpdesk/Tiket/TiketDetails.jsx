@@ -2,7 +2,7 @@ import CKEditorWrapper from "@/components/CKEditorWrapper";
 import Dropdown from "@/components/Dropdown";
 import PriorityDropdown from "@/components/PriorityDropdown";
 import renderDescription from "@/utils/RenderDesc";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaCircleStop } from "react-icons/fa6";
 import { HiPlay } from "react-icons/hi";
 import { MdOutlinePauseCircleFilled } from "react-icons/md";
@@ -10,7 +10,7 @@ import { MdOutlinePauseCircleFilled } from "react-icons/md";
 function mapUpdatedTiketToPayload(updatedTiket) {
   return {
     application_id: updatedTiket?.application?.id || "",
-    assigned_to: updatedTiket?.assigned_to?.id || "",
+    assigned_to: updatedTiket?.assign_to?.id || "",
     attachment_ids: Array.isArray(updatedTiket?.attachments)
       ? updatedTiket.attachments.map((att) => att.id)
       : [],
@@ -27,12 +27,12 @@ function mapUpdatedTiketToPayload(updatedTiket) {
     subject: updatedTiket?.subject || "",
     team_id: updatedTiket?.team?.id || "",
     ticket_type_id: updatedTiket?.ticket_type?.id || "",
-    user_id: updatedTiket?.user?.id || "",
+    // user_id: updatedTiket?.user?.id || "",
     whatsapp: updatedTiket?.whatsapp || "",
   };
 }
+
 export default function TiketDetails({
-  // Fungsi mapping state ke payload API
   data,
   onClickStart,
   onClickPause,
@@ -45,8 +45,11 @@ export default function TiketDetails({
   const status = ["OPEN", "IN PROGRESS", "ON HOLD", "RESOLVED", "CLOSED"];
 
   const [feedbackTiket, setFeedbackTiket] = useState("");
+  const [updatedTiket, setUpdatedTiket] = useState(data || {});
 
-  const [updatedTiket, setUpdatedTiket] = useState(data);
+  useEffect(() => {
+    setUpdatedTiket(data || {});
+  }, [data]);
 
   function timeAgo(dateInput) {
     const date = new Date(dateInput);
@@ -65,8 +68,8 @@ export default function TiketDetails({
 
   return (
     <div key={data?.id} className="bg-white rounded-xl p-4">
-      {/* top section */}
       <h1 className="text-black text-base font-bold">Detail Tiket</h1>
+
       <div className="flex items-center justify-between">
         <div className="py-4 flex items-center gap-2">
           {data?.status === "OPEN" && (
@@ -106,6 +109,7 @@ export default function TiketDetails({
             </button>
           )}
         </div>
+
         <div>
           {status.map((item, index) => (
             <React.Fragment key={item}>
@@ -125,7 +129,7 @@ export default function TiketDetails({
       </div>
 
       {/* subject */}
-      <div className="border border-gray-200 rounded-xl p-4 space-y-2">
+      <div className="border border-gray-200 rounded-xl p-4 space-y-2 my-4">
         <h3>Subject</h3>
         <h2 className="font-semibold text-lg">{data?.subject}</h2>
         <div className="flex gap-4">
@@ -149,7 +153,6 @@ export default function TiketDetails({
                   return "-";
                 const created = new Date(data.created_at);
                 if (isNaN(created.getTime())) return "-";
-                // resolve_time in hours
                 const resolveMs =
                   Number(data.sla_policy.resolve_time) * 60 * 60 * 1000;
                 const deadline = new Date(created.getTime() + resolveMs);
@@ -160,7 +163,6 @@ export default function TiketDetails({
                 const diffHour = Math.floor(diffMin / 60);
                 const minRemainder = diffMin % 60;
                 if (diffMs > 0) {
-                  // Time remaining
                   if (diffHour > 0)
                     return `Sisa ${diffHour} jam ${
                       minRemainder > 0 ? minRemainder + " menit" : ""
@@ -168,7 +170,6 @@ export default function TiketDetails({
                   if (diffMin > 0) return `Sisa ${diffMin} menit`;
                   return "Segera berakhir";
                 } else {
-                  // Overdue
                   if (diffHour > 0)
                     return `Terlambat ${diffHour} jam ${
                       minRemainder > 0 ? minRemainder + " menit" : ""
@@ -182,282 +183,269 @@ export default function TiketDetails({
         </div>
       </div>
 
-      {/* forms */}
+      {/* forms: left editable, right read-only */}
       <div className="border border-gray-200 rounded-xl p-4 space-y-2 my-6">
-        <form className="grid grid-cols-2 gap-4">
-          {/* Team */}
-          <Dropdown
-            label="Team"
-            value={updatedTiket?.team?.id || ""}
-            dataMenus={selections?.teams || []}
-            disabled={data?.status !== "OPEN"}
-            handleChange={(e) =>
-              setUpdatedTiket((prev) => ({
-                ...prev,
-                team: { id: e.target.value },
-              }))
-            }
-            isRequired={true}
-            initMenu="- Pilih Team -"
-          />
-          {/* Nama Aplikasi */}
-          <div className="flex flex-col gap-2">
-            <label className="text-lg font-semibold">
-              Nama Aplikasi <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              value={data?.application?.name || data?.nama_aplikasi || ""}
-              className="input p-2"
-              readOnly
-            />
-          </div>
-          {/* Assigned To */}
-          <Dropdown
-            label="Assigned To"
-            value={updatedTiket?.assigned_to?.id || ""}
-            dataMenus={selections?.users || []}
-            disabled={data?.status !== "OPEN"}
-            handleChange={(e) =>
-              setUpdatedTiket((prev) => ({
-                ...prev,
-                assigned_to: { id: e.target.value },
-              }))
-            }
-            isRequired={true}
-            initMenu="- Pilih Assigned To -"
-          />
-          {/* Requester */}
-          <div className="flex flex-col gap-2">
-            <label className="text-lg font-semibold">
-              Requester <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              value={
-                data?.requester?.name ||
-                data?.fullname ||
-                data?.nama_requester ||
-                ""
+        <form className="grid grid-cols-2 gap-6">
+          <div className="flex flex-col gap-4">
+            <Dropdown
+              label="Team"
+              value={updatedTiket?.team?.id || ""}
+              dataMenus={selections?.teams || []}
+              disabled={data?.status !== "OPEN"}
+              handleChange={(e) =>
+                setUpdatedTiket((prev) => ({
+                  ...prev,
+                  team: { id: e.target.value },
+                }))
               }
-              className="input p-2"
-              readOnly
+              isRequired={true}
+              initMenu="- Pilih Team -"
             />
-          </div>
-          {/* Priority */}
-          <PriorityDropdown
-            label="Priority"
-            value={updatedTiket?.priority?.id || ""}
-            dataPriorities={selections?.priorities || []}
-            disabled={data?.status !== "OPEN"}
-            onChange={(e) =>
-              setUpdatedTiket((prev) => ({
-                ...prev,
-                priority: { id: e.target.value },
-              }))
-            }
-            required={true}
-            initMenu="- Pilih Priority -"
-          />
 
-          {/* kalau tipe tiket CR maka tampilkan field tambahan */}
-          {data?.ticket_type?.name === "Change Request" && (
-            <>
-              {/* BPO */}
-              <Dropdown
-                label="BPO"
-                value={updatedTiket?.bpo?.id || ""}
-                dataMenus={selections?.bpos || []}
-                disabled={data?.status !== "OPEN"}
-                handleChange={(e) =>
-                  setUpdatedTiket((prev) => ({
-                    ...prev,
-                    bpo: { id: e.target.value },
-                  }))
-                }
-                isRequired={true}
-                initMenu="- Pilih BPO -"
+            <Dropdown
+              label="Assigned To"
+              value={updatedTiket?.assign_to?.id || ""}
+              dataMenus={selections?.users || []}
+              disabled={data?.status !== "OPEN"}
+              handleChange={(e) =>
+                setUpdatedTiket((prev) => ({
+                  ...prev,
+                  assign_to: { id: e.target.value },
+                }))
+              }
+              isRequired={true}
+              initMenu="- Pilih Assigned To -"
+            />
+
+            <PriorityDropdown
+              label="Priority"
+              value={updatedTiket?.priority?.id || ""}
+              dataPriorities={selections?.priorities || []}
+              disabled={data?.status !== "OPEN"}
+              onChange={(e) =>
+                setUpdatedTiket((prev) => ({
+                  ...prev,
+                  priority: { id: e.target.value },
+                }))
+              }
+              required={true}
+              initMenu="- Pilih Priority -"
+            />
+
+            <Dropdown
+              label="Tipe"
+              value={updatedTiket?.ticket_type?.id || ""}
+              dataMenus={selections?.ticket_types || []}
+              disabled={data?.status !== "OPEN"}
+              handleChange={(e) =>
+                setUpdatedTiket((prev) => ({
+                  ...prev,
+                  ticket_type: { id: e.target.value },
+                }))
+              }
+              isRequired={true}
+              initMenu="- Pilih Tipe -"
+            />
+
+            <Dropdown
+              label="SLA Policy"
+              value={updatedTiket?.sla_policy?.id || ""}
+              dataMenus={selections?.sla_policies || []}
+              disabled={data?.status !== "OPEN"}
+              handleChange={(e) =>
+                setUpdatedTiket((prev) => ({
+                  ...prev,
+                  sla_policy: { id: e.target.value },
+                }))
+              }
+              isRequired={true}
+              initMenu="- Pilih SLA -"
+            />
+
+            {selections?.ticket_types?.find(
+              (type) => type.id === updatedTiket?.ticket_type?.id
+            )?.name === "Change Request" && (
+              <>
+                <Dropdown
+                  label="BPO"
+                  value={updatedTiket?.bpo?.id || ""}
+                  dataMenus={selections?.bpos || []}
+                  disabled={data?.status !== "OPEN"}
+                  handleChange={(e) =>
+                    setUpdatedTiket((prev) => ({
+                      ...prev,
+                      bpo: { id: e.target.value },
+                    }))
+                  }
+                  isRequired={true}
+                  initMenu="- Pilih BPO -"
+                />
+
+                <div className="flex flex-col gap-2">
+                  <label className="text-lg font-semibold">
+                    Contract Value <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={updatedTiket?.contract_value || ""}
+                    className="input p-2"
+                    onChange={(e) =>
+                      setUpdatedTiket((prev) => ({
+                        ...prev,
+                        contract_value: e.target.value,
+                      }))
+                    }
+                    required
+                  />
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <label className="text-lg font-semibold">
+                    Contract Number <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={updatedTiket?.contract_number || ""}
+                    className="input p-2"
+                    onChange={(e) =>
+                      setUpdatedTiket((prev) => ({
+                        ...prev,
+                        contract_number: e.target.value,
+                      }))
+                    }
+                    required
+                  />
+                </div>
+              </>
+            )}
+
+            {data?.status === "OPEN" && (
+              <div>
+                <button
+                  type="button"
+                  className="bg-sky-500 cursor-pointer p-2 text-white w-full rounded-full mt-6"
+                  onClick={() => {
+                    const payload = mapUpdatedTiketToPayload(updatedTiket);
+                    onClickUpdateTiket(payload);
+                  }}
+                >
+                  Update Tiket
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
+              <label className="text-lg font-semibold">Nama Aplikasi</label>
+              <input
+                type="text"
+                value={data?.application?.name || data?.nama_aplikasi || ""}
+                className="input p-2"
+                readOnly
               />
-              {/* Contract Value */}
-              <div className="flex flex-col gap-2">
-                <label className="text-lg font-semibold">
-                  Contract Value <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={updatedTiket?.contract_value || ""}
-                  className="input p-2"
-                  onChange={(e) =>
-                    setUpdatedTiket((prev) => ({
-                      ...prev,
-                      contract_value: e.target.value,
-                    }))
-                  }
-                  required
-                />
-              </div>
-              {/* Contract Number */}
-              <div className="flex flex-col gap-2">
-                <label className="text-lg font-semibold">
-                  Contract Number <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={updatedTiket?.contract_number || ""}
-                  className="input p-2"
-                  onChange={(e) =>
-                    setUpdatedTiket((prev) => ({
-                      ...prev,
-                      contract_number: e.target.value,
-                    }))
-                  }
-                  required
-                />
-              </div>
-            </>
-          )}
+            </div>
 
-          {/* Nama Divisi */}
-          <div className="flex flex-col gap-2">
-            <label className="text-lg font-semibold">
-              Nama Divisi <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              value={data?.division?.name || data?.nama_divisi || ""}
-              className="input p-2"
-              readOnly
-            />
-          </div>
-          {/* Tipe */}
-          <Dropdown
-            label="Tipe"
-            value={updatedTiket?.ticket_type?.id || ""}
-            dataMenus={selections?.ticket_types || []}
-            disabled={data?.status !== "OPEN"}
-            handleChange={(e) =>
-              setUpdatedTiket((prev) => ({
-                ...prev,
-                ticket_type: { id: e.target.value },
-              }))
-            }
-            isRequired={true}
-            initMenu="- Pilih Tipe -"
-          />
-          {/* Email */}
-          <div className="flex flex-col gap-2">
-            <label className="text-lg font-semibold">
-              Email <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              value={data?.requester?.email || data?.email || ""}
-              className="input p-2"
-              readOnly
-            />
-          </div>
-          {/* SLA Policy */}
-          <Dropdown
-            label="SLA Policy"
-            value={updatedTiket?.sla_policy?.id || ""}
-            dataMenus={selections?.sla_policies || []}
-            disabled={data?.status !== "OPEN"}
-            handleChange={(e) =>
-              setUpdatedTiket((prev) => ({
-                ...prev,
-                sla_policy: { id: e.target.value },
-              }))
-            }
-            isRequired={true}
-            initMenu="- Pilih SLA -"
-          />
-          {/* No. Whatsapp */}
-          <div className="flex flex-col gap-2">
-            <label className="text-lg font-semibold">
-              No. Whatsapp <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              value={data?.whatsapp || data?.no_wa || ""}
-              className="input p-2"
-              readOnly
-            />
-          </div>
-          {/* Lampiran */}
-          <div className="flex flex-col gap-2">
-            <label className="text-lg font-semibold">
-              Lampiran <span className="text-red-500">*</span>
-            </label>
-            <div className="input flex flex-col gap-2">
-              {/* Array of attachments */}
-              {Array.isArray(data?.attachments) &&
-              data.attachments.length > 0 ? (
-                data.attachments.map((att) => (
-                  <div key={att.id} className="flex items-center gap-2">
-                    {att.mime_type.startsWith("image/") ? (
-                      <img
-                        src={att.url}
-                        alt={att.name}
-                        style={{ maxWidth: 50, maxHeight: 50 }}
-                      />
-                    ) : null}
-                    <a
-                      href={att.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 underline"
-                    >
-                      {att.name}
-                    </a>
-                    <span className="text-xs text-gray-500">
-                      {Math.round(att.size / 1024)} KB
-                    </span>
-                  </div>
-                ))
-              ) : Array.isArray(data?.lampiran) && data.lampiran.length > 0 ? (
-                data.lampiran.map((name, idx) => (
-                  <div key={idx} className="flex items-center gap-2">
-                    <span>{name}</span>
-                  </div>
-                ))
-              ) : (
-                <span>-</span>
-              )}
+            <div className="flex flex-col gap-2">
+              <label className="text-lg font-semibold">Requester</label>
+              <input
+                type="text"
+                value={
+                  data?.requester?.name ||
+                  data?.fullname ||
+                  data?.nama_requester ||
+                  ""
+                }
+                className="input p-2"
+                readOnly
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="text-lg font-semibold">Nama Divisi</label>
+              <input
+                type="text"
+                value={data?.division?.name || data?.nama_divisi || ""}
+                className="input p-2"
+                readOnly
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="text-lg font-semibold">Email</label>
+              <input
+                type="text"
+                value={data?.requester?.email || data?.email || ""}
+                className="input p-2"
+                readOnly
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="text-lg font-semibold">No. Whatsapp</label>
+              <input
+                type="text"
+                value={data?.whatsapp || data?.no_wa || ""}
+                className="input p-2"
+                readOnly
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="text-lg font-semibold">Lampiran</label>
+              <div className="input flex flex-col gap-2">
+                {Array.isArray(data?.attachments) &&
+                data.attachments.length > 0 ? (
+                  data.attachments.map((att) => (
+                    <div key={att.id} className="flex items-center gap-2">
+                      {att.mime_type?.startsWith("image/") ? (
+                        <img
+                          src={att.url}
+                          alt={att.name}
+                          style={{ maxWidth: 50, maxHeight: 50 }}
+                        />
+                      ) : null}
+                      <a
+                        href={att.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 underline"
+                      >
+                        {att.name}
+                      </a>
+                      <span className="text-xs text-gray-500">
+                        {Math.round(att.size / 1024)} KB
+                      </span>
+                    </div>
+                  ))
+                ) : Array.isArray(data?.lampiran) &&
+                  data.lampiran.length > 0 ? (
+                  data.lampiran.map((name, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <span>{name}</span>
+                    </div>
+                  ))
+                ) : (
+                  <span>-</span>
+                )}
+              </div>
             </div>
           </div>
-          {/* Deskripsi */}
-          <div className="flex flex-col gap-2 row-span-2">
+
+          <div className="col-span-2 flex flex-col gap-2">
             <label className="font-semibold text-sm">
               Deskripsi Tiket<span className="text-red-500">*</span>
             </label>
             <div
-              className="input min-h-30 "
+              className="input min-h-30"
               dangerouslySetInnerHTML={{ __html: data?.description || "" }}
-            ></div>
+            />
           </div>
-
-          {/* button update tiket */}
-          {data?.status === "OPEN" && (
-            <div className="col-span-2">
-              <button
-                type="button"
-                className="bg-sky-500 cursor-pointer p-2 text-white w-full rounded-full mt-6"
-                onClick={() => {
-                  const payload = mapUpdatedTiketToPayload(updatedTiket);
-                  onClickUpdateTiket(payload);
-                }}
-              >
-                Update Tiket
-              </button>
-            </div>
-          )}
         </form>
       </div>
 
-      {/* garis*/}
       <div className="wfull h-[1px] bg-gray-200 " />
 
-      {/* feedback */}
       <div className="flex flex-col gap-2 space-y-2 py-4">
         <label className="text-lg font-semibold">
           Feedback Tiket <span className="text-red-500">*</span>
@@ -473,7 +461,9 @@ export default function TiketDetails({
           Submit
         </button>
       </div>
+
       <div className="wfull h-[3px] bg-gray-200 mb-4" />
+
       {Array.isArray(feedback) &&
         feedback
           .slice()

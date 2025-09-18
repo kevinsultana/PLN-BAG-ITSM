@@ -91,14 +91,6 @@ export default function page() {
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </button>
           </div>
-          {/* <div className="flex justify-end mb-2">
-            <Link
-              href="#"
-              className="text-[#000000] text-sm font-medium hover:underline"
-            >
-              Forgot Password?
-            </Link>
-          </div> */}
           <button
             type="submit"
             className="bg-[#35dbf5] hover:bg-[#4FB3C1] cursor-pointer text-white font-semibold rounded-xl py-3 mt-2 shadow transition text-lg  disabled:cursor-not-allowed flex items-center justify-center gap-2"
@@ -113,9 +105,9 @@ export default function page() {
             <div className="text-red-500 text-sm mt-2 text-center">{error}</div>
           )}
           <div className="flex items-center gap-2 my-2">
-            <hr className="flex-1 border-gray-200" />
-            <span className="text-gray-400 text-sm">or continue</span>
-            <hr className="flex-1 border-gray-200" />
+            <hr className="flex-1 border-white" />
+            <span className="text-white text-sm">or continue</span>
+            <hr className="flex-1 border-white" />
           </div>
           <button
             type="button"
