@@ -255,7 +255,6 @@ export default function EditPrivilegeUserPage() {
         loading: "Saving...",
         success: (res) => {
           setSaving(false);
-          console.log(res.data);
           return "Privileges saved successfully!";
         },
         error: (error) => {
@@ -265,6 +264,7 @@ export default function EditPrivilegeUserPage() {
         },
       }
     );
+    router.back();
   };
 
   const getDataDetailRole = async (id) => {

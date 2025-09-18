@@ -146,8 +146,13 @@ export default function AllListTicketTable({
           : it?.priority ?? "",
       subject: it?.subject ?? "-",
       application: it?.application?.name ?? it?.application ?? "-",
-      assign_team: it?.team?.name ?? it?.assign_team ?? "",
-      requester: it?.fullname || it?.requester?.name || it?.requester || "-",
+      assign_team: (it?.team_group && it.team_group.name) || "",
+      requester:
+        it?.requester?.name ||
+        it?.requester?.fullname ||
+        it?.fullname ||
+        it?.requester ||
+        "-",
       sla_deadline: it?.sla_deadline || "",
       status: it?.status || "-",
       created_at: it?.created_at,

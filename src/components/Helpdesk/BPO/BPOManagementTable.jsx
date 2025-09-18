@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo, useRef, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Table,
   TableBody,
@@ -13,6 +13,8 @@ import {
   TextField,
   InputAdornment,
   IconButton,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import { FaPlus } from "react-icons/fa";
 import { RiSearchLine, RiMore2Fill } from "react-icons/ri";
@@ -50,7 +52,8 @@ export default function BPOManagementTable() {
   const [rowsPerPage] = useState(5);
   const [searchTerm, setSearchTerm] = useState("");
   const [openMenuId, setOpenMenuId] = useState(null);
-  const menuRef = useRef(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [activeRow, setActiveRow] = useState(null);
 
   const handleSort = (property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -59,31 +62,32 @@ export default function BPOManagementTable() {
   };
 
   const handleOpenMenu = (id) => {
-    setOpenMenuId(openMenuId === id ? null : id);
+    // handled by handleOpenMenuWithEvent
+    setOpenMenuId(id);
   };
 
   const handleEdit = (row) => {
     console.log("Edit item:", row);
-    setOpenMenuId(null);
+    handleCloseMenu();
   };
 
   const handleDelete = (row) => {
     console.log("Delete item:", row);
     setBpoData(bpoData.filter((item) => item.no !== row.no));
-    setOpenMenuId(null);
+    handleCloseMenu();
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setOpenMenuId(null);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [menuRef]);
+  const handleOpenMenuWithEvent = (event, row) => {
+    setAnchorEl(event.currentTarget);
+    setActiveRow(row);
+    setOpenMenuId(row.no);
+  };
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+    setActiveRow(null);
+    setOpenMenuId(null);
+  };
 
   const sortedAndFilteredData = useMemo(() => {
     let filteredList = bpoData.filter((item) =>
@@ -165,33 +169,33 @@ export default function BPOManagementTable() {
                 <TableCell>{row.namaManager}</TableCell>
                 <TableCell>{row.namaBPO}</TableCell>
                 <TableCell>{row.divisi}</TableCell>
-                <TableCell className="relative" ref={menuRef}>
-                  <IconButton onClick={() => handleOpenMenu(row.no)}>
+                <TableCell>
+                  <IconButton onClick={(e) => handleOpenMenuWithEvent(e, row)}>
                     <RiMore2Fill />
                   </IconButton>
-                  {openMenuId === row.no && (
-                    <div className="absolute right-38 -translate-y-1/2 w-32 bg-white rounded-md shadow-lg border border-gray-200 z-10">
-                      <ul className="py-1">
-                        <li
-                          onClick={() => handleEdit(row)}
-                          className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                        >
-                          Edit
-                        </li>
-                        <li
-                          onClick={() => handleDelete(row)}
-                          className="px-4 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
-                        >
-                          Delete
-                        </li>
-                      </ul>
-                    </div>
-                  )}
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
+        {/* MUI Menu for row actions */}
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleCloseMenu}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          transformOrigin={{ vertical: "top", horizontal: "right" }}
+        >
+          <MenuItem onClick={() => activeRow && handleEdit(activeRow)}>
+            Edit
+          </MenuItem>
+          <MenuItem
+            onClick={() => activeRow && handleDelete(activeRow)}
+            sx={{ color: "error.main" }}
+          >
+            Delete
+          </MenuItem>
+        </Menu>
         <div className="flex items-center justify-between px-4 py-3">
           <div className="text-sm text-gray-600">
             Page <span className="font-medium">{page}</span> of{" "}

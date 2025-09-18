@@ -73,7 +73,8 @@ export default function ListTicketTable({
         ? new Date(item.created_at).toLocaleString("id-ID")
         : "",
       status: item.status,
-      raw: item, // keep original for row click
+      ticket_code: item.ticket_code || "-",
+      raw: item,
     }));
   }, [dataTiket]);
 

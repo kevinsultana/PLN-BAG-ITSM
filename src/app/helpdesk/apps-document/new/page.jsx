@@ -13,14 +13,22 @@ export default function Page() {
 
   const handleSubmit = async (form) => {
     try {
-      const formData = new FormData();
-      formData.append("files", form.file_url);
-      const res = await PostProxyUrl.post("/attachments", formData);
+      if (form.file_url === null) {
+        // tidak perlu upload gambar
+        await ProxyUrl.post("/docs", {
+          ...form,
+          attachment_ids: [],
+        });
+      } else {
+        const formData = new FormData();
+        formData.append("files", form.file_url);
+        const res = await PostProxyUrl.post("/attachments", formData);
 
-      await ProxyUrl.post("/docs", {
-        ...form,
-        attachment_ids: [res.data.data[0].id],
-      });
+        await ProxyUrl.post("/docs", {
+          ...form,
+          attachment_ids: [res?.data.data[0].id],
+        });
+      }
       router.back();
       toast.success("Dokumen berhasil dibuat!", {
         description: `Dokumen "${form.title}" telah berhasil ditambahkan.`,

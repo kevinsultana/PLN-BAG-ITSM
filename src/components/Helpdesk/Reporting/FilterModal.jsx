@@ -13,7 +13,7 @@ export default function FilterModal({ isOpen, onClose, onClickApply }) {
   });
 
   const dataKategori = [
-    { name: "Tipe", value: "type" },
+    { name: "Tipe Tiket", value: "type" },
     { name: "SLA Policy", value: "sla_policy" },
     { name: "Team", value: "team" },
     { name: "Aplikasi", value: "application" },

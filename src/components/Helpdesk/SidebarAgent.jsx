@@ -248,6 +248,18 @@ export default function SidebarAgent({ show }) {
               </li>
               <li>
                 <Link
+                  href="/helpdesk/config/agent-management"
+                  className={getLinkClassName([
+                    "/helpdesk/config/agent-management",
+                    "/helpdesk/config/agent-management/new",
+                    "/helpdesk/config/agent-management/edit/[id]",
+                  ])}
+                >
+                  Agent Management
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/helpdesk/config/tiket-status"
                   className={getLinkClassName([
                     "/helpdesk/config/tiket-status",

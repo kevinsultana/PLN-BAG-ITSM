@@ -44,13 +44,11 @@ export default function EditApplicationPage() {
       const formData = new FormData();
       formData.append("files", form.file_url);
       const res = await PostProxyUrl.post("/attachments", formData);
-      console.log(res.data.data[0].url);
       const newForm = {
         ...form,
         attachment_ids: [res.data.data[0].id],
       };
       const resp = await ProxyUrl.put(`/docs/${id}`, newForm);
-      console.log(resp);
       router.back();
       toast.success("Dokumen berhasil diperbarui", {
         description: `Dokumen "${form.title}" telah berhasil diperbarui.`,

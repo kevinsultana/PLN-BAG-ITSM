@@ -4,6 +4,7 @@ import AppDocumentTable from "@/components/Helpdesk/AppDocument/AppDocumentTable
 import HelpdeskLayout from "@/components/Helpdesk/layout/HelpdeskLayout";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function Page() {
   const [data, setData] = useState([]);
@@ -21,7 +22,11 @@ export default function Page() {
 
   const handleDelete = async (row) => {
     try {
-      await ProxyUrl.delete(`/docs/${row.ID}`);
+      await ProxyUrl.delete(`/docs/${row.id}`);
+      toast.success("Dokumen berhasil dihapus!", {
+        description: `Dokumen "${row.title}" telah berhasil dihapus.`,
+        duration: 3000,
+      });
       getData();
     } catch (error) {
       console.error("Error deleting document:", error);

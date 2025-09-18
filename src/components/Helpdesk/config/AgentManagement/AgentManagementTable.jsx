@@ -12,43 +12,67 @@ import {
   Pagination,
   TextField,
   InputAdornment,
-  CircularProgress,
   IconButton,
-  Menu,
-  MenuItem,
+  CircularProgress,
 } from "@mui/material";
+import { Menu, MenuItem } from "@mui/material";
 import { FaPlus } from "react-icons/fa";
-import { RiMore2Fill, RiSearchLine } from "react-icons/ri";
+import { RiSearchLine, RiMore2Fill } from "react-icons/ri";
+
+const initialTicketStatus = [];
 
 const columns = [
   { label: "No.", key: "no" },
-  { label: "Nama", key: "name" },
-  { label: "Deskripsi", key: "description" },
-  { label: "Email", key: "is_email" },
-  { label: "Auto Assign", key: "is_autoassign" },
-  { label: "Jumlah Anggota", key: "team_count" },
-  { label: "Aksi", key: "actions" },
+  { label: "Nama", key: "fullname" },
+  { label: "Email", key: "email" },
+  { label: "Role", key: "role_name" },
+  { label: "Status", key: "is_active" },
+  { label: "Aksi", key: "aksi", disableSorting: true },
 ];
 
-export default function TeamMemberTable({
-  onClickNew,
-  data = [],
-  loading,
+export default function AgentManagementTable({
+  data,
+  onClickNewAgent,
   onClickEdit,
   onClickDelete,
+  loading,
 }) {
-  const [teamMembers, setTeamMembers] = useState(data);
+  const mappedData = useMemo(() => {
+    if (!data || !Array.isArray(data)) return initialTicketStatus;
+    return data.map((item, idx) => ({
+      no: idx + 1,
+      ...item,
+    }));
+  }, [data]);
+
+  const [ticketStatus, setTicketStatus] = useState(mappedData);
+  const [orderBy, setOrderBy] = useState("no");
+  const [order, setOrder] = useState("asc");
   const [page, setPage] = useState(1);
   const [rowsPerPage] = useState(5);
   const [searchTerm, setSearchTerm] = useState("");
-  const [orderBy, setOrderBy] = useState("name");
-  const [order, setOrder] = useState("asc");
   const [anchorEl, setAnchorEl] = useState(null);
   const [activeRow, setActiveRow] = useState(null);
+
+  const handleSort = (property) => {
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
+    setOrderBy(property);
+  };
 
   const handleOpenMenu = (event, row) => {
     setAnchorEl(event.currentTarget);
     setActiveRow(row);
+  };
+
+  const handleEdit = (row) => {
+    if (onClickEdit) onClickEdit(row.id);
+    handleCloseMenu();
+  };
+
+  const handleDelete = (row) => {
+    if (onClickDelete) onClickDelete(row);
+    handleCloseMenu();
   };
 
   const handleCloseMenu = () => {
@@ -57,60 +81,41 @@ export default function TeamMemberTable({
   };
 
   useEffect(() => {
-    setTeamMembers(data);
-  }, [data]);
+    setTicketStatus(mappedData);
+  }, [mappedData]);
 
-  // Sorting handler
-  const handleSort = (columnKey) => {
-    if (orderBy === columnKey) {
-      setOrder(order === "asc" ? "desc" : "asc");
-    } else {
-      setOrderBy(columnKey);
-      setOrder("asc");
-    }
-  };
-
-  const sortedAndFilteredMembers = useMemo(() => {
-    let filteredList = teamMembers.filter((member) =>
-      Object.values(member).some((value) =>
+  const sortedAndFilteredStatus = useMemo(() => {
+    let filteredList = ticketStatus.filter((status) =>
+      Object.values(status).some((value) =>
         String(value).toLowerCase().includes(searchTerm.toLowerCase())
       )
     );
-    // Sorting
-    if (orderBy && orderBy !== "no") {
-      filteredList = [...filteredList].sort((a, b) => {
-        let aValue = a[orderBy];
-        let bValue = b[orderBy];
-        // For boolean columns, sort false before true
-        if (typeof aValue === "boolean" && typeof bValue === "boolean") {
-          return order === "asc" ? aValue - bValue : bValue - aValue;
-        }
-        // For string columns
-        aValue = aValue ? aValue.toString().toLowerCase() : "";
-        bValue = bValue ? bValue.toString().toLowerCase() : "";
-        if (aValue < bValue) return order === "asc" ? -1 : 1;
-        if (aValue > bValue) return order === "asc" ? 1 : -1;
-        return 0;
-      });
-    }
-    return filteredList;
-  }, [teamMembers, searchTerm, orderBy, order]);
 
-  const paginatedMembers = useMemo(() => {
+    return filteredList.sort((a, b) => {
+      const aValue = a[orderBy];
+      const bValue = b[orderBy];
+
+      if (aValue < bValue) return order === "asc" ? -1 : 1;
+      if (aValue > bValue) return order === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [ticketStatus, orderBy, order, searchTerm]);
+
+  const paginatedStatus = useMemo(() => {
     const start = (page - 1) * rowsPerPage;
-    return sortedAndFilteredMembers.slice(start, start + rowsPerPage);
-  }, [sortedAndFilteredMembers, page, rowsPerPage]);
+    return sortedAndFilteredStatus.slice(start, start + rowsPerPage);
+  }, [sortedAndFilteredStatus, page, rowsPerPage]);
 
-  const totalPages = Math.ceil(sortedAndFilteredMembers.length / rowsPerPage);
+  const totalPages = Math.ceil(sortedAndFilteredStatus.length / rowsPerPage);
 
   return (
     <div className="p-6 mt-4 bg-white rounded-2xl border border-gray-200">
       <div className="flex flex-col gap-4 mb-4">
-        <h2 className="text-xl font-bold">Team Member</h2>
+        <h2 className="text-xl font-bold">Agent Management</h2>
         <div className="flex justify-between items-center gap-4">
           <button
-            onClick={onClickNew}
-            className="flex items-center gap-2 px-4 py-2.5 bg-[#65C7D5] text-white rounded-2xl text-sm hover:opacity-90"
+            onClick={onClickNewAgent}
+            className="flex items-center gap-2 px-4 py-2.5 bg-[#65C7D5] text-white rounded-2xl text-sm hover:opacity-90 cursor-pointer"
           >
             <FaPlus />
             <span>New</span>
@@ -140,8 +145,11 @@ export default function TeamMemberTable({
           <TableHead>
             <TableRow className="bg-gray-50">
               {columns.map((column) => (
-                <TableCell key={column.key}>
-                  {column.key === "no" ? (
+                <TableCell
+                  key={column.key}
+                  sortDirection={orderBy === column.key ? order : false}
+                >
+                  {column.disableSorting ? (
                     column.label
                   ) : (
                     <TableSortLabel
@@ -157,45 +165,40 @@ export default function TeamMemberTable({
             </TableRow>
           </TableHead>
           <TableBody>
-            {loading && (
+            {loading ? (
               <TableRow>
                 <TableCell colSpan={columns.length} align="center">
                   <CircularProgress />
                 </TableCell>
               </TableRow>
+            ) : (
+              paginatedStatus.map((row) => (
+                <TableRow key={row.id || row.no} hover>
+                  <TableCell>{row.no}</TableCell>
+                  <TableCell>{row.fullname}</TableCell>
+                  <TableCell>{row.email}</TableCell>
+                  <TableCell>{row.role_name}</TableCell>
+                  <TableCell>
+                    <span
+                      className={
+                        row.is_active ? "text-green-600" : "text-red-600"
+                      }
+                    >
+                      {row.is_active ? "Aktif" : "Nonaktif"}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <IconButton onClick={(e) => handleOpenMenu(e, row)}>
+                      <RiMore2Fill />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))
             )}
-            {!loading && paginatedMembers.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={columns.length} align="center">
-                  <h1>Tidak Ada Data</h1>
-                </TableCell>
-              </TableRow>
-            )}
-            {paginatedMembers.map((row, idx) => (
-              <TableRow key={row.id || idx} hover>
-                <TableCell>{(page - 1) * rowsPerPage + idx + 1}</TableCell>
-                <TableCell>{row.name}</TableCell>
-                <TableCell>
-                  <span dangerouslySetInnerHTML={{ __html: row.description }} />
-                </TableCell>
-                <TableCell>{row.is_email ? "Ya" : "Tidak"}</TableCell>
-                <TableCell>{row.is_autoassign ? "Ya" : "Tidak"}</TableCell>
-                <TableCell>{row.team_count}</TableCell>
-                <TableCell>
-                  <IconButton
-                    onClick={(e) => handleOpenMenu(e, row)}
-                    aria-controls={anchorEl ? "team-member-actions" : undefined}
-                    aria-haspopup="true"
-                  >
-                    <RiMore2Fill />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
           </TableBody>
         </Table>
         <Menu
-          id="team-member-actions"
+          id="agent-management-actions"
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
           onClose={handleCloseMenu}
@@ -204,8 +207,7 @@ export default function TeamMemberTable({
         >
           <MenuItem
             onClick={() => {
-              if (typeof onClickEdit === "function") onClickEdit(activeRow);
-              handleCloseMenu();
+              if (activeRow) handleEdit(activeRow);
             }}
           >
             Edit
@@ -213,13 +215,13 @@ export default function TeamMemberTable({
           <MenuItem
             sx={{ color: "red" }}
             onClick={() => {
-              if (typeof onClickDelete === "function") onClickDelete(activeRow);
-              handleCloseMenu();
+              if (activeRow) handleDelete(activeRow);
             }}
           >
             Delete
           </MenuItem>
         </Menu>
+
         <div className="flex items-center justify-between px-4 py-3">
           <div className="text-sm text-gray-600">
             Page <span className="font-medium">{page}</span> of{" "}

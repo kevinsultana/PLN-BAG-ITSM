@@ -1,43 +1,47 @@
 "use client";
 import { ProxyUrl } from "@/api/BaseUrl";
-import HelpdeskInfoTable from "@/components/Helpdesk/config/HelpdeskInfo/HelpdeskInfoTable";
+import AgentManagementTable from "@/components/Helpdesk/config/AgentManagement/AgentManagementTable";
 import HelpdeskLayout from "@/components/Helpdesk/layout/HelpdeskLayout";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 export default function Page() {
-  const [data, setData] = useState({});
+  const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleNewInfo = () => {
-    router.push("/helpdesk/config/helpdesk-info/edit");
+  const handleNewAgent = () => {
+    router.push("/helpdesk/config/agent-management/new");
   };
 
-  const getDataHelpdeskInfo = async () => {
+  const getDataAgent = async () => {
     setLoading(true);
     try {
-      const res = await ProxyUrl.get("/helpdesk-info");
-      setData(res.data.data || {});
+      const res = await ProxyUrl.get("/teams");
+      const agents = res.data.data || [];
+      setData(agents);
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching agents data:", error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    getDataHelpdeskInfo();
+    getDataAgent();
   }, []);
 
   return (
     <div className="bg-slate-100 h-full">
       <HelpdeskLayout>
         <h1 className="text-2xl font-bold">Konfigurasi</h1>
-        <HelpdeskInfoTable
+        <AgentManagementTable
           data={data}
-          onClickNewInfo={handleNewInfo}
+          onClickNewAgent={handleNewAgent}
           loading={loading}
+          onClickEdit={(id) =>
+            router.push(`/helpdesk/config/agent-management/edit/${id}`)
+          }
         />
       </HelpdeskLayout>
     </div>

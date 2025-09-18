@@ -79,24 +79,27 @@ export default function Page() {
       getDataFeedback();
     } catch (error) {
       console.error("Error submitting feedback:", error);
-      toast.error("Failed to submit feedback");
     }
   };
 
   const handleUpdateTiket = async (updatedData) => {
-    console.log(updatedData);
-    // try {
-    //   const res = await ProxyUrl.put(`/tickets/${ticketNo}`, updatedData);
-    //   if (res.data.status === "success") {
-    //     getDataTicket();
-    //     toast.success("Ticket updated successfully");
-    //   } else {
-    //     throw new Error(res.data.message || "Failed to update ticket");
-    //   }
-    // } catch (error) {
-    //   console.error("Error updating ticket:", error);
-    //   toast.error("Failed to update ticket");
-    // }
+    try {
+      toast.promise(ProxyUrl.put(`/tickets/${ticketNo}`, updatedData), {
+        loading: `Menyimpan perubahan tiket...`,
+        success: `Tiket berhasil diperbarui`,
+        error: ({ error }) => (
+          <div>
+            <b>Gagal memperbarui tiket</b>
+            <div className="text-sm text-red-600">
+              {error?.message || "Terjadi kesalahan saat memperbarui tiket."}
+            </div>
+          </div>
+        ),
+      });
+      await getDataTicket();
+    } catch (error) {
+      console.error("Error updating ticket:", error);
+    }
   };
 
   return (
