@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
-// const BACKEND_URL = "https://itsm-helpdesk-be.unotek.co.id";
-const BACKEND_URL = "http://localhost:8080";
+const BACKEND_URL = "https://itsm-helpdesk-be.unotek.co.id";
+// const BACKEND_URL = "http://localhost:8080";
 
 async function handler(req) {
   const { pathname, search } = new URL(req.url);
