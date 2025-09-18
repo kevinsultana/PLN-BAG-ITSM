@@ -10,7 +10,6 @@ export default function Page() {
   const router = useRouter();
 
   const handleSubmit = async (data) => {
-    // console.log("Form submitted with data:", data);
     toast.loading("Membuat agen...");
     try {
       const res = await ProxyUrl.post("/teams", data);

@@ -76,7 +76,6 @@ export default function DetailTicketForm({
     if (!validate()) return;
     const formData = new FormData();
     Object.entries(form).forEach(([key, val]) => formData.append(key, val));
-    console.log("Submitted Data:", Object.fromEntries(formData.entries()));
     alert("Tiket berhasil dikirim!");
   };
 

@@ -3,6 +3,7 @@ import CKEditorWrapper from "@/components/CKEditorWrapper";
 import Dropdown from "@/components/Dropdown";
 import PriorityDropdown from "@/components/PriorityDropdown";
 import renderDescription from "@/utils/RenderDesc";
+import { FormControl, MenuItem, Select } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import { FaCircleStop } from "react-icons/fa6";
 import { HiPlay } from "react-icons/hi";
@@ -69,10 +70,10 @@ export default function TiketDetails({
 
   const [assignedTo, setAssignedTo] = useState([]);
 
-  const getDataAssignedTo = async () => {
+  const getDataAssignedTo = async (id) => {
     try {
       const response = await ProxyUrl.get("/tickets/assign-to", {
-        params: { team_group_id: updatedTiket?.team_group?.id || "" },
+        params: { team_group_id: id },
       });
       const data = response.data.data.teams || [];
       setAssignedTo(data);
@@ -82,12 +83,10 @@ export default function TiketDetails({
   };
 
   useEffect(() => {
-    if (updatedTiket?.team_group?.id) {
-      getDataAssignedTo();
-      setUpdatedTiket((prev) => ({
-        ...prev,
-        assign_to: "",
-      }));
+    const teamId = updatedTiket?.team_group?.id || "";
+    if (teamId) {
+      getDataAssignedTo(teamId);
+      setUpdatedTiket((prev) => ({ ...prev, assign_to: "" }));
     }
   }, [updatedTiket?.team_group?.id]);
 
@@ -227,22 +226,34 @@ export default function TiketDetails({
               initMenu="- Pilih Team -"
             />
 
-            <Dropdown
-              label="Assigned To"
-              value={updatedTiket?.assign_to?.id || ""}
-              dataMenus={
-                assignedTo.length > 0 ? assignedTo : selections?.users || []
-              }
-              disabled={data?.status !== "OPEN"}
-              handleChange={(e) =>
-                setUpdatedTiket((prev) => ({
-                  ...prev,
-                  assign_to: { id: e.target.value },
-                }))
-              }
-              isRequired={true}
-              initMenu="- Pilih Assigned To -"
-            />
+            <div className="flex flex-col gap-2">
+              <label className="font-semibold text-sm">
+                Assigned to<span className="text-red-500">*</span>
+              </label>
+              <FormControl fullWidth size="small">
+                <Select
+                  name="assigned_to"
+                  value={updatedTiket?.assign_to?.id || ""}
+                  onChange={(e) =>
+                    setUpdatedTiket((prev) => ({
+                      ...prev,
+                      assign_to: { id: e.target.value },
+                    }))
+                  }
+                  displayEmpty
+                  sx={{ backgroundColor: "white", borderRadius: 2 }}
+                >
+                  <MenuItem value="">
+                    <em>Pilih User</em>
+                  </MenuItem>
+                  {assignedTo.map((user) => (
+                    <MenuItem key={user.id} value={String(user.id ?? "")}>
+                      {user.fullname}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
 
             <PriorityDropdown
               label="Priority"

@@ -33,7 +33,6 @@ export default function Page() {
   }, []);
 
   const handleApplyFilter = async (filters) => {
-    console.log("Applied Filters:", filters);
     try {
       const res = await ProxyUrl.get(
         "/reports/tickets/analysis?category=" +

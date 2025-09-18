@@ -21,7 +21,6 @@ export default function Page() {
   };
 
   const handleDelete = async (row) => {
-    // console.log(row);
     try {
       await ProxyUrl.delete(`/docs/${row.id}`);
       toast.success("Dokumen berhasil dihapus!", {

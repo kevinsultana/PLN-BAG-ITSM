@@ -7,7 +7,7 @@ import { PostProxyUrl, ProxyUrl } from "@/api/BaseUrl";
 
 export default function CreateTicketForm({ onSubmit }) {
   const [form, setForm] = useState({
-    team_id: "",
+    team_group_id: "",
     application_id: "",
     assigned_to: "",
     user_id: "",
@@ -38,6 +38,13 @@ export default function CreateTicketForm({ onSubmit }) {
   const [dataUsers, setDataUsers] = useState([]);
   const [assignedTo, setAssignedTo] = useState([]);
 
+  const normalizeSelectValue = (value, options, idKey = "id") => {
+    if (!value) return "";
+    const stringVal = String(value);
+    const exists = options.some((o) => String(o[idKey] ?? "") === stringVal);
+    return exists ? stringVal : "";
+  };
+
   const getDataAllSelections = async () => {
     try {
       const res = await ProxyUrl.get("/tickets/selections");
@@ -66,10 +73,11 @@ export default function CreateTicketForm({ onSubmit }) {
   };
 
   useEffect(() => {
-    if (form.team_id) {
-      getDataAssignedTo(form.team_id);
+    if (form.team_group_id) {
+      getDataAssignedTo(form.team_group_id);
     }
-  }, [form.team_id]);
+    setForm((prev) => ({ ...prev, assigned_to: "" }));
+  }, [form.team_group_id]);
 
   useEffect(() => {
     getDataAllSelections();
@@ -154,7 +162,7 @@ export default function CreateTicketForm({ onSubmit }) {
 
   const validate = () => {
     const newErrors = {};
-    if (!form.team_id) newErrors.team_id = true;
+    if (!form.team_group_id) newErrors.team_group_id = true;
     if (!form.application_id) newErrors.application_id = true;
     if (!String(form.assigned_to || "").trim()) newErrors.assigned_to = true;
     if (!String(form.user_id || "").trim()) newErrors.user_id = true;
@@ -228,10 +236,10 @@ export default function CreateTicketForm({ onSubmit }) {
           <label className="font-semibold text-sm">
             Team<span className="text-red-500">*</span>
           </label>
-          <FormControl fullWidth size="small" error={!!errors.team_id}>
+          <FormControl fullWidth size="small" error={!!errors.team_group_id}>
             <Select
-              name="team_id"
-              value={form.team_id}
+              name="team_group_id"
+              value={form.team_group_id}
               onChange={handleChange}
               displayEmpty
               sx={{ backgroundColor: "white", borderRadius: 2 }}
@@ -281,7 +289,7 @@ export default function CreateTicketForm({ onSubmit }) {
           <FormControl fullWidth size="small" error={!!errors.assigned_to}>
             <Select
               name="assigned_to"
-              value={form.assigned_to}
+              value={normalizeSelectValue(form.assigned_to, assignedTo, "id")}
               onChange={handleChange}
               displayEmpty
               sx={{ backgroundColor: "white", borderRadius: 2 }}
@@ -291,7 +299,7 @@ export default function CreateTicketForm({ onSubmit }) {
               </MenuItem>
               {assignedTo.map((user) => (
                 <MenuItem key={user.id} value={String(user.id ?? "")}>
-                  {user.name}
+                  {user.fullname}
                 </MenuItem>
               ))}
             </Select>
@@ -306,7 +314,7 @@ export default function CreateTicketForm({ onSubmit }) {
           <FormControl fullWidth size="small" error={!!errors.user_id}>
             <Select
               name="user_id"
-              value={form.user_id}
+              value={normalizeSelectValue(form.user_id, dataUsers, "id")}
               onChange={handleChange}
               displayEmpty
               sx={{ backgroundColor: "white", borderRadius: 2 }}
