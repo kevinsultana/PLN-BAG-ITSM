@@ -1,9 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { toast } from "sonner";
-import { ProxyUrl } from "@/api/BaseUrl";
+// Parent will handle submit and cancel
 
-export default function EditHelpdeskInfoForm({ data }) {
+export default function EditHelpdeskInfoForm({ data, onSubmit, onCancel }) {
   const [form, setForm] = useState({
     email: "",
     whatsapp: "",
@@ -58,37 +57,15 @@ export default function EditHelpdeskInfoForm({ data }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // if (!validate()) {
-    //   toast.error("Lengkapi data di bawah ini", {
-    //     description: "Silahkan lengkapi semua field yang ditandai (*).",
-    //   });
-    //   return;
-    // }
+    // if (!validate()) return;
 
     const payload = { ...form };
 
-    const req = ProxyUrl.put("/helpdesk-info", payload);
-
-    toast.promise(req, {
-      loading: "Menyimpan helpdesk info...",
-      success: "Helpdesk Info berhasil disimpan",
-      error: ({ error }) => (
-        <div>
-          <b>Gagal menyimpan</b>
-          <div className="text-sm text-red-600">
-            {error?.message || "Terjadi kesalahan"}
-          </div>
-        </div>
-      ),
-    });
-
-    req
-      .then(() => {
-        // optional: additional actions after success, e.g. refresh or close modal
-      })
-      .catch((err) => {
-        console.error("Save error:", err);
-      });
+    if (typeof onSubmit === "function") {
+      onSubmit(payload);
+    } else {
+      console.warn("EditHelpdeskInfoForm: onSubmit prop not provided");
+    }
   };
 
   return (
@@ -239,7 +216,13 @@ export default function EditHelpdeskInfoForm({ data }) {
           <button
             type="button"
             className="px-6 py-2 rounded-lg text-gray-700 bg-gray-200 hover:bg-gray-300 transition"
-            onClick={() => console.log("Cancel")}
+            onClick={() => {
+              if (typeof onCancel === "function") onCancel();
+              else
+                console.warn(
+                  "EditHelpdeskInfoForm: onCancel prop not provided"
+                );
+            }}
           >
             Cancel
           </button>

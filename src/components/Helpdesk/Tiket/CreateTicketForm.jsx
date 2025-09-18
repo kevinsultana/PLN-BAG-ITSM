@@ -1,8 +1,7 @@
 "use client";
-import React, { use, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import CKEditorWrapper from "@/components/CKEditorWrapper";
 import { toast } from "sonner";
-import { FaExternalLinkAlt } from "react-icons/fa";
 import { FormControl, Select, MenuItem } from "@mui/material";
 import { PostProxyUrl, ProxyUrl } from "@/api/BaseUrl";
 

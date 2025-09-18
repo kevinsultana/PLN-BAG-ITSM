@@ -7,6 +7,7 @@ import React, { useEffect, useState } from "react";
 
 export default function Page() {
   const [data, setData] = useState({});
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleNewInfo = () => {
@@ -14,11 +15,14 @@ export default function Page() {
   };
 
   const getDataHelpdeskInfo = async () => {
+    setLoading(true);
     try {
       const res = await ProxyUrl.get("/helpdesk-info");
       setData(res.data.data || {});
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -30,7 +34,11 @@ export default function Page() {
     <div className="bg-slate-100 h-full">
       <HelpdeskLayout>
         <h1 className="text-2xl font-bold">Konfigurasi</h1>
-        <HelpdeskInfoTable data={data} onClickNewInfo={handleNewInfo} />
+        <HelpdeskInfoTable
+          data={data}
+          onClickNewInfo={handleNewInfo}
+          loading={loading}
+        />
       </HelpdeskLayout>
     </div>
   );

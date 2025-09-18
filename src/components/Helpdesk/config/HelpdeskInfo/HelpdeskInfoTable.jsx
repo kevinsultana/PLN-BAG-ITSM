@@ -12,6 +12,7 @@ import {
   Pagination,
   TextField,
   InputAdornment,
+  CircularProgress,
 } from "@mui/material";
 import { RiSearchLine } from "react-icons/ri";
 import { FaPencil } from "react-icons/fa6";
@@ -106,7 +107,7 @@ const columns = [
   { label: "Informasi Akun", key: "informasiAkun" },
 ];
 
-export default function HelpdeskInfoTable({ onClickNewInfo, data }) {
+export default function HelpdeskInfoTable({ onClickNewInfo, data, loading }) {
   const [helpdeskInfo, setHelpdeskInfo] = useState(() => mapApiToRows(data));
   const [orderBy, setOrderBy] = useState("no");
   const [order, setOrder] = useState("asc");
@@ -205,6 +206,21 @@ export default function HelpdeskInfoTable({ onClickNewInfo, data }) {
             </TableRow>
           </TableHead>
           <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={columns.length} align="center">
+                  <CircularProgress />
+                </TableCell>
+              </TableRow>
+            ) : paginatedInfo.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={columns.length} align="center">
+                  Tidak Ada Data
+                </TableCell>
+              </TableRow>
+            ) : (
+              ""
+            )}
             {paginatedInfo.map((row) => (
               <TableRow key={row.no} hover>
                 <TableCell>{row.no}</TableCell>
