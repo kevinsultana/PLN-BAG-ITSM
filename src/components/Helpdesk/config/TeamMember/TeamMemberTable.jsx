@@ -219,6 +219,7 @@ export default function TeamMemberTable({
             Edit
           </MenuItem>
           <MenuItem
+            sx={{ color: "red" }}
             onClick={() => {
               if (typeof onClickDelete === "function") onClickDelete(activeRow);
               handleCloseMenu();

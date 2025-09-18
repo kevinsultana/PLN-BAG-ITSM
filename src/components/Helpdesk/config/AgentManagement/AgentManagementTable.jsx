@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo, useRef, useEffect } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -15,6 +15,7 @@ import {
   IconButton,
   CircularProgress,
 } from "@mui/material";
+import { Menu, MenuItem } from "@mui/material";
 import { FaPlus } from "react-icons/fa";
 import { RiSearchLine, RiMore2Fill } from "react-icons/ri";
 
@@ -36,7 +37,6 @@ export default function AgentManagementTable({
   onClickDelete,
   loading,
 }) {
-  // Map API data to table format with no
   const mappedData = useMemo(() => {
     if (!data || !Array.isArray(data)) return initialTicketStatus;
     return data.map((item, idx) => ({
@@ -51,8 +51,8 @@ export default function AgentManagementTable({
   const [page, setPage] = useState(1);
   const [rowsPerPage] = useState(5);
   const [searchTerm, setSearchTerm] = useState("");
-  const [openMenuId, setOpenMenuId] = useState(null);
-  const menuRef = useRef(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [activeRow, setActiveRow] = useState(null);
 
   const handleSort = (property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -60,35 +60,29 @@ export default function AgentManagementTable({
     setOrderBy(property);
   };
 
-  const handleOpenMenu = (id) => {
-    setOpenMenuId(openMenuId === id ? null : id);
+  const handleOpenMenu = (event, row) => {
+    setAnchorEl(event.currentTarget);
+    setActiveRow(row);
   };
 
   const handleEdit = (row) => {
     if (onClickEdit) onClickEdit(row.id);
-    setOpenMenuId(null);
+    handleCloseMenu();
   };
 
   const handleDelete = (row) => {
     if (onClickDelete) onClickDelete(row);
-    setOpenMenuId(null);
+    handleCloseMenu();
+  };
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+    setActiveRow(null);
   };
 
   useEffect(() => {
     setTicketStatus(mappedData);
   }, [mappedData]);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setOpenMenuId(null);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
 
   const sortedAndFilteredStatus = useMemo(() => {
     let filteredList = ticketStatus.filter((status) =>
@@ -193,37 +187,41 @@ export default function AgentManagementTable({
                       {row.is_active ? "Aktif" : "Nonaktif"}
                     </span>
                   </TableCell>
-                  <TableCell className="relative">
-                    <IconButton onClick={() => handleOpenMenu(row.no)}>
+                  <TableCell>
+                    <IconButton onClick={(e) => handleOpenMenu(e, row)}>
                       <RiMore2Fill />
                     </IconButton>
-                    {openMenuId === row.no && (
-                      <div
-                        className="absolute right-8 top-1/2 -translate-y-1/2 w-32 bg-white rounded-md shadow-lg border border-gray-200 z-10"
-                        ref={menuRef}
-                      >
-                        <ul className="py-1">
-                          <li
-                            onClick={() => handleEdit(row)}
-                            className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                          >
-                            Edit
-                          </li>
-                          <li
-                            onClick={() => handleDelete(row)}
-                            className="px-4 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
-                          >
-                            Delete
-                          </li>
-                        </ul>
-                      </div>
-                    )}
                   </TableCell>
                 </TableRow>
               ))
             )}
           </TableBody>
         </Table>
+        <Menu
+          id="agent-management-actions"
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleCloseMenu}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          transformOrigin={{ vertical: "top", horizontal: "right" }}
+        >
+          <MenuItem
+            onClick={() => {
+              if (activeRow) handleEdit(activeRow);
+            }}
+          >
+            Edit
+          </MenuItem>
+          <MenuItem
+            sx={{ color: "red" }}
+            onClick={() => {
+              if (activeRow) handleDelete(activeRow);
+            }}
+          >
+            Delete
+          </MenuItem>
+        </Menu>
+
         <div className="flex items-center justify-between px-4 py-3">
           <div className="text-sm text-gray-600">
             Page <span className="font-medium">{page}</span> of{" "}
