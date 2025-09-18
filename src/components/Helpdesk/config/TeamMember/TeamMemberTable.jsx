@@ -18,7 +18,7 @@ import {
   MenuItem,
 } from "@mui/material";
 import { FaPlus } from "react-icons/fa";
-import { RiSearchLine } from "react-icons/ri";
+import { RiMore2Fill, RiSearchLine } from "react-icons/ri";
 
 const columns = [
   { label: "No.", key: "no" },
@@ -183,19 +183,11 @@ export default function TeamMemberTable({
                 <TableCell>{row.team_count}</TableCell>
                 <TableCell>
                   <IconButton
-                    size="small"
                     onClick={(e) => handleOpenMenu(e, row)}
                     aria-controls={anchorEl ? "team-member-actions" : undefined}
                     aria-haspopup="true"
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 text-gray-600"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM18 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
+                    <RiMore2Fill />
                   </IconButton>
                 </TableCell>
               </TableRow>
