@@ -4,6 +4,7 @@ import TeamMemberTable from "@/components/Helpdesk/config/TeamMember/TeamMemberT
 import HelpdeskLayout from "@/components/Helpdesk/layout/HelpdeskLayout";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function Page() {
   const [data, setData] = useState([]);
@@ -30,6 +31,23 @@ export default function Page() {
     getData();
   }, []);
 
+  const handleDelete = async (data) => {
+    const toastId = toast.loading("Menghapus Team Member...");
+    try {
+      const res = await ProxyUrl.delete(`/team-groups/${data.id}`);
+      toast.success("Berhasil menghapus Team Member");
+    } catch (error) {
+      console.log(error);
+    } finally {
+      toast.dismiss(toastId);
+      getData();
+    }
+  };
+
+  const handleEdit = (data) => {
+    router.push(`/helpdesk/config/team-member/edit/${data.id}`);
+  };
+
   return (
     <div className="bg-slate-100 h-full">
       <HelpdeskLayout>
@@ -38,6 +56,8 @@ export default function Page() {
           data={data}
           onClickNew={handleNewTeamMember}
           loading={loading}
+          onClickDelete={handleDelete}
+          onClickEdit={handleEdit}
         />
       </HelpdeskLayout>
     </div>

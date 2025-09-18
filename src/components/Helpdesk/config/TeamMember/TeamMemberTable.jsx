@@ -13,6 +13,9 @@ import {
   TextField,
   InputAdornment,
   CircularProgress,
+  IconButton,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import { FaPlus } from "react-icons/fa";
 import { RiSearchLine } from "react-icons/ri";
@@ -24,15 +27,34 @@ const columns = [
   { label: "Email", key: "is_email" },
   { label: "Auto Assign", key: "is_autoassign" },
   { label: "Jumlah Anggota", key: "team_count" },
+  { label: "Aksi", key: "actions" },
 ];
 
-export default function TeamMemberTable({ onClickNew, data = [], loading }) {
+export default function TeamMemberTable({
+  onClickNew,
+  data = [],
+  loading,
+  onClickEdit,
+  onClickDelete,
+}) {
   const [teamMembers, setTeamMembers] = useState(data);
   const [page, setPage] = useState(1);
   const [rowsPerPage] = useState(5);
   const [searchTerm, setSearchTerm] = useState("");
   const [orderBy, setOrderBy] = useState("name");
   const [order, setOrder] = useState("asc");
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [activeRow, setActiveRow] = useState(null);
+
+  const handleOpenMenu = (event, row) => {
+    setAnchorEl(event.currentTarget);
+    setActiveRow(row);
+  };
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+    setActiveRow(null);
+  };
 
   useEffect(() => {
     setTeamMembers(data);
@@ -159,10 +181,52 @@ export default function TeamMemberTable({ onClickNew, data = [], loading }) {
                 <TableCell>{row.is_email ? "Ya" : "Tidak"}</TableCell>
                 <TableCell>{row.is_autoassign ? "Ya" : "Tidak"}</TableCell>
                 <TableCell>{row.team_count}</TableCell>
+                <TableCell>
+                  <IconButton
+                    size="small"
+                    onClick={(e) => handleOpenMenu(e, row)}
+                    aria-controls={anchorEl ? "team-member-actions" : undefined}
+                    aria-haspopup="true"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5 text-gray-600"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM18 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                  </IconButton>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
+        <Menu
+          id="team-member-actions"
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleCloseMenu}
+          anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+          transformOrigin={{ vertical: "top", horizontal: "left" }}
+        >
+          <MenuItem
+            onClick={() => {
+              if (typeof onClickEdit === "function") onClickEdit(activeRow);
+              handleCloseMenu();
+            }}
+          >
+            Edit
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              if (typeof onClickDelete === "function") onClickDelete(activeRow);
+              handleCloseMenu();
+            }}
+          >
+            Delete
+          </MenuItem>
+        </Menu>
         <div className="flex items-center justify-between px-4 py-3">
           <div className="text-sm text-gray-600">
             Page <span className="font-medium">{page}</span> of{" "}

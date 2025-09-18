@@ -14,8 +14,9 @@ import {
   OutlinedInput,
 } from "@mui/material";
 
-export default function CreateTeamMemberForm({ onSubmit }) {
+export default function CreateTeamMemberForm({ onSubmit, data = {} }) {
   const [form, setForm] = useState({
+    id: null,
     namaTeam: "",
     anggotaTeam: [],
     visibility: "",
@@ -58,6 +59,19 @@ export default function CreateTeamMemberForm({ onSubmit }) {
     getDataVisibility();
   }, []);
 
+  useEffect(() => {
+    setForm({
+      id: data.id || null,
+      namaTeam: data.name || "",
+      anggotaTeam: data.teams || [],
+      visibility: data.visibility_id || "",
+      deskripsi: data.description || "",
+      slaPolicy: data.slaPolicy || "",
+      email: Boolean(data.is_email),
+      autoAssign: Boolean(data.is_autoassign),
+    });
+  }, [data]);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm({
@@ -96,11 +110,12 @@ export default function CreateTeamMemberForm({ onSubmit }) {
     }
     // Build payload conforming to API contract
     const payload = {
+      id: form.id,
       name: form.namaTeam,
       description: form.deskripsi,
       is_autoassign: form.autoAssign,
       is_email: form.email,
-      teams: form.anggotaTeam, // assuming array of identifiers or names
+      teams: form.anggotaTeam, // array of ids
       visibility_id: form.visibility,
     };
 
@@ -110,7 +125,9 @@ export default function CreateTeamMemberForm({ onSubmit }) {
   return (
     <div className="bg-white rounded-xl mt-4 p-6 border border-gray-200 shadow-sm">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold mb-6">Buat Team Member</h1>
+        <h1 className="text-xl font-bold mb-6">
+          {form.id ? "Edit Team Member" : "Buat Team Member"}
+        </h1>
       </div>
       <form
         onSubmit={handleSubmit}

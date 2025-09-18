@@ -8,16 +8,18 @@ import { toast } from "sonner";
 
 export default function Page() {
   const router = useRouter();
+
   const handleFormSubmit = async (data) => {
+    const toastId = toast.loading("Menyimpan Team Member...");
     try {
       await ProxyUrl.post("/team-groups", data);
       toast.success("Berhasil menambahkan Team Member");
-      router.back();
     } catch (error) {
-      toast.error("Gagal menambahkan Team Member", {
-        description:
-          error?.response?.data?.message || "Terjadi kesalahan pada server.",
-      });
+      console.log(error);
+      toast.error("Gagal menambahkan Team Member");
+    } finally {
+      toast.dismiss(toastId);
+      router.back();
     }
   };
 
