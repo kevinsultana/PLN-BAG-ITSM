@@ -5,9 +5,11 @@ import TicketAnalysisChart from "@/components/Helpdesk/Reporting/TicketAnalysisC
 import FilterModal from "@/components/Helpdesk/Reporting/FilterModal";
 import { RiFilter2Line } from "react-icons/ri";
 import { ProxyUrl } from "@/api/BaseUrl";
+import CircularProgress from "@mui/material/CircularProgress";
 
 export default function Page() {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleOpenFilter = () => {
     setIsFilterModalOpen(true);
@@ -20,11 +22,14 @@ export default function Page() {
   const [data, setData] = useState([]);
 
   const getData = async () => {
+    setLoading(true);
     try {
       const res = await ProxyUrl.get("/reports/tickets/analysis");
       setData(res.data.data || []);
     } catch (error) {
       console.error("Error fetching ticket data:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -70,7 +75,11 @@ export default function Page() {
             </button>
           </div>
 
-          {data && data.length ? (
+          {loading ? (
+            <div className="flex justify-center items-center p-8">
+              <CircularProgress />
+            </div>
+          ) : data && data.length ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {data.map((item, index) => (
                 <div key={index} className="p-4 border rounded-lg">
