@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo, useRef, useEffect } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -12,43 +12,107 @@ import {
   Pagination,
   TextField,
   InputAdornment,
-  IconButton,
 } from "@mui/material";
-import { FaPlus } from "react-icons/fa";
-import { RiSearchLine, RiMore2Fill } from "react-icons/ri";
+import { RiSearchLine } from "react-icons/ri";
+import { FaPencil } from "react-icons/fa6";
 
-const initialHelpdeskInfo = [
-  {
-    no: 1,
-    sosialMedia: "Email",
-    informasiAkun: "servicedesk@bahteradhiguna.co.id",
-  },
-  { no: 2, sosialMedia: "No. Whatsapp", informasiAkun: "085121053911" },
-  { no: 3, sosialMedia: "No. Telephone", informasiAkun: "085121053911" },
-  {
-    no: 4,
-    sosialMedia: "URL Portal",
-    informasiAkun: "https://portal-internal-bag.vercel.app/helpdesk",
-  },
-  { no: 5, sosialMedia: "Linkedin", informasiAkun: "linkedin/ptbag" },
-];
+const initialHelpdeskInfo = [];
+
+const humanizeKey = (key) => {
+  if (!key) return "";
+  // convert snake_case or camelCase to Title Case
+  const withSpaces = key
+    // insert space before capital letters
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    // replace underscores and dashes with spaces
+    .replace(/[_-]+/g, " ")
+    .toLowerCase();
+  return withSpaces
+    .split(" ")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+};
+
+const mapApiToRows = (api) => {
+  if (!api || Object.keys(api).length === 0) return initialHelpdeskInfo;
+
+  // preferred order and label overrides for common keys
+  const preferred = [
+    "email",
+    "whatsapp",
+    "whatsapp_number",
+    "phone",
+    "telephone",
+    "instagram",
+    "facebook",
+    "portal_url",
+    "linkedin",
+    "hours_mon_thu",
+    "hours_fri",
+  ];
+
+  const labelOverrides = {
+    email: "Email",
+    whatsapp: "Whatsapp",
+    whatsapp_number: "Whatsapp",
+    phone: "Phone",
+    telephone: "Phone",
+    instagram: "Instagram",
+    facebook: "Facebook",
+    portal_url: "Portal URL",
+    linkedin: "Linkedin",
+    hours_mon_thu: "Hours (Mon-Thu)",
+    hours_fri: "Hours (Fri)",
+  };
+
+  const rows = [];
+  const usedKeys = new Set();
+
+  // add preferred keys first if present
+  preferred.forEach((k) => {
+    if (api[k] !== undefined) {
+      rows.push({
+        key: k,
+        sosialMedia: labelOverrides[k] || humanizeKey(k),
+        informasiAkun: api[k] ?? "-",
+      });
+      usedKeys.add(k);
+    }
+  });
+
+  // add any other keys from API that weren't included above
+  Object.keys(api).forEach((k) => {
+    if (!usedKeys.has(k)) {
+      rows.push({
+        key: k,
+        sosialMedia: humanizeKey(k),
+        informasiAkun: api[k] ?? "-",
+      });
+      usedKeys.add(k);
+    }
+  });
+
+  // assign sequential numbers
+  return rows.map((r, idx) => ({
+    no: idx + 1,
+    sosialMedia: r.sosialMedia,
+    informasiAkun: r.informasiAkun,
+  }));
+};
 
 const columns = [
   { label: "No.", key: "no" },
   { label: "Sosial Media", key: "sosialMedia" },
   { label: "Informasi Akun", key: "informasiAkun" },
-  { label: "Aksi", key: "aksi", disableSorting: true },
 ];
 
-export default function HelpdeskInfoTable({ onClickNewInfo }) {
-  const [helpdeskInfo, setHelpdeskInfo] = useState(initialHelpdeskInfo);
+export default function HelpdeskInfoTable({ onClickNewInfo, data }) {
+  const [helpdeskInfo, setHelpdeskInfo] = useState(() => mapApiToRows(data));
   const [orderBy, setOrderBy] = useState("no");
   const [order, setOrder] = useState("asc");
   const [page, setPage] = useState(1);
   const [rowsPerPage] = useState(5);
   const [searchTerm, setSearchTerm] = useState("");
-  const [openMenuId, setOpenMenuId] = useState(null);
-  const menuRef = useRef(null);
 
   const handleSort = (property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -56,32 +120,9 @@ export default function HelpdeskInfoTable({ onClickNewInfo }) {
     setOrderBy(property);
   };
 
-  const handleOpenMenu = (id) => {
-    setOpenMenuId(openMenuId === id ? null : id);
-  };
-
-  const handleEdit = (row) => {
-    console.log("Edit item:", row);
-    setOpenMenuId(null);
-  };
-
-  const handleDelete = (row) => {
-    console.log("Delete item:", row);
-    setHelpdeskInfo(helpdeskInfo.filter((item) => item.no !== row.no));
-    setOpenMenuId(null);
-  };
-
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setOpenMenuId(null);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [menuRef]);
+    setHelpdeskInfo(mapApiToRows(data));
+  }, [data]);
 
   const sortedAndFilteredInfo = useMemo(() => {
     let filteredList = helpdeskInfo.filter((info) =>
@@ -116,8 +157,8 @@ export default function HelpdeskInfoTable({ onClickNewInfo }) {
             onClick={onClickNewInfo}
             className="flex items-center gap-2 px-4 py-2.5 bg-[#65C7D5] text-white rounded-2xl text-sm hover:opacity-90 cursor-pointer"
           >
-            <FaPlus />
-            <span>New</span>
+            <FaPencil />
+            <span>Edit</span>
           </button>
           <TextField
             variant="outlined"
@@ -169,29 +210,6 @@ export default function HelpdeskInfoTable({ onClickNewInfo }) {
                 <TableCell>{row.no}</TableCell>
                 <TableCell>{row.sosialMedia}</TableCell>
                 <TableCell>{row.informasiAkun}</TableCell>
-                <TableCell className="relative" ref={menuRef}>
-                  <IconButton onClick={() => handleOpenMenu(row.no)}>
-                    <RiMore2Fill />
-                  </IconButton>
-                  {openMenuId === row.no && (
-                    <div className="absolute right-30 -translate-y-1/2 w-32 bg-white rounded-md shadow-lg border border-gray-200 z-10">
-                      <ul className="py-1">
-                        <li
-                          onClick={() => handleEdit(row)}
-                          className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                        >
-                          Edit
-                        </li>
-                        <li
-                          onClick={() => handleDelete(row)}
-                          className="px-4 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
-                        >
-                          Delete
-                        </li>
-                      </ul>
-                    </div>
-                  )}
-                </TableCell>
               </TableRow>
             ))}
           </TableBody>

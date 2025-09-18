@@ -265,6 +265,7 @@ export default function EditPrivilegeUserPage() {
         },
       }
     );
+    router.back();
   };
 
   const getDataDetailRole = async (id) => {

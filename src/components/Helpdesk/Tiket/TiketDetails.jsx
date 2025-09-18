@@ -282,27 +282,7 @@ export default function TiketDetails({
                 />
 
                 <div className="flex flex-col gap-2">
-                  <label className="text-lg font-semibold">
-                    Contract Value <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={updatedTiket?.contract_value || ""}
-                    className="input p-2"
-                    onChange={(e) =>
-                      setUpdatedTiket((prev) => ({
-                        ...prev,
-                        contract_value: e.target.value,
-                      }))
-                    }
-                    required
-                  />
-                </div>
-
-                <div className="flex flex-col gap-2">
-                  <label className="text-lg font-semibold">
-                    Contract Number <span className="text-red-500">*</span>
-                  </label>
+                  <label className="text-lg font-semibold">No. Kontrak</label>
                   <input
                     type="text"
                     value={updatedTiket?.contract_number || ""}
@@ -311,6 +291,22 @@ export default function TiketDetails({
                       setUpdatedTiket((prev) => ({
                         ...prev,
                         contract_number: e.target.value,
+                      }))
+                    }
+                    required
+                  />
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <label className="text-lg font-semibold">Nilai Kontrak</label>
+                  <input
+                    type="text"
+                    value={updatedTiket?.contract_value || ""}
+                    className="input p-2"
+                    onChange={(e) =>
+                      setUpdatedTiket((prev) => ({
+                        ...prev,
+                        contract_value: e.target.value,
                       }))
                     }
                     required
