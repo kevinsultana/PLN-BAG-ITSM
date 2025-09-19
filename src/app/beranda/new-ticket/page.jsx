@@ -13,7 +13,7 @@ export default function Page() {
 
   const getTiketSelection = async () => {
     try {
-      const res = await ProxyUrl.get("/tickets/selections");
+      const res = await ProxyUrl.get("/tickets/users/selections");
       setTiketSelection(res.data.data);
     } catch (error) {
       console.log(error);
