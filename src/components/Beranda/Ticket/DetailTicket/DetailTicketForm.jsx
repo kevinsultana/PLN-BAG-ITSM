@@ -261,15 +261,29 @@ export default function DetailTicketForm({
             .map((item, index) => (
               <div
                 key={index}
-                className="flex flex-col gap-2 space-y-2 py-4 border-b"
+                className="flex flex-col gap-2 space-y-2 py-4 border-b-gray-400 border-b"
               >
-                <h1 className="font-bold text-lg">
-                  {item.user.name}{" "}
-                  <span className="text-gray-500 font-medium text-base">
-                    {timeAgo(item.created_at)}
-                  </span>
-                </h1>
-                <div>{renderDescription(item.description)}</div>
+                {item.user.role !== "User" ? (
+                  <>
+                    <h1 className="font-bold text-lg text-yellow-500">
+                      {item.user.name} ({item.user.role}){" "}
+                      <span className="text-gray-500 font-medium text-base">
+                        {timeAgo(item.created_at)}
+                      </span>
+                    </h1>
+                    <div>{renderDescription(item.description)}</div>
+                  </>
+                ) : (
+                  <>
+                    <h1 className="font-bold text-lg">
+                      {item.user.name} ({item.user.role}) -{" "}
+                      <span className="text-gray-500 font-medium text-base">
+                        {timeAgo(item.created_at)}
+                      </span>
+                    </h1>
+                    <div>{renderDescription(item.description)}</div>
+                  </>
+                )}
               </div>
             ))}
       </div>
