@@ -498,21 +498,40 @@ export default function TiketDetails({
 
       <div className="wfull h-[3px] bg-gray-200 mb-4" />
 
-      {Array.isArray(feedback) &&
-        feedback
-          .slice()
-          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-          .map((item, index) => (
-            <div key={index} className="flex flex-col gap-2 space-y-2 py-4">
-              <h1 className="font-bold text-lg">
-                {item.user.name}{" "}
-                <span className="text-gray-500 font-medium text-base">
-                  {timeAgo(item.created_at)}
-                </span>
-              </h1>
-              <div>{renderDescription(item.description)}</div>
-            </div>
-          ))}
+      <div className="pt-0 flex flex-col gap-4">
+        {Array.isArray(feedback) &&
+          feedback
+            .slice()
+            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+            .map((item, index) => (
+              <div
+                key={index}
+                className="flex flex-col gap-2 space-y-2 py-4 border-b-gray-400 border-b"
+              >
+                {item.user.role !== "User" ? (
+                  <>
+                    <h1 className="font-bold text-lg text-yellow-500">
+                      {item.user.name} ({item.user.role}){" "}
+                      <span className="text-gray-500 font-medium text-base">
+                        {timeAgo(item.created_at)}
+                      </span>
+                    </h1>
+                    <div>{renderDescription(item.description)}</div>
+                  </>
+                ) : (
+                  <>
+                    <h1 className="font-bold text-lg">
+                      {item.user.name} ({item.user.role}) -{" "}
+                      <span className="text-gray-500 font-medium text-base">
+                        {timeAgo(item.created_at)}
+                      </span>
+                    </h1>
+                    <div>{renderDescription(item.description)}</div>
+                  </>
+                )}
+              </div>
+            ))}
+      </div>
     </div>
   );
 }
