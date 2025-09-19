@@ -29,7 +29,6 @@ export default function page() {
       });
       await checkUserSession();
       toast.success("Login berhasil!");
-      console.log(user);
     } catch (error) {
       setError("Login gagal. Periksa username/password.");
       console.error("Login failed:", error);
