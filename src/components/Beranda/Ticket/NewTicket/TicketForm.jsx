@@ -8,7 +8,7 @@ import { PostProxyUrl } from "@/api/BaseUrl";
 
 export default function TicketForm({ dataSelection, onSubmit }) {
   const { user } = useAuth();
-  // console.log(user);
+
   const [form, setForm] = useState({
     division_id: "",
     email: "",
@@ -33,7 +33,7 @@ export default function TicketForm({ dataSelection, onSubmit }) {
     setForm({ ...form, description: input });
   };
 
-  const MAX_TOTAL_BYTES = 50 * 1024 * 1024; // 50 MB
+  const MAX_TOTAL_BYTES = 25 * 1024 * 1024; // 25 MB
   const totalFilesSize = (arr) => arr.reduce((s, f) => s + (f?.size || 0), 0);
 
   const handleFileInput = (e) => {
@@ -45,7 +45,7 @@ export default function TicketForm({ dataSelection, onSubmit }) {
     const total = totalFilesSize(combined);
     if (total > MAX_TOTAL_BYTES) {
       toast.error(
-        "Total lampiran melebihi 50 MB. Silakan pilih file lebih kecil."
+        "Total lampiran melebihi 25 MB. Silakan pilih file lebih kecil."
       );
       return;
     }
@@ -69,7 +69,7 @@ export default function TicketForm({ dataSelection, onSubmit }) {
         const total = totalFilesSize(combined);
         if (total > MAX_TOTAL_BYTES) {
           toast.error(
-            "Total lampiran melebihi 50 MB. Silakan pilih file lebih kecil."
+            "Total lampiran melebihi 25 MB. Silakan pilih file lebih kecil."
           );
           return;
         }
@@ -266,7 +266,7 @@ export default function TicketForm({ dataSelection, onSubmit }) {
       <div className="flex flex-col gap-2 md:col-span-2">
         <label className="font-semibold text-sm mb-1">
           Lampiran<span className="text-red-500">*</span>
-          <span className="text-xs text-gray-500 ml-2">(Maks 50MB)</span>
+          <span className="text-xs text-gray-500 ml-2">(Maks 25MB)</span>
         </label>
         <div
           ref={dropAreaRef}
@@ -293,7 +293,7 @@ export default function TicketForm({ dataSelection, onSubmit }) {
         </div>
         {errors.lampiran && (
           <span className="text-xs text-red-500 mt-1">
-            Lampiran wajib diisi dan maksimal 50MB
+            Lampiran wajib diisi dan maksimal 25MB
           </span>
         )}
         <div className="text-sm text-gray-600 mt-2">

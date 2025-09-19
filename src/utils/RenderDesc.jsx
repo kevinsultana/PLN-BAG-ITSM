@@ -1,6 +1,5 @@
 import React from "react";
 
-// Fungsi untuk render HTML dengan modifikasi gambar dan file
 export default function renderDescription(html) {
   // Buat elemen DOM dari string HTML
   const tempDiv = document.createElement("div");
