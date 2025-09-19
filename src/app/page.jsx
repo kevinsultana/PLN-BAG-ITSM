@@ -42,6 +42,7 @@ export default function page() {
   };
 
   useEffect(() => {
+    if (!user || !user.data || !user.data.role) return;
     if (user.data.role === "Lead Agent" || user.data.role === "Agent Level 2") {
       router.replace("/helpdesk");
     } else {
