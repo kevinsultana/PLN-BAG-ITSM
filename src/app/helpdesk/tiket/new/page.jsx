@@ -12,7 +12,7 @@ export default function Page() {
   const handleFormSubmit = async (formData, attachment) => {
     const newFormData = { ...formData, attachment_ids: attachment };
     try {
-      const res = await ProxyUrl.post("/tickets", newFormData);
+      const res = await ProxyUrl.post("/tickets/agents", newFormData);
       if (res.data.success === true) {
         toast.success("Tiket berhasil dibuat!", {
           description: "Tiket baru telah berhasil dibuat.",
