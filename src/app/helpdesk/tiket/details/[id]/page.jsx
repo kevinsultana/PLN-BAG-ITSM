@@ -35,7 +35,7 @@ export default function Page() {
 
   const getDataSelection = async () => {
     try {
-      const res = await ProxyUrl.get("/tickets/selections");
+      const res = await ProxyUrl.get("/tickets/agents/selections");
       const selection = res.data.data || {};
       setDataSelection(selection);
     } catch (error) {
