@@ -29,7 +29,7 @@ export default function page() {
       });
       await checkUserSession();
       toast.success("Login berhasil!");
-      router.replace("/beranda");
+      console.log(user);
     } catch (error) {
       setError("Login gagal. Periksa username/password.");
       console.error("Login failed:", error);
@@ -43,7 +43,9 @@ export default function page() {
   };
 
   useEffect(() => {
-    if (user) {
+    if (user.data.role === "Lead Agent" || user.data.role === "Agent Level 2") {
+      router.replace("/helpdesk");
+    } else {
       router.replace("/beranda");
     }
   }, [user, router]);
