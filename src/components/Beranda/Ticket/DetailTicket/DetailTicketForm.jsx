@@ -79,6 +79,25 @@ export default function DetailTicketForm({
     alert("Tiket berhasil dikirim!");
   };
 
+  // Event delegation untuk klik gambar di feedback
+  useEffect(() => {
+    const feedbackContainer = document.getElementById(
+      "feedback-list-container"
+    );
+    if (feedbackContainer) {
+      const handleImgClick = (e) => {
+        if (e.target.tagName === "IMG") {
+          e.preventDefault();
+          window.open(e.target.src, "_blank");
+        }
+      };
+      feedbackContainer.addEventListener("click", handleImgClick);
+      return () => {
+        feedbackContainer.removeEventListener("click", handleImgClick);
+      };
+    }
+  }, [feedback]);
+
   return (
     <div className="flex flex-col gap-6 bg-white">
       <form
@@ -237,23 +256,43 @@ export default function DetailTicketForm({
       <div className="wfull h-[1px] bg-gray-200 " />
 
       {/* feedback */}
-      <div className="flex flex-col gap-2 space-y-2 py-4 px-4">
-        <label className="text-lg font-semibold">
-          Feedback Tiket <span className="text-red-500">*</span>
-        </label>
-        <CKEditorWrapper value={feedbackTiket} onChange={setFeedbackTiket} />
-        <button
-          onClick={() => {
-            onClickSubmitFeedback(feedbackTiket);
-            setFeedbackTiket("");
-          }}
-          className="bg-sky-500 cursor-pointer p-2 text-white w-1/10 rounded-full"
-        >
-          Submit
-        </button>
-      </div>
-      <div className="wfull h-[3px] bg-gray-200" />
-      <div className=" p-5 pt-0 flex flex-col gap-4">
+      {data?.status !== "CLOSED" && (
+        <>
+          <div className="flex flex-col gap-2 space-y-2 py-4 px-4">
+            <label className="text-lg font-semibold">
+              Feedback Tiket <span className="text-red-500">*</span>
+            </label>
+            <CKEditorWrapper
+              value={feedbackTiket}
+              onChange={setFeedbackTiket}
+            />
+            <button
+              onClick={() => {
+                onClickSubmitFeedback(feedbackTiket);
+                setFeedbackTiket("");
+              }}
+              className="bg-sky-500 cursor-pointer p-2 text-white w-1/10 rounded-full"
+            >
+              Submit
+            </button>
+          </div>
+          <div className="wfull h-[3px] bg-gray-200" />
+        </>
+      )}
+      <div
+        id="feedback-list-container"
+        className="p-5 pt-0 flex flex-col gap-4"
+      >
+        <style>{`
+          #feedback-list-container img {
+            width: 150px !important;
+            height: 100px !important;
+            object-fit: contain !important;
+            cursor: pointer !important;
+            display: inline-block !important;
+            background-color: #f0f0f0 !important;
+          }
+        `}</style>
         {Array.isArray(feedback) &&
           feedback
             .slice()

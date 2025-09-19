@@ -19,6 +19,10 @@ export default function NavBar({ onClick }) {
   const router = useRouter();
 
   const [dataNotifications, setDataNotifications] = useState([]);
+  // Jumlah notifikasi yang belum dibaca
+  const unreadCount = dataNotifications.filter(
+    (notif) => !notif.is_read
+  ).length;
 
   const getNotifications = async () => {
     try {
@@ -104,6 +108,7 @@ export default function NavBar({ onClick }) {
             width={120}
             height={44}
             className="object-cover"
+            style={{ width: "120px", height: "auto" }}
           />
           <HiOutlineMenuAlt2
             onClick={onClick}
@@ -122,10 +127,28 @@ export default function NavBar({ onClick }) {
             </Link>
           )}
           <div className="relative" ref={notifRef}>
-            <FaBell
-              className="text-xl text-gray-600 cursor-pointer"
+            <div
               onClick={() => setShowNotifications(!showNotifications)}
-            />
+              className={`w-8 h-8 flex items-center justify-center rounded-full cursor-pointer relative ${
+                unreadCount > 0 ? "bg-[#65C7D5]" : "bg-gray-200"
+              }`}
+            >
+              <FaBell
+                className={`text-xl cursor-pointer ${
+                  unreadCount > 0
+                    ? "animate-bounce text-white"
+                    : "text-gray-600"
+                }`}
+              />
+              {unreadCount > 0 && (
+                <span
+                  className="absolute bottom-5 left-5 w-5 h-5 bg-red-500 rounded-full border border-white flex items-center justify-center text-[12px] text-white font-bold"
+                  style={{ zIndex: 2 }}
+                >
+                  {unreadCount}
+                </span>
+              )}
+            </div>
 
             {showNotifications && (
               <div className="absolute right-0 mt-2 w-[400px] bg-white shadow-lg rounded-lg border border-gray-200 z-50">
@@ -161,7 +184,9 @@ export default function NavBar({ onClick }) {
                             <li
                               key={notif.id}
                               onClick={() => handleOnClickNotification(notif)}
-                              className="px-6 py-4 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer border-b"
+                              className={`px-6 py-4 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer border-b ${
+                                !notif.is_read ? "bg-blue-50" : "bg-white"
+                              }`}
                             >
                               <div className="flex justify-between items-center">
                                 <div className="flex items-center w-full">
@@ -194,7 +219,15 @@ export default function NavBar({ onClick }) {
             )}
           </div>
 
-          <FaUser className="text-xl text-gray-600" />
+          {user.data.profile_picture !== "" ? (
+            <img
+              src={user.data.profile_picture}
+              alt="Profile"
+              className="w-8 h-8 rounded-full object-center"
+            />
+          ) : (
+            <FaUser className="text-xl text-gray-600" />
+          )}
           <div className="flex flex-col">
             {loading ? (
               <p>Loading...</p>

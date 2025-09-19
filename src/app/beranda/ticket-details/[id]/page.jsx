@@ -51,13 +51,39 @@ export default function Page() {
     }
   };
 
+  const handleCloseStatus = async () => {
+    // console.log("pres");
+    const toastId = toast.loading("Memperbarui status tiket...");
+    try {
+      const res = await ProxyUrl.put(`/tickets/${tiketId}/status`, {
+        status: "CLOSED",
+      });
+      console.log(res.data);
+      toast.success("Status tiket berhasil diperbarui", { duration: 3000 });
+      getDataTiketById(tiketId);
+    } catch (error) {
+      toast.error("Gagal memperbarui status tiket", { duration: 3000 });
+      console.log(error);
+    } finally {
+      toast.dismiss(toastId);
+    }
+  };
+
   return (
     <div className="bg-slate-100 min-h-screen">
       <MainLayout>
         <div className="flex flex-col gap-6 py-6 px-14">
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold">Beranda</h1>
-            <button className="text-white bg-sky-400 px-4 py-2 rounded-2xl">
+            <button
+              onClick={handleCloseStatus}
+              disabled={data?.status !== "RESOLVED"}
+              className={`text-white bg-sky-400 px-4 py-2 rounded-2xl ${
+                data?.status === "RESOLVED"
+                  ? "opacity-100 cursor-pointer"
+                  : "opacity-90"
+              }`}
+            >
               {data?.status}
             </button>
           </div>

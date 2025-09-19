@@ -12,9 +12,10 @@ export default function Footer() {
         <Image
           src="/footer.png"
           alt="Footer"
-          width={71}
-          height={48}
-          className="w-20 h-12 object-contain"
+          width={100}
+          height={100}
+          className="object-cover"
+          style={{ width: "100px", height: "auto" }}
         />
         <p className="text-sm">
           Gedung Prudential Centre <br />

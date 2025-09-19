@@ -83,7 +83,7 @@ export default function CreateTicketForm({ onSubmit }) {
     getDataAllSelections();
   }, []);
 
-  const MAX_TOTAL_BYTES = 50 * 1024 * 1024; // 50 MB
+  const MAX_TOTAL_BYTES = 25 * 1024 * 1024; // 25 MB
 
   const totalFilesSize = (arr) => arr.reduce((s, f) => s + (f?.size || 0), 0);
 
@@ -97,7 +97,7 @@ export default function CreateTicketForm({ onSubmit }) {
     const total = totalFilesSize(combined);
     if (total > MAX_TOTAL_BYTES) {
       toast.error(
-        "Total lampiran melebihi 50 MB. Silakan pilih file lebih kecil."
+        "Total lampiran melebihi 25 MB. Silakan pilih file lebih kecil."
       );
       return;
     }
@@ -603,7 +603,7 @@ export default function CreateTicketForm({ onSubmit }) {
         <div className="flex flex-col gap-2 col-span-2">
           <label className="font-semibold text-sm mb-1">
             Lampiran<span className="text-red-500">*</span>
-            <span className="text-xs text-gray-500 ml-2">(Maks 50MB)</span>
+            <span className="text-xs text-gray-500 ml-2">(Maks 25MB)</span>
           </label>
           <div
             className={`relative flex flex-col items-center justify-center border-2 border-dashed rounded-lg py-4 px-2 cursor-pointer bg-gray-50 transition focus:outline-none focus:ring-2 focus:ring-[#65C7D5] ${

@@ -127,14 +127,15 @@ export default function ListTicketTable({
 
           <TableBody>
             {paginatedTickets.map((row, index) => (
-              <TableRow key={index}>
+              <TableRow
+                onClick={() => onRowClick?.(row.raw, index)}
+                key={index}
+                className="hover:bg-gray-100 cursor-pointer"
+              >
                 <TableCell className="border border-gray-200">
                   {(page - 1) * rowsPerPage + index + 1}
                 </TableCell>
-                <TableCell
-                  onClick={() => onRowClick?.(row.raw, index)}
-                  className="border border-gray-200 hover:underline transition-all duration-300 cursor-pointer"
-                >
+                <TableCell className="border border-gray-200 ">
                   {row.ticket_code ? row.ticket_code : "-"}
                 </TableCell>
                 <TableCell className="border border-gray-200">
