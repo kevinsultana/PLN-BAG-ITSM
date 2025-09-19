@@ -33,10 +33,14 @@ export default function CreateAgentForm({
     try {
       const res = await ProxyUrl.get("/roles");
       const list = Array.isArray(res?.data?.data) ? res.data.data : [];
-      const mappedRoles = list.map((role) => ({
-        label: role.name,
-        value: role.id,
-      }));
+      // Only allow 'Lead Agent' and 'Agent Level 2'
+      const allowedRoles = ["Lead Agent", "Agent Level 2"];
+      const mappedRoles = list
+        .filter((role) => allowedRoles.includes(role.name))
+        .map((role) => ({
+          label: role.name,
+          value: role.id,
+        }));
 
       if (
         data?.role_id &&

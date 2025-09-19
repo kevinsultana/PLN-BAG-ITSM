@@ -14,7 +14,11 @@ import {
   OutlinedInput,
 } from "@mui/material";
 
-export default function CreateTeamMemberForm({ onSubmit, data = {} }) {
+export default function CreateTeamMemberForm({
+  onSubmit,
+  data = {},
+  onCancel,
+}) {
   const [form, setForm] = useState({
     id: null,
     namaTeam: "",
@@ -60,16 +64,25 @@ export default function CreateTeamMemberForm({ onSubmit, data = {} }) {
   }, []);
 
   useEffect(() => {
-    setForm({
-      id: data.id || null,
-      namaTeam: data.name || "",
-      anggotaTeam: data.teams || [],
-      visibility: data.visibility_id || "",
-      deskripsi: data.description || "",
-      slaPolicy: data.slaPolicy || "",
-      email: Boolean(data.is_email),
-      autoAssign: Boolean(data.is_autoassign),
-    });
+    if (data && Object.keys(data).length > 0) {
+      setForm((prev) => {
+        const newForm = {
+          id: data.id || null,
+          namaTeam: data.name || "",
+          anggotaTeam: data.teams || [],
+          visibility: data.visibility_id || "",
+          deskripsi: data.description || "",
+          slaPolicy: data.slaPolicy || "",
+          email: Boolean(data.is_email),
+          autoAssign: Boolean(data.is_autoassign),
+        };
+        // Only update if different
+        if (JSON.stringify(prev) !== JSON.stringify(newForm)) {
+          return newForm;
+        }
+        return prev;
+      });
+    }
   }, [data]);
 
   const handleChange = (e) => {
@@ -280,7 +293,7 @@ export default function CreateTeamMemberForm({ onSubmit, data = {} }) {
           <button
             type="button"
             className="px-6 py-2 rounded-lg text-gray-700 bg-gray-200 hover:bg-gray-300 transition"
-            onClick={() => router.back()}
+            onClick={onCancel}
           >
             Cancel
           </button>
