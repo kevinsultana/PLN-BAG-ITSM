@@ -26,7 +26,7 @@ export default function Page() {
 
   const handleSubmitTicket = async (data) => {
     try {
-      const res = await ProxyUrl.post("/tickets/client", data);
+      const res = await ProxyUrl.post("/tickets/users", data);
       if (res.data.success === true) {
         toast.success("Tiket berhasil dibuat!");
         router.back();
