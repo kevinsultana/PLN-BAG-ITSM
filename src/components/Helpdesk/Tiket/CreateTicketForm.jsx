@@ -47,7 +47,7 @@ export default function CreateTicketForm({ onSubmit }) {
 
   const getDataAllSelections = async () => {
     try {
-      const res = await ProxyUrl.get("/tickets/selections");
+      const res = await ProxyUrl.get("/tickets/agents/selections");
       setDataTeamsGroups(res.data.data.team_groups || []);
       setDataPriorities(res.data.data.priorities || []);
       setDataTipe(res.data.data.ticket_types || []);
