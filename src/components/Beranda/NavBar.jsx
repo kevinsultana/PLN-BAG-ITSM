@@ -10,6 +10,8 @@ import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ProxyUrl } from "@/api/BaseUrl";
+import { BASE_URL } from "@/api/BaseUrl";
+import { BACKEND_URL } from "@/api/API";
 
 export default function NavBar({ onClick }) {
   const { user, loading, login, logout } = useAuth();
@@ -35,6 +37,34 @@ export default function NavBar({ onClick }) {
 
   useEffect(() => {
     getNotifications();
+  }, []);
+
+  const api = BACKEND_URL;
+  const wsUrl =
+    api.replace(/^http/, api.startsWith("https") ? "wss" : "ws") +
+    "/notifications/stream";
+
+  const notificationWebSocket = () => {
+    const ws = new WebSocket(wsUrl);
+    ws.onmessage = (event) => {
+      const newNotification = JSON.parse(event.data);
+      setDataNotifications((prev) => [newNotification, ...prev]);
+      toast.success(newNotification.title, {
+        description: newNotification.message,
+      });
+    };
+
+    ws.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+    ws.onclose = () => {
+      console.log("WebSocket connection closed. Reconnecting...");
+      setTimeout(notificationWebSocket, 5000);
+    };
+  };
+
+  useEffect(() => {
+    notificationWebSocket();
   }, []);
 
   // Group notifications from API by date (YYYY-MM-DD)
@@ -219,9 +249,9 @@ export default function NavBar({ onClick }) {
             )}
           </div>
 
-          {user.data.profile_picture !== "" ? (
+          {user?.data?.profile_picture !== "" ? (
             <img
-              src={user.data.profile_picture}
+              src={user?.data?.profile_picture}
               alt="Profile"
               className="w-8 h-8 rounded-full object-center"
             />
@@ -233,8 +263,8 @@ export default function NavBar({ onClick }) {
               <p>Loading...</p>
             ) : user ? (
               <>
-                <h4 className="text-sm font-semibold">{user.data.name}</h4>
-                <p className="text-xs">{user.data.email}</p>
+                <h4 className="text-sm font-semibold">{user?.data?.name}</h4>
+                <p className="text-xs">{user?.data?.email}</p>
               </>
             ) : (
               <>
