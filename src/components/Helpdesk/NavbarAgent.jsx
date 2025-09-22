@@ -10,6 +10,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ProxyUrl } from "@/api/BaseUrl";
+import { BACKEND_URL } from "@/api/API";
 
 export default function NavbarAgent({ onClick }) {
   const { user, loading, login, logout } = useAuth();
@@ -35,6 +36,35 @@ export default function NavbarAgent({ onClick }) {
 
   useEffect(() => {
     getNotifications();
+  }, []);
+
+  const api = BACKEND_URL;
+  const wsUrl =
+    api.replace(/^http/, api.startsWith("https") ? "wss" : "ws") +
+    "/notifications/stream";
+
+  const notificationWebSocket = () => {
+    const ws = new WebSocket(wsUrl);
+    console.log(ws);
+    ws.onmessage = (event) => {
+      const newNotification = JSON.parse(event.data);
+      setDataNotifications((prev) => [newNotification, ...prev]);
+      toast.success(newNotification.title, {
+        description: newNotification.message,
+      });
+    };
+
+    ws.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+    ws.onclose = () => {
+      console.log("WebSocket connection closed. Reconnecting...");
+      setTimeout(notificationWebSocket, 5000); // Coba reconnect setelah 5 detik
+    };
+  };
+
+  useEffect(() => {
+    notificationWebSocket();
   }, []);
 
   // Group notifications from API by date (YYYY-MM-DD)

@@ -135,6 +135,7 @@ export default function AllListTicketTable({
   items = [],
   meta = [],
   loading,
+  isMyTicket = false,
 }) {
   // Parent mengirim langsung array `items` dari API
   const itemsFromApi = useMemo(() => {
@@ -210,7 +211,9 @@ export default function AllListTicketTable({
   return (
     <div className="p-6 bg-white rounded-2xl border border-gray-200">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold">List Semua Tiket</h2>
+        <h2 className="text-xl font-bold">
+          List {isMyTicket ? "Tiket Saya" : "Semua Tiket"}
+        </h2>
         <Link
           href="/helpdesk/tiket/new"
           className="flex items-center gap-2 px-4 py-2.5 bg-[#65C7D5] text-white rounded-2xl text-sm hover:opacity-90"
