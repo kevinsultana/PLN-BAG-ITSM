@@ -149,7 +149,7 @@ export default function Page() {
           onClickSubmitFeedback={handleSubmitFeedback}
           onClickUpdateTiket={handleUpdateTiket}
           onClickCRForm={() =>
-            router.push(`/helpdesk/tiket/cr-form/${data?.id}`)
+            router.push(`/helpdesk/tiket/cr-form/agent/${data?.id}`)
           }
         />
       </HelpdeskLayout>
