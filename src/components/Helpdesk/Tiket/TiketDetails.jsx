@@ -7,6 +7,7 @@ import { FormControl, MenuItem, Select } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import { FaCircleStop } from "react-icons/fa6";
 import { HiPlay } from "react-icons/hi";
+import { LuArrowRight } from "react-icons/lu";
 import { MdOutlinePauseCircleFilled } from "react-icons/md";
 
 function mapUpdatedTiketToPayload(updatedTiket) {
@@ -16,7 +17,7 @@ function mapUpdatedTiketToPayload(updatedTiket) {
     attachment_ids: Array.isArray(updatedTiket?.attachments)
       ? updatedTiket.attachments.map((att) => att.id)
       : [],
-    bpo_id: updatedTiket?.bpo?.id || "",
+    bpo_id: updatedTiket?.bpo_id || "",
     contract_number: updatedTiket?.contract_number || "",
     contract_value: updatedTiket?.contract_value || 0,
     description: updatedTiket?.description || "",
@@ -43,6 +44,7 @@ export default function TiketDetails({
   onClickSubmitFeedback,
   selections,
   onClickUpdateTiket,
+  onClickCRForm,
 }) {
   const status = ["OPEN", "IN PROGRESS", "ON HOLD", "RESOLVED", "CLOSED"];
 
@@ -90,13 +92,27 @@ export default function TiketDetails({
     }
   }, [updatedTiket?.team_group?.id]);
 
+  const isTicketTypeCR =
+    data?.ticket_type?.id ===
+    selections?.ticket_types?.find((type) => type.name === "Change Request")
+      ?.id;
+
   return (
     <div key={data?.id} className="bg-white rounded-xl p-4">
       <h1 className="text-black text-base font-bold">Detail Tiket</h1>
 
       <div className="flex items-center justify-between">
         <div className="py-4 flex items-center gap-2">
-          {data?.status === "OPEN" && (
+          {isTicketTypeCR && (
+            <button
+              onClick={onClickCRForm}
+              className="px-3 py-1 flex items-center gap-2 bg-blue-400 rounded-lg cursor-pointer hover:bg-blue-500 transition-all duration-300"
+            >
+              <p className="text-sm text-white font-semibold">Apply To CRF</p>
+              <LuArrowRight className="text-2xl text-white" />
+            </button>
+          )}
+          {data?.status === "OPEN" && !isTicketTypeCR && (
             <button
               onClick={onClickStart}
               className="px-3 py-1 flex items-center gap-2 bg-green-400 rounded-lg cursor-pointer hover:bg-green-500 transition-all duration-300"
@@ -306,13 +322,13 @@ export default function TiketDetails({
               <>
                 <Dropdown
                   label="BPO"
-                  value={updatedTiket?.bpo?.id || ""}
+                  value={updatedTiket?.bpo_id || updatedTiket?.bpo?.id || ""}
                   dataMenus={selections?.bpos || []}
                   disabled={data?.status !== "OPEN"}
                   handleChange={(e) =>
                     setUpdatedTiket((prev) => ({
                       ...prev,
-                      bpo: { id: e.target.value },
+                      bpo_id: e.target.value,
                     }))
                   }
                   isRequired={true}
@@ -324,6 +340,7 @@ export default function TiketDetails({
                   <input
                     type="text"
                     value={updatedTiket?.contract_number || ""}
+                    placeholder="Masukkan No. Kontrak"
                     className="input p-2"
                     onChange={(e) =>
                       setUpdatedTiket((prev) => ({
@@ -338,13 +355,18 @@ export default function TiketDetails({
                 <div className="flex flex-col gap-2">
                   <label className="text-lg font-semibold">Nilai Kontrak</label>
                   <input
-                    type="text"
-                    value={updatedTiket?.contract_value || ""}
+                    type="number"
+                    placeholder="0"
+                    value={
+                      updatedTiket?.contract_value === 0
+                        ? ""
+                        : updatedTiket?.contract_value
+                    }
                     className="input p-2"
                     onChange={(e) =>
                       setUpdatedTiket((prev) => ({
                         ...prev,
-                        contract_value: e.target.value,
+                        contract_value: Number(e.target.value),
                       }))
                     }
                     required
