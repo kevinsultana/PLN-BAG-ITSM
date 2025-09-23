@@ -41,7 +41,7 @@ export default function NavBar({ onClick }) {
 
   const api = BACKEND_URL;
   const wsUrl =
-    api.replace(/^http/, api.startsWith("https") ? "wss" : "ws") +
+    api.replace(/^http/, api.startsWith("https") ? "ws" : "ws") +
     "/notifications/stream";
 
   const notificationWebSocket = () => {
