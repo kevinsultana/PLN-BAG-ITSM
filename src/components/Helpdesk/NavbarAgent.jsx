@@ -45,7 +45,6 @@ export default function NavbarAgent({ onClick }) {
 
   const notificationWebSocket = () => {
     const ws = new WebSocket(wsUrl);
-    console.log(ws);
     ws.onmessage = (event) => {
       const newNotification = JSON.parse(event.data);
       setDataNotifications((prev) => [newNotification, ...prev]);

@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { ProxyUrl } from "@/api/BaseUrl";
 import { toast } from "sonner";
+import { BACKEND_URL } from "@/api/API";
 
 export default function Page() {
   const [data, setData] = useState(null);
@@ -35,6 +36,34 @@ export default function Page() {
     getDataTiketById(tiketId);
     getDataFeedback(tiketId);
   }, [tiketId]);
+
+  const feedbackWebSocket = () => {
+    const api = BACKEND_URL;
+    const wsUrl =
+      api.replace(/^http/, api.startsWith("https") ? "ws" : "ws") +
+      `/tickets/${tiketId}/feedback/stream`;
+
+    const ws = new WebSocket(wsUrl);
+
+    ws.onopen = () => {
+      console.log("WebSocket connection established");
+    };
+
+    ws.onmessage = async (event) => {
+      await getDataFeedback(tiketId);
+      toast.success("Feedback baru diterima", { duration: 3000 });
+    };
+    ws.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+    ws.onclose = () => {
+      console.log("WebSocket connection closed");
+    };
+  };
+
+  useEffect(() => {
+    feedbackWebSocket();
+  }, []);
 
   const handleSubmitFeedback = async (feedback) => {
     const data = { description: feedback };
