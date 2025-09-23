@@ -186,15 +186,15 @@ export default function SidebarAgent({ show }) {
 
           <li>
             <Link
-              href="/helpdesk/user-previlege"
+              href="/helpdesk/user-privilege"
               className={getLinkClassName([
-                "/helpdesk/user-previlege",
-                "/helpdesk/user-previlege/new",
-                "/helpdesk/user-previlege/edit/[id]",
+                "/helpdesk/user-privilege",
+                "/helpdesk/user-privilege/new",
+                "/helpdesk/user-privilege/edit/[id]",
               ])}
             >
               <RiUser3Line />
-              User Previlege
+              User Privilege
             </Link>
           </li>
 

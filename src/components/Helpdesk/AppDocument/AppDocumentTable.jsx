@@ -131,6 +131,7 @@ export default function AppDocumentTable({
   }, [sortedAndFilteredDocuments, page, rowsPerPage]);
 
   const totalPages = Math.ceil(sortedAndFilteredDocuments.length / rowsPerPage);
+  console.log(paginatedDocuments);
 
   return (
     <div className="p-6 mt-4 bg-white rounded-2xl border border-gray-200">
@@ -215,7 +216,9 @@ export default function AppDocumentTable({
                         rel="noopener noreferrer"
                         className="text-[#65C7D5] underline"
                       >
-                        Download
+                        {row.attachments[0].name.length <= 20
+                          ? row.attachments[0].name
+                          : row.attachments[0].name.substring(0, 20) + "..."}
                       </a>
                     ) : (
                       "-"
