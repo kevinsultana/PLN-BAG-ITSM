@@ -48,8 +48,16 @@ export default function Page() {
   return (
     <div className="bg-slate-100 min-h-screen">
       <HelpdeskLayout>
-        <div className="flex items-center mb-6 gap-4">
+        <div className="flex items-center justify-between mb-6 gap-4">
           <h1 className="text-2xl font-bold">Formulir Agent</h1>
+          <button
+            onClick={() =>
+              router.push(`/helpdesk/tiket/cr-form/it/${ticketId}`)
+            }
+            className="px-4 py-2 rounded-lg text-white bg-[#65C7D5] hover:bg-[#4FB3C1] transition flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            Submit CRF
+          </button>
         </div>
         {loading ? (
           <p>Memuat data...</p>
