@@ -225,7 +225,7 @@ export default function CreateTeamMemberForm({
         </div>
 
         {/* Visibility */}
-        <div className="flex flex-col gap-2">
+        {/* <div className="flex flex-col gap-2">
           <label className="font-semibold text-sm">
             Visibility<span className="text-red-500">*</span>
           </label>
@@ -247,7 +247,7 @@ export default function CreateTeamMemberForm({
               ))}
             </Select>
           </FormControl>
-        </div>
+        </div> */}
 
         {/* Deskripsi */}
         <div className="flex flex-col gap-2 col-span-2">

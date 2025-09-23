@@ -11,15 +11,6 @@ export default function CreateAppDocumentForm({
   onSubmit,
   submitLabel = "Save",
 }) {
-  const [form, setForm] = useState({
-    id: data?.id || "",
-    title: data?.title || "",
-    application_id: data?.application_id || "",
-    description: data?.description || "",
-    file_url: null, // always null initially, handle display separately
-    is_publish: data?.is_publish || false,
-  });
-
   // If there's an attachment from API, show it
   const initialApiAttachment = data?.attachments?.[0]?.url || null;
   const initialApiAttachmentName = initialApiAttachment
@@ -31,6 +22,16 @@ export default function CreateAppDocumentForm({
       ? { url: initialApiAttachment, name: initialApiAttachmentName }
       : null
   );
+
+  const [form, setForm] = useState({
+    id: data?.id || "",
+    title: data?.title || "",
+    application_id: data?.application_id || "",
+    description: data?.description || "",
+    file_url: apiAttachment?.url || null, // always null initially, handle display separately
+    is_publish: data?.is_publish || false,
+  });
+
   const [fileObj, setFileObj] = useState(null); // for new file
   const [errors, setErrors] = useState({});
   const fileInputRef = useRef(null);

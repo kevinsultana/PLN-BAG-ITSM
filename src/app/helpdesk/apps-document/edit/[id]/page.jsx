@@ -40,23 +40,24 @@ export default function EditApplicationPage() {
   }, [id]);
 
   const handleSave = async (form) => {
-    try {
-      const formData = new FormData();
-      formData.append("files", form.file_url);
-      const res = await PostProxyUrl.post("/attachments", formData);
-      const newForm = {
-        ...form,
-        attachment_ids: [res.data.data[0].id],
-      };
-      const resp = await ProxyUrl.put(`/docs/${id}`, newForm);
-      router.back();
-      toast.success("Dokumen berhasil diperbarui", {
-        description: `Dokumen "${form.title}" telah berhasil diperbarui.`,
-        duration: 5000,
-      });
-    } catch (error) {
-      console.log(error);
-    }
+    console.log(form);
+    // try {
+    //   const formData = new FormData();
+    //   formData.append("files", form.file_url);
+    //   const res = await PostProxyUrl.post("/attachments", formData);
+    //   const newForm = {
+    //     ...form,
+    //     attachment_ids: [res.data.data[0].id],
+    //   };
+    //   const resp = await ProxyUrl.put(`/docs/${id}`, newForm);
+    //   router.back();
+    //   toast.success("Dokumen berhasil diperbarui", {
+    //     description: `Dokumen "${form.title}" telah berhasil diperbarui.`,
+    //     duration: 5000,
+    //   });
+    // } catch (error) {
+    //   console.log(error);
+    // }
   };
 
   return (

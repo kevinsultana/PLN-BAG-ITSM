@@ -115,13 +115,13 @@ export default function TicketStatusTable({
       <div className="flex flex-col gap-4 mb-4">
         <h2 className="text-xl font-bold">Status Tiket</h2>
         <div className="flex justify-between items-center gap-4">
-          <button
+          {/* <button
             onClick={onClickNewTiketStats}
             className="flex items-center gap-2 px-4 py-2.5 bg-[#65C7D5] text-white rounded-2xl text-sm hover:opacity-90 cursor-pointer"
           >
             <FaPlus />
             <span>New</span>
-          </button>
+          </button> */}
           <TextField
             variant="outlined"
             size="small"
@@ -204,14 +204,14 @@ export default function TicketStatusTable({
           >
             Edit
           </MenuItem>
-          <MenuItem
+          {/* <MenuItem
             sx={{ color: "red" }}
             onClick={() => {
               if (activeRow) handleDelete(activeRow);
             }}
           >
             Delete
-          </MenuItem>
+          </MenuItem> */}
         </Menu>
         <div className="flex items-center justify-between px-4 py-3">
           <div className="text-sm text-gray-600">
