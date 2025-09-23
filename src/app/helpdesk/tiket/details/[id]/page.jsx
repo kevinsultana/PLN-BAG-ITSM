@@ -5,6 +5,7 @@ import HelpdeskLayout from "@/components/Helpdesk/layout/HelpdeskLayout";
 import TiketDetails from "@/components/Helpdesk/Tiket/TiketDetails";
 import { ProxyUrl } from "@/api/BaseUrl";
 import { toast } from "sonner";
+import { BACKEND_URL } from "@/api/API";
 
 export default function Page() {
   const params = useParams();
@@ -101,6 +102,34 @@ export default function Page() {
       console.error("Error updating ticket:", error);
     }
   };
+
+  const feedbackWebSocket = () => {
+    const api = BACKEND_URL;
+    const wsUrl =
+      api.replace(/^http/, api.startsWith("https") ? "ws" : "ws") +
+      `/tickets/${ticketNo}/feedback/stream`;
+
+    const ws = new WebSocket(wsUrl);
+
+    ws.onopen = () => {
+      console.log("WebSocket connection established");
+    };
+
+    ws.onmessage = async (event) => {
+      await getDataFeedback();
+      toast.success("Feedback baru diterima", { duration: 3000 });
+    };
+    ws.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+    ws.onclose = () => {
+      console.log("WebSocket connection closed");
+    };
+  };
+
+  useEffect(() => {
+    feedbackWebSocket();
+  }, []);
 
   return (
     <div className="bg-slate-100 h-full">
