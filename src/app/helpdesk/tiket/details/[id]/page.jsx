@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import HelpdeskLayout from "@/components/Helpdesk/layout/HelpdeskLayout";
 import TiketDetails from "@/components/Helpdesk/Tiket/TiketDetails";
 import { ProxyUrl } from "@/api/BaseUrl";
@@ -13,6 +13,8 @@ export default function Page() {
   const [data, setData] = useState(null);
   const [dataFeedback, setDataFeedback] = useState([]);
   const [dataSelection, setDataSelection] = useState({});
+
+  const router = useRouter();
 
   const getDataTicket = async () => {
     try {
@@ -146,6 +148,9 @@ export default function Page() {
           onClickEnd={() => handleClickStart("RESOLVED")}
           onClickSubmitFeedback={handleSubmitFeedback}
           onClickUpdateTiket={handleUpdateTiket}
+          onClickCRForm={() =>
+            router.push(`/helpdesk/tiket/cr-form/agent/${data?.id}`)
+          }
         />
       </HelpdeskLayout>
     </div>

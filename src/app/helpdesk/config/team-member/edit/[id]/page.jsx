@@ -41,7 +41,11 @@ export default function Page() {
     <div className="bg-slate-100 h-full">
       <HelpdeskLayout>
         <h1 className="text-2xl font-bold">Konfigurasi</h1>
-        <CreateTeamMemberForm data={data} onSubmit={handleSubmit} />
+        <CreateTeamMemberForm
+          data={data}
+          onSubmit={handleSubmit}
+          onCancel={() => router.back()}
+        />
       </HelpdeskLayout>
     </div>
   );

@@ -212,14 +212,14 @@ export default function AgentManagementTable({
           >
             Edit
           </MenuItem>
-          <MenuItem
+          {/* <MenuItem
             sx={{ color: "red" }}
             onClick={() => {
               if (activeRow) handleDelete(activeRow);
             }}
           >
             Delete
-          </MenuItem>
+          </MenuItem> */}
         </Menu>
 
         <div className="flex items-center justify-between px-4 py-3">

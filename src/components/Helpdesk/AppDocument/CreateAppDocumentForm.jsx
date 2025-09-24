@@ -11,15 +11,6 @@ export default function CreateAppDocumentForm({
   onSubmit,
   submitLabel = "Save",
 }) {
-  const [form, setForm] = useState({
-    id: data?.id || "",
-    title: data?.title || "",
-    application_id: data?.application_id || "",
-    description: data?.description || "",
-    file_url: null, // always null initially, handle display separately
-    is_publish: data?.is_publish || false,
-  });
-
   // If there's an attachment from API, show it
   const initialApiAttachment = data?.attachments?.[0]?.url || null;
   const initialApiAttachmentName = initialApiAttachment
@@ -31,6 +22,16 @@ export default function CreateAppDocumentForm({
       ? { url: initialApiAttachment, name: initialApiAttachmentName }
       : null
   );
+
+  const [form, setForm] = useState({
+    id: data?.id || "",
+    title: data?.title || "",
+    application_id: data?.application_id || "",
+    description: data?.description || "",
+    file_url: apiAttachment?.url || null, // always null initially, handle display separately
+    is_publish: data?.is_publish || false,
+  });
+
   const [fileObj, setFileObj] = useState(null); // for new file
   const [errors, setErrors] = useState({});
   const fileInputRef = useRef(null);
@@ -46,9 +47,9 @@ export default function CreateAppDocumentForm({
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
+      if (file.size > 25 * 1024 * 1024) {
         toast.error("Ukuran file melebihi batas", {
-          description: "Ukuran file maksimal adalah 5MB.",
+          description: "Ukuran file maksimal adalah 25MB.",
         });
         return;
       }
@@ -69,7 +70,7 @@ export default function CreateAppDocumentForm({
         const file = e.clipboardData.files[0];
         if (file.size > 5 * 1024 * 1024) {
           toast.error("Ukuran file melebihi batas", {
-            description: "Ukuran file maksimal adalah 5MB.",
+            description: "Ukuran file maksimal adalah 25MB.",
           });
           return;
         }
@@ -170,7 +171,7 @@ export default function CreateAppDocumentForm({
         <div className="flex flex-col gap-2">
           <label className="font-semibold text-sm mb-1">
             Lampiran<span className="text-red-500">*</span>
-            <span className="text-xs text-gray-500 ml-2">(Maks 5MB)</span>
+            <span className="text-xs text-gray-500 ml-2">(Maks 25MB)</span>
           </label>
           {/* If API attachment exists and no new file selected, show API file */}
           {apiAttachment && !fileObj ? (

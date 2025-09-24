@@ -137,6 +137,16 @@ const privilegeRows = [
   },
   {
     no: 13,
+    access: "Konfigurasi Agent Management",
+    keys: {
+      create: "config.teams.create",
+      read: "config.teams.read",
+      update: "config.teams.update",
+      delete: "config.teams.delete",
+    },
+  },
+  {
+    no: 14,
     access: "Konfigurasi Status Tiket",
     keys: {
       create: "config.ticket.status.create",
@@ -146,7 +156,7 @@ const privilegeRows = [
     },
   },
   {
-    no: 14,
+    no: 15,
     access: "Konfigurasi SLA Policy",
     keys: {
       create: "config.sla.create",
@@ -156,7 +166,7 @@ const privilegeRows = [
     },
   },
   {
-    no: 15,
+    no: 16,
     access: "Konfigurasi Tipe Tiket",
     keys: {
       create: "config.ticket.type.create",
@@ -166,7 +176,7 @@ const privilegeRows = [
     },
   },
   {
-    no: 16,
+    no: 17,
     access: "Konfigurasi Aplikasi",
     keys: {
       create: "config.application.create",
@@ -176,7 +186,7 @@ const privilegeRows = [
     },
   },
   {
-    no: 17,
+    no: 18,
     access: "Konfigurasi Helpdesk Information",
     keys: {
       create: "config.helpdesk.info.create",
@@ -191,19 +201,15 @@ export default function EditPrivilegeUserPage() {
   const params = useParams();
   const router = useRouter();
   const [checkedPrivileges, setCheckedPrivileges] = useState([]);
-  // Helper: get all privilege keys
   const allPrivilegeKeys = privilegeRows.flatMap((row) =>
     Object.values(row.keys)
   );
 
-  // Helper: get all keys for a column
   const getColumnKeys = (colKey) =>
     privilegeRows.map((row) => row.keys[colKey]);
 
-  // Helper: get all keys for a row
   const getRowKeys = (row) => Object.values(row.keys);
 
-  // Checklist All handler for column
   const handleCheckAllColumn = (colKey) => {
     const colKeys = getColumnKeys(colKey);
     const allChecked = colKeys.every((key) =>
@@ -220,7 +226,6 @@ export default function EditPrivilegeUserPage() {
     }
   };
 
-  // Checklist All handler for row
   const handleCheckAllRow = (row) => {
     const rowKeys = getRowKeys(row);
     const allChecked = rowKeys.every((key) =>

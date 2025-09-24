@@ -225,7 +225,7 @@ export default function CreateTeamMemberForm({
         </div>
 
         {/* Visibility */}
-        <div className="flex flex-col gap-2">
+        {/* <div className="flex flex-col gap-2">
           <label className="font-semibold text-sm">
             Visibility<span className="text-red-500">*</span>
           </label>
@@ -247,7 +247,7 @@ export default function CreateTeamMemberForm({
               ))}
             </Select>
           </FormControl>
-        </div>
+        </div> */}
 
         {/* Deskripsi */}
         <div className="flex flex-col gap-2 col-span-2">
@@ -276,7 +276,7 @@ export default function CreateTeamMemberForm({
             />
             Email
           </label>
-          <label className="flex items-center gap-2 text-sm font-semibold cursor-pointer">
+          {/* <label className="flex items-center gap-2 text-sm font-semibold cursor-pointer">
             <input
               type="checkbox"
               name="autoAssign"
@@ -285,7 +285,7 @@ export default function CreateTeamMemberForm({
               className="form-checkbox h-4 w-4 text-[#65C7D5] rounded-full"
             />
             Auto Assign
-          </label>
+          </label> */}
         </div>
 
         {/* Buttons */}

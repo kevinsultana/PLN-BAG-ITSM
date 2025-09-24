@@ -19,6 +19,7 @@ import {
 } from "@mui/material";
 import { FaPlus } from "react-icons/fa";
 import { RiMore2Fill, RiSearchLine } from "react-icons/ri";
+import { useAuth } from "@/context/AuthContext";
 
 const columns = [
   { label: "No.", key: "no" },
@@ -27,7 +28,6 @@ const columns = [
   { label: "Email", key: "is_email" },
   { label: "Auto Assign", key: "is_autoassign" },
   { label: "Jumlah Anggota", key: "team_count" },
-  { label: "Aksi", key: "actions" },
 ];
 
 export default function TeamMemberTable({
@@ -37,6 +37,8 @@ export default function TeamMemberTable({
   onClickEdit,
   onClickDelete,
 }) {
+  const { privilege } = useAuth();
+
   const [teamMembers, setTeamMembers] = useState(data);
   const [page, setPage] = useState(1);
   const [rowsPerPage] = useState(5);
@@ -107,14 +109,23 @@ export default function TeamMemberTable({
     <div className="p-6 mt-4 bg-white rounded-2xl border border-gray-200">
       <div className="flex flex-col gap-4 mb-4">
         <h2 className="text-xl font-bold">Team Member</h2>
-        <div className="flex justify-between items-center gap-4">
-          <button
-            onClick={onClickNew}
-            className="flex items-center gap-2 px-4 py-2.5 bg-[#65C7D5] text-white rounded-2xl text-sm hover:opacity-90"
-          >
-            <FaPlus />
-            <span>New</span>
-          </button>
+        <div
+          className={`flex ${
+            privilege.data.includes("config.team.member.create")
+              ? "justify-between"
+              : "justify-end"
+          } items-center gap-4`}
+        >
+          {privilege.data.includes("config.team.member.create") && (
+            <button
+              onClick={onClickNew}
+              className="flex items-center gap-2 px-4 py-2.5 bg-[#65C7D5] text-white rounded-2xl text-sm hover:opacity-90"
+            >
+              <FaPlus />
+              <span>New</span>
+            </button>
+          )}
+
           <TextField
             variant="outlined"
             size="small"
@@ -154,6 +165,10 @@ export default function TeamMemberTable({
                   )}
                 </TableCell>
               ))}
+              {privilege.data.includes("config.team.member.update") ||
+              privilege.data.includes("config.team.member.delete") ? (
+                <TableCell>Aksi</TableCell>
+              ) : null}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -181,45 +196,53 @@ export default function TeamMemberTable({
                 <TableCell>{row.is_email ? "Ya" : "Tidak"}</TableCell>
                 <TableCell>{row.is_autoassign ? "Ya" : "Tidak"}</TableCell>
                 <TableCell>{row.team_count}</TableCell>
-                <TableCell>
-                  <IconButton
-                    onClick={(e) => handleOpenMenu(e, row)}
-                    aria-controls={anchorEl ? "team-member-actions" : undefined}
-                    aria-haspopup="true"
-                  >
-                    <RiMore2Fill />
-                  </IconButton>
-                </TableCell>
+                {privilege.data.includes("config.team.member.update") ||
+                privilege.data.includes("config.team.member.delete") ? (
+                  <TableCell>
+                    <IconButton
+                      onClick={(e) => handleOpenMenu(e, row)}
+                      aria-controls={
+                        anchorEl ? "team-member-actions" : undefined
+                      }
+                      aria-haspopup="true"
+                    >
+                      <RiMore2Fill />
+                    </IconButton>
+                  </TableCell>
+                ) : null}
               </TableRow>
             ))}
           </TableBody>
         </Table>
-        <Menu
-          id="team-member-actions"
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleCloseMenu}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-          transformOrigin={{ vertical: "top", horizontal: "right" }}
-        >
-          <MenuItem
-            onClick={() => {
-              if (typeof onClickEdit === "function") onClickEdit(activeRow);
-              handleCloseMenu();
-            }}
+        {privilege.data.includes("config.team.member.update") ||
+        privilege.data.includes("config.team.member.delete") ? (
+          <Menu
+            id="team-member-actions"
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleCloseMenu}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            transformOrigin={{ vertical: "top", horizontal: "right" }}
           >
-            Edit
-          </MenuItem>
-          <MenuItem
-            sx={{ color: "red" }}
-            onClick={() => {
-              if (typeof onClickDelete === "function") onClickDelete(activeRow);
-              handleCloseMenu();
+            <MenuItem
+              onClick={() => {
+                if (typeof onClickEdit === "function") onClickEdit(activeRow);
+                handleCloseMenu();
+              }}
+            >
+              Edit
+            </MenuItem>
+            {/* <MenuItem
+          sx={{ color: "red" }}
+          onClick={() => {
+            if (typeof onClickDelete === "function") onClickDelete(activeRow);
+            handleCloseMenu();
             }}
-          >
+            >
             Delete
-          </MenuItem>
-        </Menu>
+            </MenuItem> */}
+          </Menu>
+        ) : null}
         <div className="flex items-center justify-between px-4 py-3">
           <div className="text-sm text-gray-600">
             Page <span className="font-medium">{page}</span> of{" "}

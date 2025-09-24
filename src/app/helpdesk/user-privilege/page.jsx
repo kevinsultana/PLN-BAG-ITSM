@@ -10,7 +10,7 @@ export default function Page() {
   const router = useRouter();
 
   const handleEdit = (role) => {
-    router.push(`/helpdesk/user-previlege/edit/${role.id}`);
+    router.push(`/helpdesk/user-privilege/edit/${role.id}`);
   };
 
   const getData = async () => {

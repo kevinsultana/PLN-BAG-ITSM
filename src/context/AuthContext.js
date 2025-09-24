@@ -7,6 +7,7 @@ const AuthContext = createContext();
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [privilege, setPrivilege] = useState(null);
 
   // Cek sesi pengguna saat aplikasi dimuat
   const checkUserSession = async () => {
@@ -48,9 +49,26 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const getPrivilege = async () => {
+    try {
+      const res = await fetch(`/api/sso/me/permissions`, {
+        credentials: "include",
+      });
+      const data = await res.json();
+
+      setPrivilege(data);
+    } catch (error) {
+      console.error("Error fetching privilege:", error);
+    }
+  };
+
+  useEffect(() => {
+    getPrivilege();
+  }, []);
+
   return (
     <AuthContext.Provider
-      value={{ user, loading, login, logout, checkUserSession }}
+      value={{ user, loading, login, logout, checkUserSession, privilege }}
     >
       {!loading && children}
     </AuthContext.Provider>

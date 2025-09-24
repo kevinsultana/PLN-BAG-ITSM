@@ -105,10 +105,7 @@ export default function TicketForm({ dataSelection, onSubmit }) {
         if (!plainText) {
           newErrors[key] = true;
         }
-      } else if (
-        (typeof val === "string" && !val.trim()) ||
-        (key === "lampiran" && !val)
-      ) {
+      } else if (key !== "lampiran" && typeof val === "string" && !val.trim()) {
         newErrors[key] = true;
       }
     }
@@ -119,12 +116,12 @@ export default function TicketForm({ dataSelection, onSubmit }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // if (!validate()) {
-    //   toast.error("lengkapi data di bawah ini", {
-    //     description: "Silahkan lengkapi data di bawah ini",
-    //   });
-    //   return;
-    // }
+    if (!validate()) {
+      toast.error("lengkapi data di bawah ini", {
+        description: "Silahkan lengkapi data di bawah ini",
+      });
+      return;
+    }
     try {
       const payload = { ...form };
       let mappedData = payload.attachment_ids || [];
@@ -265,7 +262,7 @@ export default function TicketForm({ dataSelection, onSubmit }) {
 
       <div className="flex flex-col gap-2 md:col-span-2">
         <label className="font-semibold text-sm mb-1">
-          Lampiran<span className="text-red-500">*</span>
+          Lampiran
           <span className="text-xs text-gray-500 ml-2">(Maks 25MB)</span>
         </label>
         <div
