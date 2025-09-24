@@ -276,7 +276,7 @@ export default function CreateTeamMemberForm({
             />
             Email
           </label>
-          <label className="flex items-center gap-2 text-sm font-semibold cursor-pointer">
+          {/* <label className="flex items-center gap-2 text-sm font-semibold cursor-pointer">
             <input
               type="checkbox"
               name="autoAssign"
@@ -285,7 +285,7 @@ export default function CreateTeamMemberForm({
               className="form-checkbox h-4 w-4 text-[#65C7D5] rounded-full"
             />
             Auto Assign
-          </label>
+          </label> */}
         </div>
 
         {/* Buttons */}
