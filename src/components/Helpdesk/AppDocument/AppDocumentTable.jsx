@@ -23,6 +23,7 @@ import {
 } from "@mui/material";
 import { FaPlus } from "react-icons/fa";
 import { RiSearchLine, RiMore2Fill } from "react-icons/ri";
+import { useAuth } from "@/context/AuthContext";
 
 const initialAppDocuments = [];
 
@@ -31,7 +32,6 @@ const columns = [
   { label: "Name", key: "Title" },
   { label: "Aplikasi", key: "ApplicationID" },
   { label: "File", key: "FileURL" },
-  { label: "Aksi", key: "aksi", disableSorting: true },
 ];
 
 export default function AppDocumentTable({
@@ -41,6 +41,8 @@ export default function AppDocumentTable({
   onClickDelete,
   loading,
 }) {
+  const { privilege } = useAuth();
+
   const mappedData = useMemo(() => {
     if (!data || !Array.isArray(data)) return initialAppDocuments;
     return data.map((item, idx) => ({
@@ -131,20 +133,27 @@ export default function AppDocumentTable({
   }, [sortedAndFilteredDocuments, page, rowsPerPage]);
 
   const totalPages = Math.ceil(sortedAndFilteredDocuments.length / rowsPerPage);
-  console.log(paginatedDocuments);
 
   return (
     <div className="p-6 mt-4 bg-white rounded-2xl border border-gray-200">
       <div className="flex flex-col gap-4 mb-4">
         <h2 className="text-xl font-bold">Dokumen Aplikasi</h2>
-        <div className="flex justify-between items-center gap-4">
-          <button
-            onClick={onClickNewDocApps}
-            className="flex items-center gap-2 px-4 py-2.5 bg-[#65C7D5] text-white rounded-2xl text-sm hover:opacity-90 cursor-pointer"
-          >
-            <FaPlus />
-            <span>New</span>
-          </button>
+        <div
+          className={`flex ${
+            privilege.data.includes("document.application.create")
+              ? "justify-between"
+              : "justify-end"
+          } items-center gap-4`}
+        >
+          {privilege.data.includes("document.application.create") && (
+            <button
+              onClick={onClickNewDocApps}
+              className="flex items-center gap-2 px-4 py-2.5 bg-[#65C7D5] text-white rounded-2xl text-sm hover:opacity-90 cursor-pointer"
+            >
+              <FaPlus />
+              <span>New</span>
+            </button>
+          )}
           <TextField
             variant="outlined"
             size="small"
@@ -191,6 +200,10 @@ export default function AppDocumentTable({
                   )}
                 </TableCell>
               ))}
+              {privilege.data.includes("document.application.update") ||
+              privilege.data.includes("document.application.delete") ? (
+                <TableCell>Aksi</TableCell>
+              ) : null}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -224,13 +237,16 @@ export default function AppDocumentTable({
                       "-"
                     )}
                   </TableCell>
-                  <TableCell>
-                    <IconButton
-                      onClick={(e) => handleOpenMenuWithEvent(e, row)}
-                    >
-                      <RiMore2Fill />
-                    </IconButton>
-                  </TableCell>
+                  {privilege.data.includes("document.application.update") ||
+                  privilege.data.includes("document.application.delete") ? (
+                    <TableCell>
+                      <IconButton
+                        onClick={(e) => handleOpenMenuWithEvent(e, row)}
+                      >
+                        <RiMore2Fill />
+                      </IconButton>
+                    </TableCell>
+                  ) : null}
                 </TableRow>
               ))
             )}

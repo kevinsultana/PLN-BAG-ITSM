@@ -19,6 +19,7 @@ import {
 } from "@mui/material";
 import { FaPlus } from "react-icons/fa";
 import { RiSearchLine, RiMore2Fill } from "react-icons/ri";
+import { useAuth } from "@/context/AuthContext";
 
 const initialApplications = [];
 
@@ -26,7 +27,6 @@ const columns = [
   { label: "No.", key: "no" },
   { label: "Nama", key: "Name" },
   { label: "Deskripsi", key: "Description" },
-  { label: "Aksi", key: "aksi", disableSorting: true },
 ];
 
 export default function ApplicationTable({
@@ -36,6 +36,8 @@ export default function ApplicationTable({
   onClickDelete,
   loading,
 }) {
+  const { privilege } = useAuth();
+
   const mappedData = useMemo(() => {
     if (!data || !Array.isArray(data)) return initialApplications;
     return data.map((item, idx) => ({
@@ -115,14 +117,22 @@ export default function ApplicationTable({
     <div className="p-6 mt-4 bg-white rounded-2xl border border-gray-200">
       <div className="flex flex-col gap-4 mb-4">
         <h2 className="text-xl font-bold">Aplikasi</h2>
-        <div className="flex items-center justify-between gap-4">
-          <button
-            onClick={onClickNewApps}
-            className="flex items-center gap-2 px-4 py-2.5 bg-[#65C7D5] text-white rounded-2xl text-sm hover:opacity-90 cursor-pointer"
-          >
-            <FaPlus />
-            <span>New</span>
-          </button>
+        <div
+          className={`flex items-center ${
+            privilege.data.includes("config.application.create")
+              ? "justify-between"
+              : "justify-end"
+          } gap-4`}
+        >
+          {privilege.data.includes("config.application.create") && (
+            <button
+              onClick={onClickNewApps}
+              className="flex items-center gap-2 px-4 py-2.5 bg-[#65C7D5] text-white rounded-2xl text-sm hover:opacity-90 cursor-pointer"
+            >
+              <FaPlus />
+              <span>New</span>
+            </button>
+          )}
           <TextField
             variant="outlined"
             size="small"
@@ -165,6 +175,10 @@ export default function ApplicationTable({
                   )}
                 </TableCell>
               ))}
+              {privilege.data.includes("config.application.update") ||
+              privilege.data.includes("config.application.delete") ? (
+                <TableCell>Aksi</TableCell>
+              ) : null}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -188,11 +202,14 @@ export default function ApplicationTable({
                       "-"
                     )}
                   </TableCell>
-                  <TableCell>
-                    <IconButton onClick={(e) => handleOpenMenu(e, row)}>
-                      <RiMore2Fill />
-                    </IconButton>
-                  </TableCell>
+                  {privilege.data.includes("config.application.update") ||
+                  privilege.data.includes("config.application.delete") ? (
+                    <TableCell>
+                      <IconButton onClick={(e) => handleOpenMenu(e, row)}>
+                        <RiMore2Fill />
+                      </IconButton>
+                    </TableCell>
+                  ) : null}
                 </TableRow>
               ))
             )}
@@ -206,21 +223,25 @@ export default function ApplicationTable({
           anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
           transformOrigin={{ vertical: "top", horizontal: "right" }}
         >
-          <MenuItem
-            onClick={() => {
-              if (activeRow) handleEdit(activeRow);
-            }}
-          >
-            Edit
-          </MenuItem>
-          {/* <MenuItem
-            sx={{ color: "red" }}
-            onClick={() => {
-              if (activeRow) handleDelete(activeRow);
-            }}
-          >
-            Delete
-          </MenuItem> */}
+          {privilege.data.includes("config.application.update") && (
+            <MenuItem
+              onClick={() => {
+                if (activeRow) handleEdit(activeRow);
+              }}
+            >
+              Edit
+            </MenuItem>
+          )}
+          {/* {privilege.data.includes("config.application.delete") && (
+            <MenuItem
+              sx={{ color: "red" }}
+              onClick={() => {
+                if (activeRow) handleDelete(activeRow);
+              }}
+            >
+              Delete
+            </MenuItem>
+          )} */}
         </Menu>
         <div className="flex items-center justify-between px-4 py-3">
           <div className="text-sm text-gray-600">

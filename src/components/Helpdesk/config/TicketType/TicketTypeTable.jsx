@@ -19,6 +19,7 @@ import {
 } from "@mui/material";
 import { FaPlus } from "react-icons/fa";
 import { RiSearchLine, RiMore2Fill } from "react-icons/ri";
+import { useAuth } from "@/context/AuthContext";
 
 const initialTicketTypes = [];
 
@@ -26,7 +27,6 @@ const columns = [
   { label: "No.", key: "no" },
   { label: "Nama", key: "Name" },
   { label: "Code", key: "Code" },
-  { label: "Aksi", key: "aksi", disableSorting: true },
 ];
 
 export default function TicketTypeTable({
@@ -36,6 +36,8 @@ export default function TicketTypeTable({
   onClickDelete,
   loading,
 }) {
+  const { privilege } = useAuth();
+
   // Map API data to table format with no
   const mappedData = useMemo(() => {
     if (!data || !Array.isArray(data)) return initialTicketTypes;
@@ -114,14 +116,22 @@ export default function TicketTypeTable({
     <div className="p-6 mt-4 bg-white rounded-2xl border border-gray-200">
       <div className="flex flex-col gap-4 mb-4">
         <h2 className="text-xl font-bold">Tipe Tiket</h2>
-        <div className="flex justify-between items-center gap-4">
-          <button
-            onClick={onClickNewTicketType}
-            className="flex items-center gap-2 px-4 py-2.5 bg-[#65C7D5] text-white rounded-2xl text-sm hover:opacity-90 cursor-pointer"
-          >
-            <FaPlus />
-            <span>New</span>
-          </button>
+        <div
+          className={`flex ${
+            privilege.data.includes("config.ticket.type.create")
+              ? "justify-between"
+              : "justify-end"
+          } items-center gap-4`}
+        >
+          {privilege.data.includes("config.ticket.type.create") && (
+            <button
+              onClick={onClickNewTicketType}
+              className="flex items-center gap-2 px-4 py-2.5 bg-[#65C7D5] text-white rounded-2xl text-sm hover:opacity-90 cursor-pointer"
+            >
+              <FaPlus />
+              <span>New</span>
+            </button>
+          )}
           <TextField
             variant="outlined"
             size="small"
@@ -164,6 +174,10 @@ export default function TicketTypeTable({
                   )}
                 </TableCell>
               ))}
+              {privilege.data.includes("config.ticket.type.update") ||
+              privilege.data.includes("config.ticket.type.delete") ? (
+                <TableCell>Aksi</TableCell>
+              ) : null}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -179,11 +193,14 @@ export default function TicketTypeTable({
                   <TableCell>{row.no}</TableCell>
                   <TableCell>{row.Name}</TableCell>
                   <TableCell>{row.Code}</TableCell>
-                  <TableCell>
-                    <IconButton onClick={(e) => handleOpenMenu(e, row)}>
-                      <RiMore2Fill />
-                    </IconButton>
-                  </TableCell>
+                  {(privilege.data.includes("config.ticket.type.update") ||
+                    privilege.data.includes("config.ticket.type.delete")) && (
+                    <TableCell>
+                      <IconButton onClick={(e) => handleOpenMenu(e, row)}>
+                        <RiMore2Fill />
+                      </IconButton>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))
             )}
@@ -197,21 +214,25 @@ export default function TicketTypeTable({
           anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
           transformOrigin={{ vertical: "top", horizontal: "right" }}
         >
-          <MenuItem
-            onClick={() => {
-              if (activeRow) handleEdit(activeRow);
-            }}
-          >
-            Edit
-          </MenuItem>
-          {/* <MenuItem
-            sx={{ color: "red" }}
-            onClick={() => {
-              if (activeRow) handleDelete(activeRow);
-            }}
-          >
-            Delete
-          </MenuItem> */}
+          {privilege.data.includes("config.ticket.type.update") && (
+            <MenuItem
+              onClick={() => {
+                if (activeRow) handleEdit(activeRow);
+              }}
+            >
+              Edit
+            </MenuItem>
+          )}
+          {/* {privilege.data.includes("config.ticket.type.delete") && (
+            <MenuItem
+              sx={{ color: "red" }}
+              onClick={() => {
+                if (activeRow) handleDelete(activeRow);
+              }}
+            >
+              Delete
+            </MenuItem>
+          )} */}
         </Menu>
         <div className="flex items-center justify-between px-4 py-3">
           <div className="text-sm text-gray-600">

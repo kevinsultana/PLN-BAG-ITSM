@@ -8,17 +8,12 @@ import {
   DialogContent,
   DialogTitle,
   Button,
-  TextField,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 export default function page() {
   const [data, setData] = useState([]);
-  const [editOpen, setEditOpen] = useState(false);
-  const [editRow, setEditRow] = useState(null);
-  const [editName, setEditName] = useState("");
-  const [editCode, setEditCode] = useState("");
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteRow, setDeleteRow] = useState(null);
   const router = useRouter();
