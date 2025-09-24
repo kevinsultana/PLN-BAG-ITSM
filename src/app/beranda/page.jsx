@@ -18,17 +18,22 @@ export default function Page() {
     router.push(`/beranda/ticket-details/${item.id}`);
   };
 
-  const getDataTiket = async () => {
+  const getDataTiket = async (page = 1) => {
     try {
-      const res = await ProxyUrl.get("/tickets");
+      const res = await ProxyUrl.get(`/tickets?page=${page}&page_size=5`);
       setDataTiket(res.data.data);
       setDataMetaTiket(res.data.meta);
     } catch (error) {
       console.log(error);
     }
   };
+
+  const handlePageChange = (newPage) => {
+    getDataTiket(newPage);
+  };
+
   useEffect(() => {
-    getDataTiket();
+    getDataTiket(1);
   }, []);
 
   return (
@@ -42,6 +47,7 @@ export default function Page() {
             onRowClick={handleRowClick}
             dataTiket={dataTiket}
             dataMetaTiket={dataMetaTiket}
+            onPageChange={handlePageChange}
           />
         </div>
       </MainLayout>

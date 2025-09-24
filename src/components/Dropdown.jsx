@@ -48,7 +48,7 @@ export default function Dropdown({
         </Select>
         {!!errors && (
           <span className="text-xs text-red-500 mt-1">
-            {typeof errors === "string" ? errors : "Field ini wajib diisi"}
+            {typeof errors === "string" ? errors : ""}
           </span>
         )}
       </FormControl>

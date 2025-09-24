@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -51,11 +51,19 @@ export default function ListTicketTable({
   onRowClick,
   dataTiket = [],
   dataMetaTiket = {},
+  onPageChange,
 }) {
   const [orderBy, setOrderBy] = useState("ticket_id");
   const [order, setOrder] = useState("asc");
-  const [page, setPage] = useState(dataMetaTiket.page || 1);
+  const [page, setPage] = useState(1);
   const rowsPerPage = dataMetaTiket.page_size || 10;
+
+  // Update page state when dataMetaTiket changes
+  useEffect(() => {
+    if (dataMetaTiket.page) {
+      setPage(dataMetaTiket.page);
+    }
+  }, [dataMetaTiket.page]);
 
   const handleSort = (property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -63,9 +71,18 @@ export default function ListTicketTable({
     setOrderBy(property);
   };
 
+  const handlePageChange = (event, newPage) => {
+    setPage(newPage);
+    if (onPageChange) {
+      onPageChange(newPage);
+    }
+  };
+
   // Map API data to table columns
   const mappedTickets = useMemo(() => {
-    return (dataTiket.items || []).map((item) => ({
+    // Check if dataTiket has items property, if not treat dataTiket as array directly
+    const ticketArray = dataTiket.items || dataTiket || [];
+    return ticketArray.map((item) => ({
       ticket_id: item.id,
       ticket_detail: item.subject,
       created_by: item.requester?.name || item.fullname || item.email,
@@ -88,10 +105,8 @@ export default function ListTicketTable({
     });
   }, [mappedTickets, orderBy, order]);
 
-  const paginatedTickets = useMemo(() => {
-    const start = (page - 1) * rowsPerPage;
-    return sortedTickets.slice(start, start + rowsPerPage);
-  }, [sortedTickets, page, rowsPerPage]);
+  // Since data is already paginated from server, we don't need to slice again
+  const paginatedTickets = sortedTickets;
 
   return (
     <div className="p-5 bg-white">
@@ -133,7 +148,10 @@ export default function ListTicketTable({
                 className="hover:bg-gray-100 cursor-pointer"
               >
                 <TableCell className="border border-gray-200">
-                  {(page - 1) * rowsPerPage + index + 1}
+                  {((dataMetaTiket.page || 1) - 1) *
+                    (dataMetaTiket.page_size || 5) +
+                    index +
+                    1}
                 </TableCell>
                 <TableCell className="border border-gray-200 ">
                   {row.ticket_code ? row.ticket_code : "-"}
@@ -166,7 +184,7 @@ export default function ListTicketTable({
           <Pagination
             count={dataMetaTiket.total_pages || 1}
             page={page}
-            onChange={(e, value) => setPage(value)}
+            onChange={handlePageChange}
             sx={{
               "& .MuiPaginationItem-root": {
                 color: "#65C7D5",
