@@ -1,16 +1,56 @@
 "use client";
 import MainLayout from "@/components/Beranda/Layout/MainLayout";
-import React from "react";
+import React, { useRef } from "react";
 import Image from "next/image";
+import html2canvas from "@html2canvas/html2canvas";
+import jsPDF from "jspdf";
 
 export default function Page() {
+  const refForm = useRef();
+
+  const handleExportPdf = (e) => {
+    e.preventDefault();
+    const formToPrint = refForm.current;
+    if (!formToPrint) return;
+
+    html2canvas(formToPrint, { scale: 2 }).then((canvas) => {
+      // Mengambil data gambar dari canvas
+      const imgData = canvas.toDataURL("image/png");
+
+      // Menggunakan format A4 standar dari jsPDF
+      // 'p' = portrait, 'pt' = points, 'a4' = format
+      const pdf = new jsPDF("p", "pt", "a4");
+
+      // Mengambil dimensi gambar dan halaman PDF
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const pdfPageWidth = pdf.internal.pageSize.getWidth();
+      const pdfPageHeight = pdf.internal.pageSize.getHeight();
+
+      // Menghitung rasio gambar agar pas dengan lebar halaman PDF
+      const ratio = imgWidth / pdfPageWidth;
+      const pdfImageHeight = imgHeight / ratio;
+
+      // Menambahkan gambar ke PDF
+      // jsPDF akan otomatis memotong gambar ke halaman baru jika tingginya melebihi pdfPageHeight
+      pdf.addImage(imgData, "PNG", 0, 0, pdfPageWidth, pdfImageHeight);
+
+      // Menyimpan file PDF
+      pdf.save("formulir-uaa-01.pdf");
+    });
+  };
+
   return (
     <div className="bg-slate-100 min-h-screen">
       <MainLayout>
         <div className="flex flex-col py-6 px-14 h-auto">
           <h1 className="text-2xl font-bold mb-4">Formulir</h1>
           <div className="bg-white rounded-xl p-4">
-            <form className="bg-white rounded-xl shadow p-6 space-y-6 text-sm text-gray-700">
+            <form
+              onSubmit={handleExportPdf}
+              ref={refForm}
+              className="bg-white rounded-xl shadow p-6 space-y-6 text-sm text-gray-700"
+            >
               <div className="flex justify-between items-start">
                 <div>
                   <p className="font-bold">Kode:</p>
@@ -27,7 +67,7 @@ export default function Page() {
                   alt="logo"
                   width={127}
                   height={44}
-                  className="w-28 object-contain"
+                  className="w-28 h-auto object-contain"
                 />
               </div>
 
@@ -68,61 +108,39 @@ export default function Page() {
                 />
               </div>
 
-              {/* <div>
-                <Label text="Role Yang Akan Diassign Ke User" required />
-                <div className="space-y-2">
-                  {[...Array(3)].map((_, i) => (
-                    <div key={i} className="grid grid-cols-2 gap-4">
-                      <Input label="Nama Lengkap" />
-                      <Input label="Role" />
-                    </div>
-                  ))}
-                </div>
-              </div>
-
               <div className="border rounded p-4">
                 <Label text="Konfirmasi" />
                 <table className="w-full text-sm mt-2">
                   <thead>
-                    <tr className="text-left border-b">
-                      <th> </th>
-                      <th>Nama</th>
-                      <th>Tanda Tangan</th>
-                      <th>Tanggal</th>
+                    <tr className="text-left border-b ">
+                      <th className="w-1/4"> </th>
+                      <th className="w-1/4">Nama</th>
+                      <th className="w-1/4">Tanda Tangan</th>
+                      <th className="w-1/4">Tanggal</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr className="border-b">
-                      <td className="py-2 font-medium">Dimintai Oleh *</td>
-                      <td>
-                        <Input />
+                    <tr className="border">
+                      <td className="py-2 font-medium h-24 pl-1">
+                        Dimintai Oleh *
                       </td>
-                      <td>
-                        <Input />
-                      </td>
-                      <td>
-                        <Input type="date" />
-                      </td>
+                      <td className="h-24 border"></td>
+                      <td className="h-24 border"></td>
+                      <td className="h-24 border"></td>
                     </tr>
                     <tr>
-                      <td className="py-2 font-medium">
+                      <td className="py-2 font-medium h-24 border pl-1">
                         Disetujui oleh Supervisor / Manager / PH Manager / BPO *
                       </td>
-                      <td>
-                        <Input />
-                      </td>
-                      <td>
-                        <Input />
-                      </td>
-                      <td>
-                        <Input type="date" />
-                      </td>
+                      <td className="h-24 border"></td>
+                      <td className="h-24 border"></td>
+                      <td className="h-24 border"></td>
                     </tr>
                   </tbody>
                 </table>
-              </div> */}
+              </div>
 
-              <div className="text-xs text-gray-500 space-y-1">
+              <div className="text-xs text-gray-500 space-y-1 mt-4">
                 <p>
                   * : Harus diisi oleh User, jika tidak diisi maka permintaan
                   tidak akan diproses
@@ -134,7 +152,7 @@ export default function Page() {
                 type="submit"
                 className="bg-sky-500 text-white px-4 py-2 rounded hover:bg-sky-600"
               >
-                Submit
+                Export PDF
               </button>
             </form>
           </div>
