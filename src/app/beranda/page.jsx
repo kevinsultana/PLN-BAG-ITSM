@@ -7,10 +7,12 @@ import ListTicketTable from "@/components/Beranda/Home/ListTicketTable";
 
 import { useRouter } from "next/navigation";
 import { ProxyUrl } from "@/api/BaseUrl";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Page() {
   const [dataTiket, setDataTiket] = useState([]);
   const [dataMetaTiket, setDataMetaTiket] = useState([]);
+  const { privilege } = useAuth();
 
   const router = useRouter();
 
@@ -20,7 +22,7 @@ export default function Page() {
 
   const getDataTiket = async (page = 1) => {
     try {
-      const res = await ProxyUrl.get(`/tickets?page=${page}&page_size=5`);
+      const res = await ProxyUrl.get(`/tickets/users?page=${page}&page_size=5`);
       setDataTiket(res.data.data);
       setDataMetaTiket(res.data.meta);
     } catch (error) {
@@ -43,12 +45,14 @@ export default function Page() {
           <h1 className="text-2xl font-bold mb-6">Beranda</h1>
           <HeroImg />
           <HomeContactUs />
-          <ListTicketTable
-            onRowClick={handleRowClick}
-            dataTiket={dataTiket}
-            dataMetaTiket={dataMetaTiket}
-            onPageChange={handlePageChange}
-          />
+          {privilege.data.includes("user.ticket.read") && (
+            <ListTicketTable
+              onRowClick={handleRowClick}
+              dataTiket={dataTiket}
+              dataMetaTiket={dataMetaTiket}
+              onPageChange={handlePageChange}
+            />
+          )}
         </div>
       </MainLayout>
     </div>
