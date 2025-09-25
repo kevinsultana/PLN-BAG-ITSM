@@ -229,6 +229,7 @@ export default function CreateAgentForm({
             onChange={handleChange}
             className={`input ${errors.email ? "border-red-500" : ""}`}
             placeholder="email@contoh.com"
+            required
           />
         </div>
 

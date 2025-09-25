@@ -203,7 +203,7 @@ export default function SlaPolicyTable({
                       "No Description"
                     )}
                   </TableCell>
-                  <TableCell>{row.Priority}</TableCell>
+                  <TableCell className="capitalize">{row.Priority}</TableCell>
                   <TableCell>{row.ResponseTime}</TableCell>
                   <TableCell>{row.ResolveTime}</TableCell>
                   {(privilege.data.includes("config.sla.update") ||
