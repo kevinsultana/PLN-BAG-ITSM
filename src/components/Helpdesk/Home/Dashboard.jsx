@@ -79,23 +79,29 @@ export default function Dashboard() {
   const slaPerformance = [
     {
       label: "Total Ticket Todays",
-      value: dataDashboard.sla_performance.total_ticket_today,
+      value: dataDashboard.sla_performance?.total_ticket_today ?? "-",
     },
     {
       label: "SLA on Track",
-      value: dataDashboard.sla_performance?.sla_on_track || 0,
+      value: dataDashboard.sla_performance?.sla_on_track ?? "-",
     },
     {
       label: "SLA on Breached",
-      value: dataDashboard.sla_performance?.sla_on_breached || 0,
+      value: dataDashboard.sla_performance?.sla_on_breached ?? "-",
     },
     {
       label: "AVG Resolution Time",
-      value: `${dataDashboard.sla_performance.avg_resolution_time} Jam` || "-",
+      value:
+        dataDashboard.sla_performance?.avg_resolution_time !== undefined
+          ? `${dataDashboard.sla_performance.avg_resolution_time} Jam`
+          : "-",
     },
     {
       label: "AVG Response Time",
-      value: `${dataDashboard.sla_performance.avg_response_time} Menit` || "-",
+      value:
+        dataDashboard.sla_performance?.avg_response_time !== undefined
+          ? `${dataDashboard.sla_performance.avg_response_time} Menit`
+          : "-",
     },
   ];
 
