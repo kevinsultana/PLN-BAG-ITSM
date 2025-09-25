@@ -16,7 +16,7 @@ export default function Page() {
 
   const getDataTiketById = async (id) => {
     try {
-      const res = await ProxyUrl.get(`/tickets/${id}`);
+      const res = await ProxyUrl.get(`/tickets/${id}/users`);
       setData(res.data.data);
     } catch (error) {
       console.log(error);

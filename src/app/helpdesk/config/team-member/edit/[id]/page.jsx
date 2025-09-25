@@ -10,13 +10,17 @@ export default function Page() {
   const router = useRouter();
   const { id } = useParams();
   const [data, setData] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const getData = async (id) => {
+    setLoading(true);
     try {
       const res = await ProxyUrl.get(`/team-groups/${id}`);
       setData(res.data.data);
     } catch (error) {
       console.error("Error fetching team group:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -45,6 +49,7 @@ export default function Page() {
           data={data}
           onSubmit={handleSubmit}
           onCancel={() => router.back()}
+          loading={loading}
         />
       </HelpdeskLayout>
     </div>

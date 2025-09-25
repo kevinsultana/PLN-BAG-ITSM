@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 import { RiSearchLine } from "react-icons/ri";
 import { FaPencil } from "react-icons/fa6";
+import { useAuth } from "@/context/AuthContext";
 
 const initialHelpdeskInfo = [];
 
@@ -115,6 +116,8 @@ export default function HelpdeskInfoTable({ onClickNewInfo, data, loading }) {
   const [rowsPerPage] = useState(5);
   const [searchTerm, setSearchTerm] = useState("");
 
+  const { privilege } = useAuth();
+
   const handleSort = (property) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
@@ -153,14 +156,22 @@ export default function HelpdeskInfoTable({ onClickNewInfo, data, loading }) {
     <div className="p-6 mt-4 bg-white rounded-2xl border border-gray-200">
       <div className="flex flex-col gap-4 mb-4">
         <h2 className="text-xl font-bold">Helpdesk Info</h2>
-        <div className="flex justify-between items-center gap-4">
-          <button
-            onClick={onClickNewInfo}
-            className="flex items-center gap-2 px-4 py-2.5 bg-[#65C7D5] text-white rounded-2xl text-sm hover:opacity-90 cursor-pointer"
-          >
-            <FaPencil />
-            <span>Edit</span>
-          </button>
+        <div
+          className={`flex ${
+            privilege.data.includes("config.helpdesk.info.update")
+              ? "justify-between"
+              : "justify-end"
+          } items-center gap-4`}
+        >
+          {privilege.data.includes("config.helpdesk.info.update") && (
+            <button
+              onClick={onClickNewInfo}
+              className="flex items-center gap-2 px-4 py-2.5 bg-[#65C7D5] text-white rounded-2xl text-sm hover:opacity-90 cursor-pointer"
+            >
+              <FaPencil />
+              <span>Edit</span>
+            </button>
+          )}
           <TextField
             variant="outlined"
             size="small"

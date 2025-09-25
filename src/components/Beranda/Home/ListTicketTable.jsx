@@ -17,6 +17,7 @@ import { FaPlus } from "react-icons/fa";
 import { TbClockCheck, TbProgressCheck } from "react-icons/tb";
 import { LuTimerReset } from "react-icons/lu";
 import { MdOutlineTimerOff } from "react-icons/md";
+import { useAuth } from "@/context/AuthContext";
 
 // Mapping status ke ikon
 const statusIcon = (status) => {
@@ -56,7 +57,7 @@ export default function ListTicketTable({
   const [orderBy, setOrderBy] = useState("ticket_id");
   const [order, setOrder] = useState("asc");
   const [page, setPage] = useState(1);
-  const rowsPerPage = dataMetaTiket.page_size || 10;
+  const { privilege } = useAuth();
 
   // Update page state when dataMetaTiket changes
   useEffect(() => {
@@ -112,13 +113,15 @@ export default function ListTicketTable({
     <div className="p-5 bg-white">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-bold">List Tiket</h2>
-        <Link
-          href="/beranda/new-ticket"
-          className="flex items-center gap-2 px-4 py-2.5 bg-[#65C7D5] text-white rounded-2xl text-sm"
-        >
-          <FaPlus />
-          <h3>New</h3>
-        </Link>
+        {privilege.data.includes("user.ticket.create") && (
+          <Link
+            href="/beranda/new-ticket"
+            className="flex items-center gap-2 px-4 py-2.5 bg-[#65C7D5] text-white rounded-2xl text-sm"
+          >
+            <FaPlus />
+            <h3>New</h3>
+          </Link>
+        )}
       </div>
 
       <TableContainer component={Paper} className="rounded-lg">

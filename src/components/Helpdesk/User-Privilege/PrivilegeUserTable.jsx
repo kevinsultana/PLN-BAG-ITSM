@@ -16,12 +16,15 @@ import {
   MenuItem,
 } from "@mui/material";
 import { RiSearchLine, RiMore2Fill } from "react-icons/ri";
+import { useAuth } from "@/context/AuthContext";
 
 export default function PrivilegeUserTable({
   onClickEdit,
   onClickDelete,
   data = [],
 }) {
+  const { privilege } = useAuth();
+
   const [roles, setRoles] = useState([]);
 
   useEffect(() => {
@@ -124,7 +127,12 @@ export default function PrivilegeUserTable({
               <TableCell sx={{ width: "auto", textAlign: "left" }}>
                 Role Name
               </TableCell>
-              <TableCell sx={{ width: 80, textAlign: "left" }}>Aksi</TableCell>
+              {privilege.data.includes("user.privilege.update") ||
+              privilege.data.includes("user.privilege.delete") ? (
+                <TableCell sx={{ width: 80, textAlign: "left" }}>
+                  Aksi
+                </TableCell>
+              ) : null}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -141,11 +149,14 @@ export default function PrivilegeUserTable({
                     </div>
                   )}
                 </TableCell>
-                <TableCell sx={{ width: 80, textAlign: "left" }}>
-                  <IconButton onClick={(e) => handleOpenMenu(e, row)}>
-                    <RiMore2Fill />
-                  </IconButton>
-                </TableCell>
+                {privilege.data.includes("user.privilege.update") ||
+                privilege.data.includes("user.privilege.delete") ? (
+                  <TableCell sx={{ width: 80, textAlign: "left" }}>
+                    <IconButton onClick={(e) => handleOpenMenu(e, row)}>
+                      <RiMore2Fill />
+                    </IconButton>
+                  </TableCell>
+                ) : null}
               </TableRow>
             ))}
           </TableBody>
@@ -157,16 +168,21 @@ export default function PrivilegeUserTable({
           anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
           transformOrigin={{ vertical: "top", horizontal: "right" }}
         >
-          <MenuItem onClick={() => activeRow && handleEdit(activeRow)}>
-            Edit
-          </MenuItem>
-          <MenuItem
-            onClick={() => activeRow && handleDelete(activeRow)}
-            sx={{ color: "error.main" }}
-          >
-            Delete
-          </MenuItem>
+          {privilege.data.includes("user.privilege.update") && (
+            <MenuItem onClick={() => activeRow && handleEdit(activeRow)}>
+              Edit
+            </MenuItem>
+          )}
+          {privilege.data.includes("user.privilege.delete") && (
+            <MenuItem
+              onClick={() => activeRow && handleDelete(activeRow)}
+              sx={{ color: "error.main" }}
+            >
+              Delete
+            </MenuItem>
+          )}
         </Menu>
+
         <div className="flex items-center justify-between px-4 py-3">
           <div className="text-sm text-gray-600">
             Page <span className="font-medium">{page}</span> of{" "}

@@ -19,6 +19,7 @@ import {
 } from "@mui/material";
 import { FaPlus } from "react-icons/fa";
 import { RiSearchLine, RiMore2Fill } from "react-icons/ri";
+import { useAuth } from "@/context/AuthContext";
 
 const initialSlaPolicies = [];
 
@@ -29,7 +30,6 @@ const columns = [
   { label: "Prioritas", key: "Priority" },
   { label: "Response Time", key: "ResponseTime" },
   { label: "Resolve Time", key: "ResolveTime" },
-  { label: "Aksi", key: "aksi", disableSorting: true },
 ];
 
 export default function SlaPolicyTable({
@@ -39,6 +39,8 @@ export default function SlaPolicyTable({
   onClickDelete,
   loading,
 }) {
+  const { privilege } = useAuth();
+
   const mappedData = useMemo(() => {
     if (!data || !Array.isArray(data)) return initialSlaPolicies;
     return data.map((item, idx) => ({
@@ -116,14 +118,22 @@ export default function SlaPolicyTable({
     <div className="p-6 mt-4 bg-white rounded-2xl border border-gray-200">
       <div className="flex flex-col gap-4 mb-4">
         <h2 className="text-xl font-bold">SLA Policy</h2>
-        <div className="flex justify-between items-center gap-4">
-          <button
-            onClick={onClickNewSLAPolicy}
-            className="flex items-center gap-2 px-4 py-2.5 bg-[#65C7D5] text-white rounded-2xl text-sm hover:opacity-90 cursor-pointer"
-          >
-            <FaPlus />
-            <span>New</span>
-          </button>
+        <div
+          className={`flex ${
+            privilege.data.includes("config.sla.create")
+              ? "justify-between"
+              : "justify-end"
+          } items-center gap-4`}
+        >
+          {privilege.data.includes("config.sla.create") && (
+            <button
+              onClick={onClickNewSLAPolicy}
+              className="flex items-center gap-2 px-4 py-2.5 bg-[#65C7D5] text-white rounded-2xl text-sm hover:opacity-90 cursor-pointer"
+            >
+              <FaPlus />
+              <span>New</span>
+            </button>
+          )}
           <TextField
             variant="outlined"
             size="small"
@@ -166,6 +176,10 @@ export default function SlaPolicyTable({
                   )}
                 </TableCell>
               ))}
+              {privilege.data.includes("config.sla.update") ||
+              privilege.data.includes("config.sla.delete") ? (
+                <TableCell>Aksi</TableCell>
+              ) : null}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -192,11 +206,14 @@ export default function SlaPolicyTable({
                   <TableCell>{row.Priority}</TableCell>
                   <TableCell>{row.ResponseTime}</TableCell>
                   <TableCell>{row.ResolveTime}</TableCell>
-                  <TableCell>
-                    <IconButton onClick={(e) => handleOpenMenu(e, row)}>
-                      <RiMore2Fill />
-                    </IconButton>
-                  </TableCell>
+                  {(privilege.data.includes("config.sla.update") ||
+                    privilege.data.includes("config.sla.delete")) && (
+                    <TableCell>
+                      <IconButton onClick={(e) => handleOpenMenu(e, row)}>
+                        <RiMore2Fill />
+                      </IconButton>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))
             )}
@@ -210,21 +227,25 @@ export default function SlaPolicyTable({
           anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
           transformOrigin={{ vertical: "top", horizontal: "right" }}
         >
-          <MenuItem
-            onClick={() => {
-              if (activeRow) handleEdit(activeRow);
-            }}
-          >
-            Edit
-          </MenuItem>
-          {/* <MenuItem
-            sx={{ color: "red" }}
-            onClick={() => {
-              if (activeRow) handleDelete(activeRow);
-            }}
-          >
-            Delete
-          </MenuItem> */}
+          {privilege.data.includes("config.sla.update") && (
+            <MenuItem
+              onClick={() => {
+                if (activeRow) handleEdit(activeRow);
+              }}
+            >
+              Edit
+            </MenuItem>
+          )}
+          {/* {privilege.data.includes("config.sla.delete") && (
+            <MenuItem
+              sx={{ color: "red" }}
+              onClick={() => {
+                if (activeRow) handleDelete(activeRow);
+              }}
+            >
+              Delete
+            </MenuItem>
+          )} */}
         </Menu>
         <div className="flex items-center justify-between px-4 py-3">
           <div className="text-sm text-gray-600">
