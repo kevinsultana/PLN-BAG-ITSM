@@ -4,40 +4,22 @@ import { motion, AnimatePresence } from "framer-motion";
 import { RiCloseLine } from "react-icons/ri";
 import { FaCalendarAlt } from "react-icons/fa";
 
-export default function FilterModalTanggal({ isOpen, onClose }) {
+export default function FilterModalTanggal({ isOpen, onClose, onClickApply }) {
   const [selectedFilters, setSelectedFilters] = useState({
-    kategori: "",
-    periode: "Hari",
-    tanggal: new Date().toISOString().split("T")[0],
+    date_from: new Date().toISOString().split("T")[0],
+    date_to: new Date().toISOString().split("T")[0],
   });
 
-  const [openDropdown, setOpenDropdown] = useState(null);
-
-  const dataPeriode = [
-    "Hari",
-    "Minggu",
-    "Bulan",
-    "Triwulan",
-    "Semester",
-    "Tahun",
-  ];
-
-  const handleDropdownToggle = (dropdownName) => {
-    setOpenDropdown(openDropdown === dropdownName ? null : dropdownName);
-  };
-
   const handleApplyFilter = () => {
-    console.log("Applied filters:", selectedFilters);
+    onClickApply(selectedFilters);
     onClose();
   };
 
   const handleResetFilter = () => {
     setSelectedFilters({
-      kategori: "",
-      periode: "",
-      tanggal: new Date().toISOString().split("T")[0],
+      date_from: new Date().toISOString().split("T")[0],
+      date_to: new Date().toISOString().split("T")[0],
     });
-    setOpenDropdown(null);
   };
 
   return (
@@ -66,58 +48,44 @@ export default function FilterModalTanggal({ isOpen, onClose }) {
             </div>
 
             <div className="space-y-4">
-              {/* Filter Periode */}
+              {/* Filter Tanggal from */}
               <div>
                 <label className="font-semibold text-sm block mb-1">
-                  Periode<span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <select
-                    name="periode"
-                    value={selectedFilters.periode}
-                    onChange={(e) =>
-                      setSelectedFilters({
-                        ...selectedFilters,
-                        periode: e.target.value,
-                      })
-                    }
-                    className="input w-full appearance-none"
-                  >
-                    <option value="" disabled>
-                      Pilih Periode
-                    </option>
-                    {dataPeriode.map((periode, index) => (
-                      <option key={index} value={periode}>
-                        {periode}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-700">
-                    <svg
-                      className="fill-current h-4 w-4"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-
-              {/* Filter Tanggal */}
-              <div>
-                <label className="font-semibold text-sm block mb-1">
-                  Tanggal<span className="text-red-500">*</span>
+                  Tanggal Mulai<span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <input
                     type="date"
                     name="tanggal"
-                    value={selectedFilters.tanggal}
+                    value={selectedFilters.date_from}
                     onChange={(e) =>
                       setSelectedFilters({
                         ...selectedFilters,
-                        tanggal: e.target.value,
+                        date_from: e.target.value,
+                      })
+                    }
+                    className="input w-full pr-10"
+                  />
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-500">
+                    <FaCalendarAlt />
+                  </div>
+                </div>
+              </div>
+
+              {/* Filter Tanggal to */}
+              <div>
+                <label className="font-semibold text-sm block mb-1">
+                  Tanggal Berakhir<span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="date"
+                    name="tanggal"
+                    value={selectedFilters.date_to}
+                    onChange={(e) =>
+                      setSelectedFilters({
+                        ...selectedFilters,
+                        date_to: e.target.value,
                       })
                     }
                     className="input w-full pr-10"
@@ -142,7 +110,7 @@ export default function FilterModalTanggal({ isOpen, onClose }) {
                   onClick={handleApplyFilter}
                   className="px-6 py-2 rounded-lg text-white bg-[#65C7D5] hover:bg-[#4FB3C1] transition"
                 >
-                  Terpakan
+                  Terapkan
                 </button>
               </div>
             </div>

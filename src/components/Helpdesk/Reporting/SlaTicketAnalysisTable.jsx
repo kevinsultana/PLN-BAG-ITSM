@@ -60,8 +60,8 @@ const columns = [
   { label: "% of Success Rate", key: "successRate" },
 ];
 
-export default function SlaTicketAnalysisTable() {
-  const [orderBy, setOrderBy] = useState("jumlahTicket");
+export default function SlaTicketAnalysisTable({ items = [], summary = {} }) {
+  const [orderBy, setOrderBy] = useState("total_tickets");
   const [order, setOrder] = useState("asc");
 
   const handleSort = (property) => {
@@ -71,15 +71,28 @@ export default function SlaTicketAnalysisTable() {
   };
 
   const sortedData = useMemo(() => {
-    return [...initialSlaData].sort((a, b) => {
+    return [...items].sort((a, b) => {
       const aValue = a[orderBy];
       const bValue = b[orderBy];
-
       if (aValue < bValue) return order === "asc" ? -1 : 1;
       if (aValue > bValue) return order === "asc" ? 1 : -1;
       return 0;
     });
-  }, [orderBy, order]);
+  }, [items, orderBy, order]);
+
+  const columns = [
+    { label: "Priority", key: "priority_level" },
+    { label: "Jumlah Tiket", key: "total_tickets" },
+    { label: "AVG Hours Resolution", key: "avg_resolution_hours" },
+    { label: "% of Success Rate", key: "success_rate" },
+  ];
+
+  const priorityStyle = {
+    Kritis: { dot: "bg-red-500" },
+    Tinggi: { dot: "bg-orange-500" },
+    Sedang: { dot: "bg-yellow-500" },
+    Rendah: { dot: "bg-green-500" },
+  };
 
   return (
     <div className="p-6 mt-4 bg-white rounded-2xl border border-gray-200">
@@ -106,30 +119,34 @@ export default function SlaTicketAnalysisTable() {
           </TableHead>
           <TableBody>
             {sortedData.map((row, index) => (
-              <TableRow key={index} hover>
+              <TableRow key={row.priority_id || index} hover>
                 <TableCell>
                   <span className="flex items-center gap-2">
                     <span
                       className={`inline-block h-2.5 w-2.5 rounded-full ${
-                        priorityStyle[row.priority].dot
+                        priorityStyle[row.priority_level]?.dot || "bg-gray-400"
                       }`}
                     />
-                    {row.priority}
+                    {row.priority_level}
                   </span>
                 </TableCell>
-                <TableCell>{row.jumlahTicket}</TableCell>
-                <TableCell>{row.avgResolution}</TableCell>
-                <TableCell>{row.successRate}</TableCell>
+                <TableCell>{row.total_tickets}</TableCell>
+                <TableCell>{row.avg_resolution_hours}</TableCell>
+                <TableCell>{row.success_rate}%</TableCell>
               </TableRow>
             ))}
             {/* Total Row */}
             <TableRow className="bg-gray-100 font-bold">
               <TableCell className="font-bold">Total</TableCell>
-              <TableCell className="font-bold">{totals.jumlahTicket}</TableCell>
               <TableCell className="font-bold">
-                {totals.avgResolution}
+                {summary.total_tickets}
               </TableCell>
-              <TableCell className="font-bold">{totals.successRate}</TableCell>
+              <TableCell className="font-bold">
+                {summary.avg_resolution_hours}
+              </TableCell>
+              <TableCell className="font-bold">
+                {summary.success_rate}%
+              </TableCell>
             </TableRow>
           </TableBody>
         </Table>
