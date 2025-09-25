@@ -257,6 +257,7 @@ export default function TiketDetails({
                     }))
                   }
                   displayEmpty
+                  disabled={data?.status !== "OPEN"}
                   sx={{ backgroundColor: "white", borderRadius: 2 }}
                 >
                   <MenuItem value="">
@@ -502,21 +503,23 @@ export default function TiketDetails({
 
       <div className="wfull h-[1px] bg-gray-200 " />
 
-      <div className="flex flex-col gap-2 space-y-2 py-4">
-        <label className="text-lg font-semibold">
-          Feedback Tiket <span className="text-red-500">*</span>
-        </label>
-        <CKEditorWrapper value={feedbackTiket} onChange={setFeedbackTiket} />
-        <button
-          onClick={() => {
-            onClickSubmitFeedback(feedbackTiket);
-            setFeedbackTiket("");
-          }}
-          className="bg-sky-500 cursor-pointer p-2 text-white w-1/10 rounded-full"
-        >
-          Submit
-        </button>
-      </div>
+      {data?.status !== "CLOSED" && (
+        <div className="flex flex-col gap-2 space-y-2 py-4">
+          <label className="text-lg font-semibold">
+            Feedback Tiket <span className="text-red-500">*</span>
+          </label>
+          <CKEditorWrapper value={feedbackTiket} onChange={setFeedbackTiket} />
+          <button
+            onClick={() => {
+              onClickSubmitFeedback(feedbackTiket);
+              setFeedbackTiket("");
+            }}
+            className="bg-sky-500 cursor-pointer p-2 text-white w-1/10 rounded-full"
+          >
+            Submit
+          </button>
+        </div>
+      )}
 
       <div className="wfull h-[3px] bg-gray-200 mb-4" />
 

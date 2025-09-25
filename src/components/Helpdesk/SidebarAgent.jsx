@@ -60,7 +60,7 @@ export default function SidebarAgent({ show }) {
     >
       <div className="ml-8 my-3">
         <ul className="flex flex-col gap-3">
-          {privilege.data?.includes("helpdesk.read") && (
+          {privilege?.data?.includes("helpdesk.read") && (
             <li>
               <Link
                 href="/helpdesk"
@@ -73,7 +73,7 @@ export default function SidebarAgent({ show }) {
           )}
 
           {/* Tiket Dropdown */}
-          {privilege.data.some((p) => p.startsWith("ticket.")) && (
+          {privilege?.data?.some((p) => p.startsWith("ticket.")) && (
             <li>
               <div
                 className={`flex items-center justify-between cursor-pointer ${
@@ -125,7 +125,7 @@ export default function SidebarAgent({ show }) {
           )}
 
           {/* Reporting Dropdown */}
-          {privilege.data.some((p) => p.startsWith("reporting.")) && (
+          {privilege?.data?.some((p) => p.startsWith("reporting.")) && (
             <li>
               <div
                 className={`flex items-center justify-between cursor-pointer ${
@@ -152,7 +152,7 @@ export default function SidebarAgent({ show }) {
                     : "max-h-0 opacity-0"
                 }`}
               >
-                {privilege.data.includes("reporting.analysis.read") && (
+                {privilege?.data?.includes("reporting.analysis.read") && (
                   <li>
                     <Link
                       href="/helpdesk/reporting/ticket-analysis"
@@ -164,7 +164,7 @@ export default function SidebarAgent({ show }) {
                     </Link>
                   </li>
                 )}
-                {privilege.data.includes("reporting.sla.read") && (
+                {privilege?.data?.includes("reporting.sla.read") && (
                   <li>
                     <Link
                       href="/helpdesk/reporting/sla-status"
@@ -172,11 +172,11 @@ export default function SidebarAgent({ show }) {
                         "/helpdesk/reporting/sla-status"
                       )}
                     >
-                      SLA Status Analysis
+                      SLA Analysis
                     </Link>
                   </li>
                 )}
-                {privilege.data.includes("reporting.cr.read") && (
+                {privilege?.data?.includes("reporting.cr.read") && (
                   <li>
                     <Link
                       href="/helpdesk/reporting/cr-tracking"

@@ -1,141 +1,124 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   RiCalendarLine,
   RiInformationLine,
   RiArrowDownSLine,
-  RiArrowLeftSLine,
-  RiArrowRightSLine,
-  RiCloseLine,
 } from "react-icons/ri";
 import FilterModalTanggal from "./FilterModalTanggal";
+import {
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  TableContainer,
+  Paper,
+} from "@mui/material";
+import { ProxyUrl } from "@/api/BaseUrl";
 
 export default function Dashboard() {
-  const [currentDate, setCurrentDate] = useState("Juli, 2025");
-  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
-  const datePickerRef = useRef(null);
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [currentDate, setCurrentDate] = useState({
+    date_from: new Date().toISOString().split("T")[0],
+    date_to: new Date().toISOString().split("T")[0],
+  });
+
   const [isModalTanggalOpen, setIsModalTanggalOpen] = useState(false);
+  const [dataDashboard, setDataDashboard] = useState({});
+
+  const statusTotals = useMemo(() => {
+    const list = dataDashboard?.ticket_status_total ?? [];
+    const map = {};
+    for (const item of list) {
+      if (!item) continue;
+      const key = String(item.status || "").toUpperCase();
+      const value = Number(
+        (typeof item.total !== "undefined" ? item.total : item.count) ?? 0
+      );
+      if (key) map[key] = value;
+    }
+    return map;
+  }, [dataDashboard]);
 
   const ticketSummary = [
     {
       status: "Open",
-      count: 80,
+      count: statusTotals.OPEN ?? 0,
       color: "bg-green-500",
       textColor: "text-green-500",
     },
     {
       status: "In Progress",
-      count: 75,
+      count: statusTotals["IN PROGRESS"] ?? statusTotals.IN_PROGRESS ?? 0,
       color: "bg-red-500",
       textColor: "text-red-500",
     },
     {
       status: "Waiting",
-      count: "100",
+      count: statusTotals.WAITING ?? 0,
       color: "bg-orange-400",
       textColor: "text-orange-400",
     },
     {
       status: "Resolved",
-      count: 55,
+      count: statusTotals.RESOLVED ?? 0,
       color: "bg-blue-400",
       textColor: "text-blue-400",
     },
     {
       status: "Closed",
-      count: 90,
+      count: statusTotals.CLOSED ?? 0,
       color: "bg-gray-400",
       textColor: "text-gray-400",
     },
   ];
 
-  const ticketList = [
-    {
-      priority: "Kritis",
-      priorityColor: "bg-red-100 text-red-700",
-      subject: "Reset Password",
-      slaDeadline: "Kamis, 20 Juni 2025 - 10:00 WIB",
-    },
-    {
-      priority: "Kritis",
-      priorityColor: "bg-red-100 text-red-700",
-      subject: "Additional Kolom Lampiran",
-      slaDeadline: "Kamis, 20 Juni 2025 - 10:00 WIB",
-    },
-    {
-      priority: "Tinggi",
-      priorityColor: "bg-orange-100 text-orange-700",
-      subject: "Gagal Upload RAB",
-      slaDeadline: "Kamis, 20 Juni 2025 - 10:00 WIB",
-    },
-    {
-      priority: "Sedang",
-      priorityColor: "bg-yellow-100 text-yellow-700",
-      subject: "Vendor Bill Not Paid",
-      slaDeadline: "Kamis, 20 Juni 2025 - 10:00 WIB",
-    },
-  ];
+  const ticketList = dataDashboard.list_ticket ?? [];
 
   const slaPerformance = [
-    { label: "Total Ticket Todays", value: 32 },
-    { label: "SLA on Track", value: 3 },
-    { label: "SLA on Breached", value: 4 },
-    { label: "AVG Resolution Time", value: "3 Jam" },
-    { label: "AVG Response Time", value: "4.5 Jam" },
+    {
+      label: "Total Ticket Todays",
+      value: dataDashboard.sla_performance?.total_ticket_today ?? "-",
+    },
+    {
+      label: "SLA on Track",
+      value: dataDashboard.sla_performance?.sla_on_track ?? "-",
+    },
+    {
+      label: "SLA on Breached",
+      value: dataDashboard.sla_performance?.sla_on_breached ?? "-",
+    },
+    {
+      label: "AVG Resolution Time",
+      value:
+        dataDashboard.sla_performance?.avg_resolution_time !== undefined
+          ? `${dataDashboard.sla_performance.avg_resolution_time} Jam`
+          : "-",
+    },
+    {
+      label: "AVG Response Time",
+      value:
+        dataDashboard.sla_performance?.avg_response_time !== undefined
+          ? `${dataDashboard.sla_performance.avg_response_time} Menit`
+          : "-",
+    },
   ];
+
+  const getData = async (dateRange) => {
+    try {
+      const res = await ProxyUrl.get("/helpdesk/dashboard", {
+        params: dateRange,
+      });
+      setDataDashboard(res.data.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
-    function handleClickOutside(event) {
-      if (
-        datePickerRef.current &&
-        !datePickerRef.current.contains(event.target)
-      ) {
-        setIsDatePickerOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [datePickerRef]);
-
-  const months = [
-    "Januari",
-    "Februari",
-    "Maret",
-    "April",
-    "Mei",
-    "Juni",
-    "Juli",
-    "Agustus",
-    "September",
-    "Oktober",
-    "November",
-    "Desember",
-  ];
-
-  const handleMonthChange = (offset) => {
-    let newMonth = selectedMonth + offset;
-    let newYear = selectedYear;
-
-    if (newMonth < 0) {
-      newMonth = 11;
-      newYear--;
-    } else if (newMonth > 11) {
-      newMonth = 0;
-      newYear++;
-    }
-    setSelectedMonth(newMonth);
-    setSelectedYear(newYear);
-  };
-
-  const handleApplyDate = () => {
-    setCurrentDate(`${months[selectedMonth]}, ${selectedYear}`);
-    setIsDatePickerOpen(false);
-  };
+    getData(currentDate);
+  }, [currentDate]);
 
   return (
     <div className="p-4 mt-4 bg-gray-50 rounded-2xl">
@@ -146,72 +129,26 @@ export default function Dashboard() {
           onClick={() => setIsModalTanggalOpen(true)}
         >
           <RiCalendarLine className="mr-2 text-gray-500" />
-          <span>{currentDate}</span>
+          <span>
+            {(() => {
+              const from = currentDate.date_from;
+              const to = currentDate.date_to;
+              const format = (dateStr) => {
+                const d = new Date(dateStr);
+                return d.toLocaleDateString("id-ID", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                });
+              };
+              if (from === to) return format(from);
+              return `${format(from)} - ${format(to)}`;
+            })()}
+          </span>
           <RiArrowDownSLine className="ml-2 text-gray-500" />
         </div>
-
-        {/* Date Picker Modal */}
-        {isDatePickerOpen && (
-          <div
-            ref={datePickerRef}
-            className="absolute top-48 right-10 z-50 bg-gray-800 text-white rounded-lg shadow-xl p-6 w-80"
-          >
-            <div className="flex justify-between items-center mb-4">
-              <button
-                onClick={() => handleMonthChange(-1)}
-                className="p-1 rounded-full hover:bg-gray-700"
-              >
-                <RiArrowLeftSLine className="text-xl" />
-              </button>
-              <span className="font-semibold text-lg">
-                {months[selectedMonth]} {selectedYear}
-              </span>
-              <button
-                onClick={() => handleMonthChange(1)}
-                className="p-1 rounded-full hover:bg-gray-700"
-              >
-                <RiArrowRightSLine className="text-xl" />
-              </button>
-            </div>
-            {/* Bagian untuk bulan dan tahun */}
-            <div className="grid grid-cols-3 gap-2 text-center text-sm mb-4">
-              {months.map((month, index) => (
-                <button
-                  key={month}
-                  onClick={() => setSelectedMonth(index)}
-                  className={`p-2 rounded-md ${
-                    selectedMonth === index
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-700 hover:bg-gray-600"
-                  }`}
-                >
-                  {month.substring(0, 3)}
-                </button>
-              ))}
-            </div>
-            <input
-              type="number"
-              value={selectedYear}
-              onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-              className="w-full p-2 bg-gray-700 rounded-md text-white text-center mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              min="1900"
-              max="2100"
-            />
-            <button
-              onClick={handleApplyDate}
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md transition-colors"
-            >
-              Apply
-            </button>
-            <button
-              onClick={() => setIsDatePickerOpen(false)}
-              className="absolute top-2 right-2 text-gray-400 hover:text-white"
-            >
-              <RiCloseLine className="text-2xl" />
-            </button>
-          </div>
-        )}
       </div>
+
       {/* Ticket Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
         {ticketSummary.map((item, index) => (
@@ -234,53 +171,69 @@ export default function Dashboard() {
           <h2 className="text-xl font-semibold text-gray-800 mb-4">
             List Tiket
           </h2>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-white">
-                <tr>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+          <TableContainer component={Paper} sx={{ boxShadow: "none" }}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell
+                    sx={{ fontWeight: "bold", textTransform: "uppercase" }}
                   >
-                    <div className="flex items-center cursor-pointer">
-                      Prioritas
-                    </div>
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    Prioritas
+                  </TableCell>
+                  <TableCell
+                    sx={{ fontWeight: "bold", textTransform: "uppercase" }}
                   >
                     Subjek
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  </TableCell>
+                  <TableCell
+                    sx={{ fontWeight: "bold", textTransform: "uppercase" }}
                   >
                     SLA Deadline
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {ticketList.map((ticket, index) => (
-                  <tr key={index}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`inline-flex px-3 py-1 text-xs font-semibold leading-5 rounded-full ${ticket.priorityColor}`}
-                      >
-                        {ticket.priority}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {ticket.subject}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {ticket.slaDeadline}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {ticketList.map((ticket, index) => {
+                  // Priority color mapping
+                  let priorityColor = "bg-gray-100 text-gray-700";
+                  if (ticket.priority?.level === "Kritis")
+                    priorityColor = "bg-red-100 text-red-700";
+                  else if (ticket.priority?.level === "Tinggi")
+                    priorityColor = "bg-orange-100 text-orange-700";
+                  else if (ticket.priority?.level === "Sedang")
+                    priorityColor = "bg-yellow-100 text-yellow-700";
+                  else if (ticket.priority?.level === "Rendah")
+                    priorityColor = "bg-blue-100 text-blue-700";
+
+                  // Format SLA Deadline (created_at + SLA name)
+                  const createdDate = new Date(ticket.created_at);
+                  const formattedDate = createdDate.toLocaleString("id-ID", {
+                    weekday: "long",
+                    day: "2-digit",
+                    month: "long",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  });
+                  const slaDeadline = `${formattedDate} `;
+
+                  return (
+                    <TableRow key={ticket.id || index}>
+                      <TableCell>
+                        <span
+                          className={`inline-flex px-3 py-1 text-xs font-semibold leading-5 rounded-full ${priorityColor}`}
+                        >
+                          {ticket.priority?.level || "-"}
+                        </span>
+                      </TableCell>
+                      <TableCell>{ticket.subject}</TableCell>
+                      <TableCell>{slaDeadline}</TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </div>
 
         {/* SLA Performance */}
@@ -306,6 +259,9 @@ export default function Dashboard() {
       <FilterModalTanggal
         isOpen={isModalTanggalOpen}
         onClose={() => setIsModalTanggalOpen(false)}
+        onClickApply={(setFilters) => {
+          setCurrentDate(setFilters);
+        }}
       />
     </div>
   );

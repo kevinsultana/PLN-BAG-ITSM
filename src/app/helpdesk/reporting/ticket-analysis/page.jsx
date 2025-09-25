@@ -10,6 +10,13 @@ import CircularProgress from "@mui/material/CircularProgress";
 export default function Page() {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loadingDownload, setLoadingDownload] = useState(false);
+  const [data, setData] = useState([]);
+  const [filters, setFilters] = useState({
+    kategori: "team",
+    tanggal: new Date().toISOString().split("T")[0],
+    tanggalend: new Date().toISOString().split("T")[0],
+  });
 
   const handleOpenFilter = () => {
     setIsFilterModalOpen(true);
@@ -18,8 +25,6 @@ export default function Page() {
   const handleCloseFilter = () => {
     setIsFilterModalOpen(false);
   };
-
-  const [data, setData] = useState([]);
 
   const getData = async () => {
     setLoading(true);
@@ -38,6 +43,7 @@ export default function Page() {
   }, []);
 
   const handleApplyFilter = async (filters) => {
+    setFilters(filters);
     try {
       const res = await ProxyUrl.get(
         "/reports/tickets/analysis?category=" +
@@ -53,13 +59,57 @@ export default function Page() {
     }
   };
 
+  const handleDownloadExcel = async () => {
+    setLoadingDownload(true);
+    try {
+      const res = await ProxyUrl.get(
+        "/reports/tickets/analysis/download?category=" +
+          filters.kategori +
+          "&start_date=" +
+          filters.tanggal +
+          "&end_date=" +
+          filters.tanggalend,
+        {
+          responseType: "blob",
+        }
+      );
+
+      let filename = "ticket-analysis.xlsx";
+      const cd = res.headers["content-disposition"];
+      if (cd) {
+        const match = cd.match(/filename="(.+?)"/);
+        if (match) filename = match[1];
+      }
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading Excel:", error);
+    } finally {
+      setLoadingDownload(false);
+    }
+  };
+
   return (
     <div className="bg-slate-100 min-h-screen">
       <HelpdeskLayout>
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Reporting</h1>
-          <button className="flex items-center gap-2 px-4 py-2.5 bg-[#65C7D5] text-white rounded-2xl text-sm hover:opacity-90 cursor-pointer">
-            Export
+          <button
+            onClick={handleDownloadExcel}
+            disabled={loadingDownload}
+            className="flex items-center min-w-20 justify-center gap-2 px-4 py-2.5 bg-[#65C7D5] text-white rounded-2xl text-sm hover:opacity-90 cursor-pointer"
+          >
+            {loadingDownload ? (
+              <CircularProgress size={20} color="inherit" />
+            ) : (
+              "Export"
+            )}
           </button>
         </div>
 
