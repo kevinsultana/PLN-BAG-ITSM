@@ -22,7 +22,7 @@ export default function Page() {
 
   const getDataTiket = async (page = 1) => {
     try {
-      const res = await ProxyUrl.get(`/tickets/users?page=${page}&page_size=5`);
+      const res = await ProxyUrl.get(`/tickets?page=${page}&page_size=5`);
       setDataTiket(res.data.data);
       setDataMetaTiket(res.data.meta);
     } catch (error) {

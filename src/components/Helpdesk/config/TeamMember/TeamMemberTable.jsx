@@ -26,7 +26,6 @@ const columns = [
   { label: "Nama", key: "name" },
   { label: "Deskripsi", key: "description" },
   { label: "Email", key: "is_email" },
-  { label: "Auto Assign", key: "is_autoassign" },
   { label: "Jumlah Anggota", key: "team_count" },
 ];
 
@@ -194,7 +193,6 @@ export default function TeamMemberTable({
                   <span dangerouslySetInnerHTML={{ __html: row.description }} />
                 </TableCell>
                 <TableCell>{row.is_email ? "Ya" : "Tidak"}</TableCell>
-                <TableCell>{row.is_autoassign ? "Ya" : "Tidak"}</TableCell>
                 <TableCell>{row.team_count}</TableCell>
                 {privilege.data.includes("config.team.member.update") ||
                 privilege.data.includes("config.team.member.delete") ? (
@@ -224,23 +222,28 @@ export default function TeamMemberTable({
             anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
             transformOrigin={{ vertical: "top", horizontal: "right" }}
           >
-            <MenuItem
-              onClick={() => {
-                if (typeof onClickEdit === "function") onClickEdit(activeRow);
-                handleCloseMenu();
-              }}
-            >
-              Edit
-            </MenuItem>
-            {/* <MenuItem
-          sx={{ color: "red" }}
-          onClick={() => {
-            if (typeof onClickDelete === "function") onClickDelete(activeRow);
-            handleCloseMenu();
-            }}
-            >
-            Delete
-            </MenuItem> */}
+            {privilege.data.includes("config.team.member.update") && (
+              <MenuItem
+                onClick={() => {
+                  if (typeof onClickEdit === "function") onClickEdit(activeRow);
+                  handleCloseMenu();
+                }}
+              >
+                Edit
+              </MenuItem>
+            )}
+            {privilege.data.includes("config.team.member.delete") && (
+              <MenuItem
+                sx={{ color: "red" }}
+                onClick={() => {
+                  if (typeof onClickDelete === "function")
+                    onClickDelete(activeRow);
+                  handleCloseMenu();
+                }}
+              >
+                Delete
+              </MenuItem>
+            )}
           </Menu>
         ) : null}
         <div className="flex items-center justify-between px-4 py-3">
