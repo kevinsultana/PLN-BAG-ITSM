@@ -485,7 +485,6 @@ export default function Page() {
   );
 }
 
-// --- Small components
 function Input({ label, required, full, type = "text", placeholder = "" }) {
   return (
     <div style={full ? { gridColumn: "span 2 / span 2" } : {}}>

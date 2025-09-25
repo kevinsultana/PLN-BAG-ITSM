@@ -1,44 +1,296 @@
 "use client";
 import MainLayout from "@/components/Beranda/Layout/MainLayout";
-import React from "react";
-import Image from "next/image";
+import React, { useRef } from "react";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 export default function Page() {
+  const refForm = useRef(null);
+
+  // --- Helper: tunggu font & gambar loaded
+  const waitAssetsReady = async (rootEl) => {
+    const imgs = Array.from(rootEl.querySelectorAll("img"));
+    await Promise.all([
+      document.fonts ? document.fonts.ready : Promise.resolve(),
+      ...imgs.map(
+        (img) =>
+          new Promise((res) => {
+            if (img.complete) return res();
+            img.onload = img.onerror = () => res();
+          })
+      ),
+    ]);
+  };
+
+  // --- Helper: buat clone printable (input → div teks)
+  const makePrintableClone = (node) => {
+    const clone = node.cloneNode(true);
+
+    // input
+    clone.querySelectorAll("input").forEach((el, i) => {
+      const original = node.querySelectorAll("input")[i];
+      const value =
+        original.type === "checkbox" || original.type === "radio"
+          ? original.checked
+            ? "✓"
+            : "✗"
+          : original.value || original.placeholder || "";
+
+      const rep = document.createElement("div");
+      rep.textContent = value;
+      rep.style.cssText = `
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        padding: 10px 12px;
+        min-height: 40px;
+        line-height: 1.4;
+        font-size: 14px;
+        color: #111827;
+        background:#fff;
+        white-space: pre-wrap;
+      `;
+      el.replaceWith(rep);
+    });
+
+    // textarea
+    clone.querySelectorAll("textarea").forEach((el, i) => {
+      const original = node.querySelectorAll("textarea")[i];
+      const rep = document.createElement("div");
+      rep.textContent = original.value || original.placeholder || "";
+      rep.style.cssText = `
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        padding: 10px 12px;
+        min-height: 96px;
+        line-height: 1.5;
+        font-size: 14px;
+        color: #111827;
+        background:#fff;
+        white-space: pre-wrap;
+      `;
+      el.replaceWith(rep);
+    });
+
+    // select
+    clone.querySelectorAll("select").forEach((el, i) => {
+      const original = node.querySelectorAll("select")[i];
+      const label = original.selectedOptions?.[0]?.textContent || "";
+      const rep = document.createElement("div");
+      rep.textContent = label;
+      rep.style.cssText = `
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        padding: 10px 12px;
+        min-height: 40px;
+        line-height: 1.4;
+        font-size: 14px;
+        color: #111827;
+        background:#fff;
+      `;
+      el.replaceWith(rep);
+    });
+
+    return clone;
+  };
+
+  // --- Capture canvas dari clone printable (off-screen)
+  const captureCanvas = async (node) => {
+    const printable = makePrintableClone(node);
+    printable.style.position = "fixed";
+    printable.style.left = "-10000px";
+    printable.style.top = "0";
+    printable.style.zIndex = "-1";
+    document.body.appendChild(printable);
+
+    await waitAssetsReady(printable);
+
+    const canvas = await html2canvas(printable, {
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: "#fff",
+      scale: 2.5,
+      scrollY: -window.scrollY,
+      logging: false,
+      imageTimeout: 0,
+    });
+
+    document.body.removeChild(printable);
+    return canvas;
+  };
+
+  const handleExportPdf = async (e) => {
+    e.preventDefault();
+    const node = refForm.current;
+    if (!node) return;
+
+    const canvas = await captureCanvas(node);
+
+    const pdf = new jsPDF({ orientation: "p", unit: "px", format: "a4" });
+    const pageW = pdf.internal.pageSize.getWidth();
+    const pageH = pdf.internal.pageSize.getHeight();
+
+    const margin = 24;
+    const imgW = pageW - margin * 2;
+    const imgH = (canvas.height * imgW) / canvas.width;
+
+    const imgData = canvas.toDataURL("image/png");
+
+    pdf.addImage(imgData, "PNG", margin, margin, imgW, imgH, undefined, "FAST");
+
+    // multipage
+    let heightLeft = imgH - (pageH - margin * 2);
+    let position = margin - (pageH - margin * 2);
+
+    while (heightLeft > 0) {
+      pdf.addPage();
+      pdf.addImage(
+        imgData,
+        "PNG",
+        margin,
+        position,
+        imgW,
+        imgH,
+        undefined,
+        "FAST"
+      );
+      heightLeft -= pageH - margin * 2;
+      position -= pageH - margin * 2;
+    }
+
+    pdf.save("form-uaa-04.pdf");
+  };
+
   return (
-    <div className="bg-slate-100 min-h-screen">
+    <div style={{ backgroundColor: "#f1f5f9", minHeight: "100vh" }}>
       <MainLayout>
-        <div className="flex flex-col py-6 px-14 h-auto">
-          <h1 className="text-2xl font-bold mb-4">Formulir</h1>
-          <div className="bg-white rounded-xl p-4">
-            <form className="bg-white rounded-xl shadow p-6 space-y-6 text-sm text-gray-700">
-              <div className="flex justify-between items-start">
+        <style jsx global>{`
+          .print-sheet {
+            width: 794px;
+            margin: 0 auto;
+            background: #fff;
+          }
+          table,
+          tr,
+          td,
+          th {
+            page-break-inside: avoid;
+          }
+          * {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+          }
+          .no-transform {
+            transform: none !important;
+          }
+          .print-sheet img {
+            max-width: 100%;
+            height: auto;
+          }
+          input,
+          textarea,
+          select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background: #fff;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 10px 12px;
+            line-height: 1.4;
+            height: 40px;
+            box-shadow: none;
+            color: #111827;
+            font-size: 14px;
+          }
+          textarea {
+            height: auto;
+            min-height: 96px;
+            line-height: 1.5;
+          }
+          input::placeholder,
+          textarea::placeholder {
+            color: #9ca3af;
+          }
+        `}</style>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            padding: "1.5rem 3.5rem",
+          }}
+        >
+          <h1
+            style={{
+              fontSize: "1.5rem",
+              fontWeight: "bold",
+              marginBottom: "1rem",
+            }}
+          >
+            Formulir
+          </h1>
+          <div
+            className="print-sheet no-transform"
+            style={{
+              borderRadius: "12px",
+              boxShadow: "0 1px 3px rgba(0,0,0,.08)",
+            }}
+          >
+            <form
+              ref={refForm}
+              style={{
+                padding: "24px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "1.5rem",
+                fontSize: "0.875rem",
+                color: "#374151",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "flex-start",
+                }}
+              >
                 <div>
-                  <p className="font-bold">Kode:</p>
-                  <p className="font-semibold">UAA-04</p>
+                  <p style={{ fontWeight: "bold" }}>Kode:</p>
+                  <p style={{ fontWeight: 600 }}>UAA-04</p>
                 </div>
-                <div className="text-center">
-                  <p className="font-semibold">FORMULIR PERMINTAAN</p>
-                  <p className="text-xs mt-1">
+                <div style={{ textAlign: "center" }}>
+                  <p style={{ fontWeight: 600 }}>FORMULIR PERMINTAAN</p>
+                  <p style={{ fontSize: "0.75rem", marginTop: "0.25rem" }}>
                     PENGHAPUSAN USER ACCOUNT APLIKASI
                   </p>
                 </div>
-                <Image
+                <img
                   src="/logoNavbar.png"
                   alt="logo"
                   width={127}
                   height={44}
-                  className="w-28 object-contain"
+                  crossOrigin="anonymous"
+                  style={{
+                    width: "7rem",
+                    height: "auto",
+                    objectFit: "contain",
+                  }}
                 />
               </div>
 
-              <p className="text-xs text-center">
+              <p style={{ fontSize: "0.75rem", textAlign: "center" }}>
                 (Formulir ini diisi oleh User Aplikasi / calon User Aplikasi dan
                 perlu disetujui oleh supervisor atau manager yang bersangkutan
                 atau Business Process Owner sebelum diberikan kepada Service
                 Desk / Help Desk)
               </p>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                  gap: "1rem",
+                }}
+              >
                 <Input label="Nama Aplikasi" required full />
                 <Input label="Lokasi" required />
                 <Input label="Nomor Induk Pegawai" required />
@@ -50,7 +302,7 @@ export default function Page() {
                 <Input label="User Account" required adminOnly full />
               </div>
 
-              <p className="text-xs text-gray-600">
+              <p style={{ fontSize: "0.75rem", color: "#4b5563" }}>
                 User Account akan dinonaktifkan jika tidak digunakan selama 3
                 bulan, mutasi, pensiun atau permintaan dari manager terkait.
               </p>
@@ -58,68 +310,132 @@ export default function Page() {
               <div>
                 <Label text="Alasan Penghapusan User Account" required />
                 <textarea
-                  className="w-full border border-gray-300 rounded p-2 mt-1"
                   rows={3}
+                  style={{
+                    width: "100%",
+                    border: "1px solid #d1d5db",
+                    borderRadius: "6px",
+                    padding: "10px 12px",
+                    marginTop: "4px",
+                  }}
                 />
               </div>
 
-              {/* <div className="border rounded p-4">
+              <div
+                style={{
+                  border: "1px solid #d1d5db",
+                  borderRadius: "6px",
+                  padding: "16px",
+                }}
+              >
                 <Label text="Konfirmasi" />
-                <table className="w-full text-sm mt-2">
+                <table
+                  style={{
+                    width: "100%",
+                    fontSize: "0.875rem",
+                    marginTop: "8px",
+                    borderCollapse: "collapse",
+                  }}
+                >
                   <thead>
-                    <tr className="text-left border-b">
-                      <th> </th>
-                      <th>Nama</th>
-                      <th>Tanda Tangan</th>
-                      <th>Tanggal</th>
+                    <tr style={{ borderBottom: "1px solid #d1d5db" }}>
+                      <th
+                        style={{
+                          width: "25%",
+                          height: "4rem",
+                          textAlign: "center",
+                        }}
+                      >
+                        {" "}
+                      </th>
+                      <th
+                        style={{
+                          width: "25%",
+                          height: "4rem",
+                          textAlign: "center",
+                        }}
+                      >
+                        Nama
+                      </th>
+                      <th
+                        style={{
+                          width: "25%",
+                          height: "4rem",
+                          textAlign: "center",
+                        }}
+                      >
+                        Tanda Tangan
+                      </th>
+                      <th
+                        style={{
+                          width: "25%",
+                          height: "4rem",
+                          textAlign: "center",
+                        }}
+                      >
+                        Tanggal
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr className="border-b">
-                      <td className="py-2 font-medium">Dimintai Oleh *</td>
-                      <td>
-                        <Input />
-                      </td>
-                      <td>
-                        <Input />
-                      </td>
-                      <td>
-                        <Input type="date" />
-                      </td>
+                    <tr>
+                      <CellFirst>Dimintai Oleh *</CellFirst>
+                      <CellInput />
+                      <CellInput />
+                      <CellInput type="date" />
                     </tr>
                     <tr>
-                      <td className="py-2 font-medium">
+                      <CellFirst>
                         Disetujui oleh Supervisor / Manager / PH Manager / BPO *
-                      </td>
-                      <td>
-                        <Input />
-                      </td>
-                      <td>
-                        <Input />
-                      </td>
-                      <td>
-                        <Input type="date" />
-                      </td>
+                      </CellFirst>
+                      <CellInput />
+                      <CellInput />
+                      <CellInput type="date" />
                     </tr>
                   </tbody>
                 </table>
-              </div> */}
+              </div>
 
-              <div className="text-xs text-gray-500 space-y-1">
+              <div
+                style={{
+                  fontSize: "0.75rem",
+                  color: "#6b7280",
+                  marginTop: "1rem",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "4px",
+                }}
+              >
                 <p>
                   * : Harus diisi oleh User, jika tidak diisi maka permintaan
                   tidak akan diproses
                 </p>
                 <p>** : Diisi oleh User Admin</p>
               </div>
-
-              <button
-                type="submit"
-                className="bg-sky-500 text-white px-4 py-2 rounded hover:bg-sky-600"
-              >
-                Submit
-              </button>
             </form>
+            <div style={{ padding: "0 24px 24px" }}>
+              <button
+                onClick={handleExportPdf}
+                style={{
+                  background: "#0ea5e9",
+                  color: "#fff",
+                  padding: "8px 16px",
+                  borderRadius: "6px",
+                  marginTop: "16px",
+                  cursor: "pointer",
+                  border: "none",
+                  fontWeight: 600,
+                }}
+                onMouseOver={(e) =>
+                  (e.currentTarget.style.background = "#0369a1")
+                }
+                onMouseOut={(e) =>
+                  (e.currentTarget.style.background = "#0ea5e9")
+                }
+              >
+                Export PDF
+              </button>
+            </div>
           </div>
         </div>
       </MainLayout>
@@ -136,18 +452,35 @@ function Input({
   placeholder = "",
 }) {
   return (
-    <div className={full ? "col-span-2" : ""}>
+    <div style={full ? { gridColumn: "span 2 / span 2" } : {}}>
       {label && (
-        <label className="block text-xs font-semibold mb-1">
+        <label
+          style={{
+            display: "block",
+            fontSize: "0.75rem",
+            fontWeight: 600,
+            marginBottom: "4px",
+          }}
+        >
           {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
-          {adminOnly && <span className="text-red-500 ml-1">**</span>}
+          {required && (
+            <span style={{ color: "#ef4444", marginLeft: "4px" }}>*</span>
+          )}
+          {adminOnly && (
+            <span style={{ color: "#ef4444", marginLeft: "4px" }}>**</span>
+          )}
         </label>
       )}
       <input
         type={type}
-        className="w-full border border-gray-300 rounded p-2 text-sm"
         placeholder={placeholder}
+        style={{
+          width: "100%",
+          border: "1px solid #d1d5db",
+          borderRadius: "6px",
+          padding: "10px 12px",
+          fontSize: "0.875rem",
+        }}
       />
     </div>
   );
@@ -155,9 +488,37 @@ function Input({
 
 function Label({ text, required }) {
   return (
-    <label className="block text-xs font-semibold mb-1">
+    <label
+      style={{
+        display: "block",
+        fontSize: "0.75rem",
+        fontWeight: 600,
+        marginBottom: "4px",
+      }}
+    >
       {text}
-      {required && <span className="text-red-500 ml-1">*</span>}
+      {required && (
+        <span style={{ color: "#ef4444", marginLeft: "4px" }}>*</span>
+      )}
     </label>
   );
+}
+
+function CellFirst({ children }) {
+  return (
+    <td
+      style={{
+        padding: "8px 6px",
+        fontWeight: 500,
+        height: "6rem",
+        border: "1px solid #d1d5db",
+      }}
+    >
+      {children}
+    </td>
+  );
+}
+
+function CellInput() {
+  return <td style={{ height: "6rem", border: "1px solid #d1d5db" }} />;
 }
