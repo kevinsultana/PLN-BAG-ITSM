@@ -324,7 +324,12 @@ export default function TiketDetails({
                 <Dropdown
                   label="BPO"
                   value={updatedTiket?.bpo_id || updatedTiket?.bpo?.id || ""}
-                  dataMenus={selections?.bpos || []}
+                  dataMenus={
+                    selections?.bpos?.map((bpo) => ({
+                      id: bpo.id,
+                      name: bpo.division_name,
+                    })) || []
+                  }
                   disabled={data?.status !== "OPEN"}
                   handleChange={(e) =>
                     setUpdatedTiket((prev) => ({

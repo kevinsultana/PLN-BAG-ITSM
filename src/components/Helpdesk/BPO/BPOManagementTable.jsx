@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -20,21 +20,7 @@ import { FaPlus } from "react-icons/fa";
 import { RiSearchLine, RiMore2Fill } from "react-icons/ri";
 import Link from "next/link";
 
-const initialBPOData = [
-  { no: 1, namaManager: "Jhon Doe", namaBPO: "BPO IT", divisi: "IT" },
-  {
-    no: 2,
-    namaManager: "Alika Prameswari",
-    namaBPO: "BPO Finance",
-    divisi: "Keuangan",
-  },
-  {
-    no: 3,
-    namaManager: "Ferdy Anggara",
-    namaBPO: "BPO Pengadaan",
-    divisi: "Pengadaan",
-  },
-];
+// initialBPOData removed, always use API data
 
 const columns = [
   { label: "No.", key: "no" },
@@ -44,8 +30,20 @@ const columns = [
   { label: "Aksi", key: "aksi", disableSorting: true },
 ];
 
-export default function BPOManagementTable() {
-  const [bpoData, setBpoData] = useState(initialBPOData);
+export default function BPOManagementTable({ data }) {
+  // Always map API data to table format
+  const mappedBpoData = Array.isArray(data)
+    ? data.map((item, idx) => ({
+        no: idx + 1,
+        namaManager: item.fullname,
+        namaBPO: item.name,
+        divisi: item.division_name,
+        id: item.id,
+        raw: item,
+      }))
+    : [];
+
+  const [bpoData, setBpoData] = useState(mappedBpoData);
   const [orderBy, setOrderBy] = useState("no");
   const [order, setOrder] = useState("asc");
   const [page, setPage] = useState(1);
@@ -54,6 +52,10 @@ export default function BPOManagementTable() {
   const [openMenuId, setOpenMenuId] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
   const [activeRow, setActiveRow] = useState(null);
+
+  useEffect(() => {
+    setBpoData(mappedBpoData);
+  }, [data]);
 
   const handleSort = (property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -73,7 +75,7 @@ export default function BPOManagementTable() {
 
   const handleDelete = (row) => {
     console.log("Delete item:", row);
-    setBpoData(bpoData.filter((item) => item.no !== row.no));
+    setBpoData((prev) => prev.filter((item) => item.id !== row.id));
     handleCloseMenu();
   };
 
@@ -154,6 +156,7 @@ export default function BPOManagementTable() {
                       active={orderBy === column.key}
                       direction={orderBy === column.key ? order : "asc"}
                       onClick={() => handleSort(column.key)}
+                      style={{ cursor: "pointer", width: "25%" }}
                     >
                       {column.label}
                     </TableSortLabel>
@@ -165,11 +168,13 @@ export default function BPOManagementTable() {
           <TableBody>
             {paginatedData.map((row) => (
               <TableRow key={row.no} hover>
-                <TableCell>{row.no}</TableCell>
-                <TableCell>{row.namaManager}</TableCell>
-                <TableCell>{row.namaBPO}</TableCell>
-                <TableCell>{row.divisi}</TableCell>
-                <TableCell>
+                <TableCell style={{ width: "5%" }}>{row.no}</TableCell>
+                <TableCell style={{ width: "20%" }}>
+                  {row.namaManager}
+                </TableCell>
+                <TableCell style={{ width: "15%" }}>{row.namaBPO}</TableCell>
+                <TableCell style={{ width: "55%" }}>{row.divisi}</TableCell>
+                <TableCell style={{ width: "5%" }}>
                   <IconButton onClick={(e) => handleOpenMenuWithEvent(e, row)}>
                     <RiMore2Fill />
                   </IconButton>

@@ -48,10 +48,8 @@ export default function CKEditorWrapper({
       const data = new FormData();
       data.append("files", file);
       // Ganti '/upload-endpoint' sesuai endpoint API kamu
-      // console.log(file);
       return new Promise(async (resolve, reject) => {
         const res = await PostProxyUrl.post("/attachments", data);
-        // console.log(res.data);
         const status = res.data.success;
         if (status) {
           resolve({ default: res.data.data[0]?.url });
