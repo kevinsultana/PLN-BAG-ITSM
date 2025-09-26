@@ -25,7 +25,7 @@ import Link from "next/link";
 const columns = [
   { label: "No.", key: "no" },
   { label: "Nama Manager", key: "namaManager" },
-  { label: "Nama BPO", key: "namaBPO" },
+  // { label: "Nama BPO", key: "namaBPO" },
   { label: "Divisi", key: "divisi" },
   { label: "Aksi", key: "aksi", disableSorting: true },
 ];
@@ -125,7 +125,10 @@ export default function BPOManagementTable({ data }) {
             size="small"
             placeholder="Search"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setPage(1);
+            }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -172,7 +175,7 @@ export default function BPOManagementTable({ data }) {
                 <TableCell style={{ width: "20%" }}>
                   {row.namaManager}
                 </TableCell>
-                <TableCell style={{ width: "15%" }}>{row.namaBPO}</TableCell>
+                {/* <TableCell style={{ width: "15%" }}>{row.namaBPO}</TableCell> */}
                 <TableCell style={{ width: "55%" }}>{row.divisi}</TableCell>
                 <TableCell style={{ width: "5%" }}>
                   <IconButton onClick={(e) => handleOpenMenuWithEvent(e, row)}>
