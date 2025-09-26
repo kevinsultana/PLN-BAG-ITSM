@@ -178,7 +178,7 @@ export default function CreateTicketForm({ onSubmit }) {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-  // console.log(form);
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -491,7 +491,7 @@ export default function CreateTicketForm({ onSubmit }) {
                   </MenuItem>
                   {dataBpo.map((bpo, index) => (
                     <MenuItem key={index} value={String(bpo.id ?? "")}>
-                      Divisi {bpo.name}
+                      Divisi {bpo.division.name}
                     </MenuItem>
                   ))}
                 </Select>
