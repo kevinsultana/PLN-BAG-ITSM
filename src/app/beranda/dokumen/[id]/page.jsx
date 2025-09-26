@@ -1,22 +1,18 @@
 "use client";
-import ApplicationService from "@/components/Beranda/Home/ApplicationService";
-import MainLayout from "@/components/Beranda/Layout/MainLayout";
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { ProxyUrl } from "@/api/BaseUrl";
+import BagCloudTable from "@/components/Beranda/Dokumen/BagCloudTable";
+import MainLayout from "@/components/Beranda/Layout/MainLayout";
+import { useParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
 
 export default function Page() {
-  const router = useRouter();
-  const [dataApps, setDataApps] = useState([]);
-
-  const handleNavigateTo = (id) => {
-    router.push(`/beranda/dokumen/${id}`);
-  };
+  const param = useParams();
+  const [data, setData] = useState({});
 
   const getData = async () => {
     try {
-      const res = await ProxyUrl.get("/docs/client");
-      setDataApps(res.data.data);
+      const res = await ProxyUrl.get("/docs/" + param.id);
+      setData(res.data.data);
     } catch (error) {
       console.log(error);
     }
@@ -24,17 +20,14 @@ export default function Page() {
 
   useEffect(() => {
     getData();
-  }, []);
+  }, [param.id]);
 
   return (
     <div className="bg-slate-100 min-h-screen">
       <MainLayout>
         <div className="flex flex-col py-6 px-14 space-y-4">
           <h1 className="text-2xl font-bold">Dokumen</h1>
-          <ApplicationService
-            data={dataApps}
-            handleNavigate={handleNavigateTo}
-          />
+          <BagCloudTable data={data} />
         </div>
       </MainLayout>
     </div>
