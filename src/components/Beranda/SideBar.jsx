@@ -9,6 +9,7 @@ import {
 } from "react-icons/ri";
 import { LuClipboardList } from "react-icons/lu";
 import { BiPhoneCall } from "react-icons/bi";
+import { HiOutlineDocumentCheck } from "react-icons/hi2";
 
 export default function SideBar({ show }) {
   const pathname = usePathname();
@@ -48,6 +49,18 @@ export default function SideBar({ show }) {
             >
               <RiHome4Line />
               Beranda
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/beranda/cr-approval"
+              className={getLinkClassName([
+                "/beranda/cr-approval",
+                "/beranda/cr-approval/[]",
+              ])}
+            >
+              <HiOutlineDocumentCheck />
+              CR Approval
             </Link>
           </li>
 

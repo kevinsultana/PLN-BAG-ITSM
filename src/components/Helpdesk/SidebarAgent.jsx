@@ -15,6 +15,7 @@ import {
 import { LuClipboardList } from "react-icons/lu";
 import { BiPhoneCall } from "react-icons/bi";
 import { useAuth } from "@/context/AuthContext";
+import { HiOutlineDocumentCheck } from "react-icons/hi2";
 
 export default function SidebarAgent({ show }) {
   const { privilege } = useAuth();
@@ -71,6 +72,19 @@ export default function SidebarAgent({ show }) {
               </Link>
             </li>
           )}
+
+          <li>
+            <Link
+              href="/helpdesk/cr-approval"
+              className={getLinkClassName([
+                "/helpdesk/cr-approval",
+                "/helpdesk/cr-approval/[]",
+              ])}
+            >
+              <HiOutlineDocumentCheck />
+              CR Approval
+            </Link>
+          </li>
 
           {/* Tiket Dropdown */}
           {privilege?.data?.some((p) => p.startsWith("ticket.")) && (
