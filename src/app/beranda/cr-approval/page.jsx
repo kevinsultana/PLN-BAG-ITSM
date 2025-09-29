@@ -14,7 +14,6 @@ export default function Page() {
     try {
       setLoading(true);
       const res = await ProxyUrl.get("/change-requests");
-      console.log(res.data);
 
       // Handle different API response structures
       if (res.data.data) {
@@ -31,9 +30,15 @@ export default function Page() {
   };
 
   const handleRowClick = (row, index) => {
-    console.log("Row clicked:", row, index);
+    // console.log("Row clicked:", row, index);
     // Add navigation to detail page or open modal
-    // Example: router.push(`/helpdesk/cr-approval/details/${row.id}`);
+    router.push(`/beranda/cr-approval/details/${row.id}`);
+  };
+
+  const handleEditClick = (row, index) => {
+    // console.log("Edit clicked:", row, index);
+    // Navigate to edit page
+    router.push(`/beranda/cr-approval/edit/${row.id}`);
   };
 
   useEffect(() => {
@@ -49,6 +54,7 @@ export default function Page() {
             items={data}
             loading={loading}
             onRowClick={handleRowClick}
+            onEditClick={handleEditClick}
           />
         </div>
       </MainLayout>

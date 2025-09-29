@@ -10,9 +10,11 @@ import {
 import { LuClipboardList } from "react-icons/lu";
 import { BiPhoneCall } from "react-icons/bi";
 import { HiOutlineDocumentCheck } from "react-icons/hi2";
+import { useAuth } from "@/context/AuthContext";
 
 export default function SideBar({ show }) {
   const pathname = usePathname();
+  const { user } = useAuth();
 
   const getLinkClassName = (paths) => {
     const isActive = Array.isArray(paths)
@@ -51,18 +53,20 @@ export default function SideBar({ show }) {
               Beranda
             </Link>
           </li>
-          <li>
-            <Link
-              href="/beranda/cr-approval"
-              className={getLinkClassName([
-                "/beranda/cr-approval",
-                "/beranda/cr-approval/[]",
-              ])}
-            >
-              <HiOutlineDocumentCheck />
-              CR Approval
-            </Link>
-          </li>
+          {user?.data?.role === "BPO" && (
+            <li>
+              <Link
+                href="/beranda/cr-approval"
+                className={getLinkClassName([
+                  "/beranda/cr-approval",
+                  "/beranda/cr-approval/[]",
+                ])}
+              >
+                <HiOutlineDocumentCheck />
+                CR Approval
+              </Link>
+            </li>
+          )}
 
           <li>
             <Link

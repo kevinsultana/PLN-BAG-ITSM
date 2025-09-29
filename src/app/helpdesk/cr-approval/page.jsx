@@ -2,17 +2,19 @@
 import { ProxyUrl } from "@/api/BaseUrl";
 import CrApprovalTable from "@/components/Helpdesk/CRApproval/CrApprovalTable";
 import HelpdeskLayout from "@/components/Helpdesk/layout/HelpdeskLayout";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 export default function page() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const router = useRouter();
+
   const getDataCRApproval = async () => {
     try {
       setLoading(true);
       const res = await ProxyUrl.get("/change-requests");
-      console.log(res.data);
 
       // Handle different API response structures
       if (res.data.data) {
@@ -31,7 +33,7 @@ export default function page() {
   const handleRowClick = (row, index) => {
     console.log("Row clicked:", row, index);
     // Add navigation to detail page or open modal
-    // Example: router.push(`/helpdesk/cr-approval/details/${row.id}`);
+    router.push(`/helpdesk/cr-approval/details/${row.id}`);
   };
 
   useEffect(() => {

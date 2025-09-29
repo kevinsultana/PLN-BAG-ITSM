@@ -288,12 +288,7 @@ export default function CrApprovalTable({
               </TableRow>
             ) : (
               paginatedData.map((row, index) => (
-                <TableRow
-                  key={row.id || index}
-                  hover
-                  className="cursor-pointer"
-                  onClick={() => onRowClick?.(row, index)}
-                >
+                <TableRow key={row.id || index} hover className="">
                   <TableCell className="text-gray-800">
                     {(page - 1) * rowsPerPage + index + 1}
                   </TableCell>
@@ -341,9 +336,6 @@ export default function CrApprovalTable({
                           <FaEye />
                         </IconButton>
                       </Tooltip>
-                      <IconButton size="small" className="text-gray-600">
-                        <RiMore2Fill />
-                      </IconButton>
                     </div>
                   </TableCell>
                 </TableRow>

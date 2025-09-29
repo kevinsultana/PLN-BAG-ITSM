@@ -16,7 +16,7 @@ import {
   IconButton,
   Tooltip,
 } from "@mui/material";
-import { FaPlus, FaDownload, FaEye } from "react-icons/fa";
+import { FaPlus, FaDownload, FaEye, FaPencilAlt } from "react-icons/fa";
 import { RiMore2Fill } from "react-icons/ri";
 import { MdOutlineAttachment } from "react-icons/md";
 
@@ -136,6 +136,7 @@ const formatDate = (dateString) => {
 
 export default function CrApprovalTableUser({
   onRowClick,
+  onEditClick,
   items = [],
   loading = false,
 }) {
@@ -288,12 +289,7 @@ export default function CrApprovalTableUser({
               </TableRow>
             ) : (
               paginatedData.map((row, index) => (
-                <TableRow
-                  key={row.id || index}
-                  hover
-                  className="cursor-pointer"
-                  onClick={() => onRowClick?.(row, index)}
-                >
+                <TableRow key={row.id || index} hover>
                   <TableCell className="text-gray-800">
                     {(page - 1) * rowsPerPage + index + 1}
                   </TableCell>
@@ -332,18 +328,21 @@ export default function CrApprovalTableUser({
                       <Tooltip title="View Details">
                         <IconButton
                           size="small"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onRowClick?.(row, index);
-                          }}
+                          onClick={() => onRowClick?.(row, index)}
                           className="text-blue-600 hover:text-blue-800"
                         >
                           <FaEye />
                         </IconButton>
                       </Tooltip>
-                      <IconButton size="small" className="text-gray-600">
-                        <RiMore2Fill />
-                      </IconButton>
+                      <Tooltip title="Edit CR">
+                        <IconButton
+                          size="small"
+                          onClick={() => onEditClick?.(row, index)}
+                          className="text-green-600 hover:text-green-800"
+                        >
+                          <FaPencilAlt />
+                        </IconButton>
+                      </Tooltip>
                     </div>
                   </TableCell>
                 </TableRow>
