@@ -37,6 +37,26 @@ const privilegeRows = [
   },
   {
     no: 3,
+    access: "CR Approval Beranda",
+    keys: {
+      create: "cr.approval.beranda.create",
+      read: "cr.approval.beranda.read",
+      update: "cr.approval.beranda.update",
+      delete: "cr.approval.beranda.delete",
+    },
+  },
+  {
+    no: 4,
+    access: "CR Approval Helpdesk",
+    keys: {
+      create: "cr.approval.helpdesk.create",
+      read: "cr.approval.helpdesk.read",
+      update: "cr.approval.helpdesk.update",
+      delete: "cr.approval.helpdesk.delete",
+    },
+  },
+  {
+    no: 5,
     access: "Helpdesk",
     keys: {
       create: "helpdesk.create",
@@ -46,7 +66,7 @@ const privilegeRows = [
     },
   },
   {
-    no: 4,
+    no: 6,
     access: "Tiket => Tiket Saya",
     keys: {
       create: "ticket.my.create",
@@ -56,7 +76,7 @@ const privilegeRows = [
     },
   },
   {
-    no: 5,
+    no: 7,
     access: "Tiket => Semua Tiket",
     keys: {
       create: "ticket.all.create",
@@ -66,7 +86,7 @@ const privilegeRows = [
     },
   },
   {
-    no: 6,
+    no: 8,
     access: "Reporting => Tiket Analisis",
     keys: {
       create: "reporting.analysis.create",
@@ -76,7 +96,7 @@ const privilegeRows = [
     },
   },
   {
-    no: 7,
+    no: 9,
     access: "Reporting => SLA Analysis",
     keys: {
       create: "reporting.sla.create",
@@ -86,7 +106,7 @@ const privilegeRows = [
     },
   },
   {
-    no: 8,
+    no: 10,
     access: "Reporting => CR Tracking",
     keys: {
       create: "reporting.cr.create",
@@ -96,7 +116,7 @@ const privilegeRows = [
     },
   },
   {
-    no: 9,
+    no: 11,
     access: "Dokumen Aplikasi",
     keys: {
       create: "document.application.create",
@@ -106,7 +126,7 @@ const privilegeRows = [
     },
   },
   {
-    no: 10,
+    no: 12,
     access: "User Privilege",
     keys: {
       create: "user.privilege.create",
@@ -116,7 +136,7 @@ const privilegeRows = [
     },
   },
   {
-    no: 11,
+    no: 13,
     access: "BPO",
     keys: {
       create: "bpo.create",
@@ -126,7 +146,7 @@ const privilegeRows = [
     },
   },
   {
-    no: 12,
+    no: 14,
     access: "Konfigurasi Team Member",
     keys: {
       create: "config.team.member.create",
@@ -136,7 +156,7 @@ const privilegeRows = [
     },
   },
   {
-    no: 13,
+    no: 15,
     access: "Konfigurasi Agent Management",
     keys: {
       create: "config.teams.create",
@@ -146,7 +166,7 @@ const privilegeRows = [
     },
   },
   {
-    no: 14,
+    no: 16,
     access: "Konfigurasi Status Tiket",
     keys: {
       create: "config.ticket.status.create",
@@ -156,7 +176,7 @@ const privilegeRows = [
     },
   },
   {
-    no: 15,
+    no: 17,
     access: "Konfigurasi SLA Policy",
     keys: {
       create: "config.sla.create",
@@ -166,7 +186,7 @@ const privilegeRows = [
     },
   },
   {
-    no: 16,
+    no: 18,
     access: "Konfigurasi Tipe Tiket",
     keys: {
       create: "config.ticket.type.create",
@@ -176,7 +196,7 @@ const privilegeRows = [
     },
   },
   {
-    no: 17,
+    no: 19,
     access: "Konfigurasi Aplikasi",
     keys: {
       create: "config.application.create",
@@ -186,7 +206,7 @@ const privilegeRows = [
     },
   },
   {
-    no: 18,
+    no: 20,
     access: "Konfigurasi Helpdesk Information",
     keys: {
       create: "config.helpdesk.info.create",

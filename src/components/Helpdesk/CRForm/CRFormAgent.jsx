@@ -1,70 +1,42 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React from "react";
 import Image from "next/image";
-import { toast } from "sonner";
-import { FaTimes } from "react-icons/fa";
+import renderDescription from "@/utils/RenderDesc";
+import Dropdown from "@/components/Dropdown";
 
-// Data Opsi Dropdown (Contoh - Ganti dengan data dari API Anda)
 const optionsJenisData = [
-  { value: "data-baru", label: "Data Baru" },
-  { value: "perubahan-data", label: "Perubahan Data" },
+  { value: "Database", label: "Database" },
+  { value: "File", label: "File" },
+  { value: "Image", label: "Image" },
 ];
 const optionsAplikasi = [
-  { value: "e-procurement", label: "e-Procurement" },
-  { value: "erp-crm", label: "ERP CRM" },
-];
-const optionsHardware = [
-  { value: "server-a", label: "Server A" },
-  { value: "server-b", label: "Server B" },
-];
-const optionsSoftware = [
-  { value: "windows-server", label: "Windows Server 2022" },
-  { value: "linux-ubuntu", label: "Linux Ubuntu 22.04" },
-];
-const optionsDB = [
-  { value: "postgres-15", label: "PostgreSQL 15" },
-  { value: "mysql-8", label: "MySQL 8.0" },
+  { value: "Website", label: "Website" },
+  { value: "Desktop", label: "Desktop" },
+  { value: "Mobile", label: "Mobile" },
 ];
 
-export default function CRFormAgent({ data = {}, onSubmit, onCancel }) {
-  const [form, setForm] = useState({
-    jenisAplikasi: "",
-    namaDb: "",
-    aplikasiDatabase: "",
-    jenisData: "",
-    namaHardware: "",
-    namaSoftware: "",
-    versiSoftware: "",
-    ruangLingkup: "",
-    dampakImplementasi: "",
-    catatan: "",
-    lampiran: null,
-  });
+const optionsAplikasiDatabase = [
+  { value: "SQL Server", label: "SQL Server" },
+  { value: "MySQL", label: "MySQL" },
+  { value: "PostgreSQL", label: "PostgreSQL" },
+  { value: "Oracle", label: "Oracle" },
+];
 
-  const fileInputRef = useRef(null);
-
+// Controlled component: parent supplies `form` object & `onFormChange` callback.
+// NOTE: Bagian Lampiran hanya ditampilkan dari `data.attachments` (view only) dan TIDAK termasuk dalam state form yang dikirim ke parent.
+// Expected form shape (example): {
+//   additional_notes: '', application_database: '', application_type: '',
+//   change_description: '', data_type: '', database_name: '', division_name: '',
+//   hardware_name: '', software_name: '', software_version: '', implementation_scope: ''
+// }
+export default function CRFormAgent({
+  data = {},
+  form = {},
+  onFormChange = () => {},
+}) {
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file && file.size > 5 * 1024 * 1024) {
-      toast.error("Ukuran file tidak boleh melebihi 5MB.");
-      return;
-    }
-    setForm((prev) => ({ ...prev, lampiran: file }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (onSubmit) {
-      onSubmit(form);
-    } else {
-      console.log("Form Submitted:", form);
-      toast.success("Form Change Request berhasil dikirim.");
-    }
+    onFormChange({ ...form, [name]: value });
   };
 
   return (
@@ -89,51 +61,69 @@ export default function CRFormAgent({ data = {}, onSubmit, onCancel }) {
         BPO Terkait
       </p>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
           {/* Left Column */}
           <div className="space-y-6">
-            <FileInput
-              label="Lampiran"
-              name="lampiran"
-              file={form.lampiran}
-              onChange={handleFileChange}
-              onClear={() => setForm((prev) => ({ ...prev, lampiran: null }))}
-              inputRef={fileInputRef}
-              hint="Maks 5MB"
-            />
+            {/* Lampiran: hanya menampilkan lampiran existing dari tiket (view only) */}
+            <div className="flex flex-col gap-2">
+              <label className="font-semibold text-sm">Lampiran</label>
+              <div className="input flex flex-col gap-2 min-h-20">
+                {Array.isArray(data?.attachments) &&
+                data.attachments.length > 0 ? (
+                  data.attachments.map((att) => (
+                    <div key={att.id} className="flex items-center gap-2">
+                      {att.mime_type?.startsWith("image/") ? (
+                        <img
+                          src={att.url}
+                          alt={att.name}
+                          style={{ maxWidth: 50, maxHeight: 50 }}
+                        />
+                      ) : null}
+                      <a
+                        href={att.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 underline"
+                      >
+                        {att.name}
+                      </a>
+                      <span className="text-xs text-gray-500">
+                        {Math.round(att.size / 1024)} KB
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <span className="text-gray-400">Belum ada lampiran</span>
+                )}
+              </div>
+            </div>
+
             <InputField
               label="Nama Divisi"
-              value={data?.division?.name || "Accounting"}
+              value={data?.division?.name || ""}
               readOnly
             />
             <InputField
               label="Requester"
-              value={data?.requester?.name || "Jhon Doe"}
+              value={data?.requester?.name || ""}
               readOnly
             />
-            <InputField
-              label="Email"
-              value={data?.requester?.email || "jhondoe@gmail.com"}
-              readOnly
-            />
+            <InputField label="Email" value={data?.email || ""} readOnly />
             <InputField
               label="No. Whatsapp"
               value={data?.whatsapp || "081238765412"}
               readOnly
             />
-            <TextareaField
-              label="Deskripsi"
-              value={
-                data?.description ||
-                "Mohon untuk segera merespon reset password"
-              }
-              readOnly
-              rows={4}
-            />
+            <div className="flex flex-col gap-2">
+              <label className="font-semibold text-sm">Deskripsi</label>
+              <div className="input bg-gray-100 min-h-20">
+                {data?.description ? renderDescription(data.description) : ""}
+              </div>
+            </div>
             <InputField
               label="Nama Aplikasi"
-              value={data?.application?.name || "e-Procurement"}
+              value={data?.application?.name || ""}
               readOnly
             />
             <TextareaField
@@ -142,70 +132,79 @@ export default function CRFormAgent({ data = {}, onSubmit, onCancel }) {
               readOnly
               rows={4}
             />
-            <SelectField
+            <Dropdown
               label="Jenis Aplikasi"
-              name="jenisAplikasi"
-              value={form.jenisAplikasi}
-              onChange={handleChange}
-              options={optionsAplikasi}
-              required
-            />
-            <SelectField
-              label="Nama DB"
-              name="namaDb"
-              value={form.namaDb}
-              onChange={handleChange}
-              options={optionsDB}
-              required
+              value={form.application_type || ""}
+              dataMenus={optionsAplikasi}
+              handleChange={(e) =>
+                onFormChange({ ...form, application_type: e.target.value })
+              }
+              isRequired={true}
+              initMenu="- Pilih Jenis Aplikasi -"
             />
           </div>
 
           {/* Right Column */}
           <div className="space-y-6">
-            <SelectField
+            <Dropdown
               label="Aplikasi / Database"
-              name="aplikasiDatabase"
-              value={form.aplikasiDatabase}
-              onChange={handleChange}
-              options={optionsAplikasi}
-              required
+              value={form.application_database || ""}
+              dataMenus={optionsAplikasiDatabase}
+              handleChange={(e) =>
+                onFormChange({
+                  ...form,
+                  application_database: e.target.value,
+                })
+              }
+              isRequired={true}
+              initMenu="- Pilih Aplikasi / Database -"
             />
-            <SelectField
+            <Dropdown
               label="Jenis Data"
-              name="jenisData"
-              value={form.jenisData}
+              value={form.data_type || ""}
+              dataMenus={optionsJenisData}
+              handleChange={(e) =>
+                onFormChange({ ...form, data_type: e.target.value })
+              }
+              isRequired={true}
+              initMenu="- Pilih Jenis Data -"
+            />
+            <InputField
+              label="Nama Database"
+              name="database_name"
+              value={form.database_name || ""}
               onChange={handleChange}
-              options={optionsJenisData}
+              placeholder="Masukkan Nama Database"
               required
             />
-            <SelectField
+            <InputField
               label="Nama Hardware"
-              name="namaHardware"
-              value={form.namaHardware}
+              name="hardware_name"
+              value={form.hardware_name || ""}
               onChange={handleChange}
-              options={optionsHardware}
+              placeholder="Masukkan Nama Hardware"
               required
             />
-            <SelectField
+            <InputField
               label="Nama Software"
-              name="namaSoftware"
-              value={form.namaSoftware}
+              name="software_name"
+              value={form.software_name || ""}
               onChange={handleChange}
-              options={optionsSoftware}
+              placeholder="Masukkan Nama Software"
               required
             />
             <InputField
               label="Versi Software"
-              name="versiSoftware"
-              value={form.versiSoftware}
+              name="software_version"
+              value={form.software_version || ""}
               onChange={handleChange}
-              placeholder="Pilih Software"
+              placeholder="Masukkan Versi Software"
               required
             />
             <TextareaField
               label="Ruang Lingkup Implementasi CR"
-              name="ruangLingkup"
-              value={form.ruangLingkup}
+              name="implementation_scope"
+              value={form.implementation_scope || ""}
               onChange={handleChange}
               placeholder="Tambahkan Lingkup Implementasi CR"
               required
@@ -213,8 +212,8 @@ export default function CRFormAgent({ data = {}, onSubmit, onCancel }) {
             />
             <TextareaField
               label="Dampak Implementasi"
-              name="dampakImplementasi"
-              value={form.dampakImplementasi}
+              name="change_description"
+              value={form.change_description || ""}
               onChange={handleChange}
               placeholder="Tambahkan Dampak Implementasi"
               required
@@ -222,31 +221,15 @@ export default function CRFormAgent({ data = {}, onSubmit, onCancel }) {
             />
             <TextareaField
               label="Catatan / Keterangan"
-              name="catatan"
-              value={form.catatan}
+              name="additional_notes"
+              value={form.additional_notes || ""}
               onChange={handleChange}
               placeholder="Tambahkan Catatan / Keterangan"
               rows={4}
             />
           </div>
         </div>
-
-        <div className="flex justify-end gap-4 mt-8">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-6 py-2 rounded-lg text-gray-700 bg-gray-200 hover:bg-gray-300 transition"
-          >
-            Batal
-          </button>
-          <button
-            type="submit"
-            className="px-6 py-2 rounded-lg text-white bg-[#65C7D5] hover:bg-[#4FB3C1] transition"
-          >
-            Simpan
-          </button>
-        </div>
-      </form>
+      </div>
     </div>
   );
 }
@@ -279,55 +262,6 @@ function TextareaField({ label, required, ...props }) {
         {...props}
         className="input read-only:bg-gray-100 read-only:cursor-not-allowed"
       />
-    </div>
-  );
-}
-
-// Sub-komponen untuk Select/Dropdown
-function SelectField({ label, required, options = [], ...props }) {
-  return (
-    <div className="flex flex-col gap-2">
-      <label className="font-semibold text-sm">
-        {label}
-        {required && <span className="text-red-500">*</span>}
-      </label>
-      <select {...props} className="input appearance-none">
-        <option value="">Pilih {label}</option>
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
-}
-
-// Sub-komponen untuk File Input
-function FileInput({ label, hint, file, onClear, inputRef, ...props }) {
-  return (
-    <div className="flex flex-col gap-2">
-      <label className="font-semibold text-sm">
-        {label}
-        {hint && <span className="text-xs text-gray-500 ml-2">({hint})</span>}
-      </label>
-      {file ? (
-        <div className="flex items-center justify-between input bg-gray-100">
-          <span className="text-sm text-gray-700 truncate">{file.name}</span>
-          <button type="button" onClick={onClear} className="ml-2 text-red-500">
-            <FaTimes />
-          </button>
-        </div>
-      ) : (
-        <button
-          type="button"
-          onClick={() => inputRef.current?.click()}
-          className="input text-left text-gray-500"
-        >
-          Pilih file...
-        </button>
-      )}
-      <input type="file" ref={inputRef} className="hidden" {...props} />
     </div>
   );
 }
