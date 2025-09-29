@@ -29,16 +29,12 @@ export default function Page() {
     }
   };
 
-  const handleRowClick = (row, index) => {
-    // console.log("Row clicked:", row, index);
-    // Add navigation to detail page or open modal
-    router.push(`/beranda/cr-approval/details/${row.id}`);
-  };
-
-  const handleEditClick = (row, index) => {
-    // console.log("Edit clicked:", row, index);
-    // Navigate to edit page
-    router.push(`/beranda/cr-approval/edit/${row.id}`);
+  const handleEditClick = (row) => {
+    if (row.is_bpo1_approve === false) {
+      router.push(`/beranda/cr-approval/edit/bpo1/${row.id}`);
+    } else {
+      router.push(`/beranda/cr-approval/edit/bpo2/${row.id}`);
+    }
   };
 
   useEffect(() => {
@@ -53,7 +49,6 @@ export default function Page() {
           <CrApprovalTableUser
             items={data}
             loading={loading}
-            onRowClick={handleRowClick}
             onEditClick={handleEditClick}
           />
         </div>

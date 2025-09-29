@@ -45,7 +45,7 @@ function TextareaField({ label, required, readOnly = false, ...props }) {
   );
 }
 
-export default function CRFormItBeranda({
+export default function CRFormBpoBeranda({
   data = {},
   dataTicket,
   onFormChange,

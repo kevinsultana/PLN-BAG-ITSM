@@ -135,7 +135,6 @@ const formatDate = (dateString) => {
 };
 
 export default function CrApprovalTableUser({
-  onRowClick,
   onEditClick,
   items = [],
   loading = false,
@@ -162,7 +161,7 @@ export default function CrApprovalTableUser({
       additional_notes: item?.additional_notes || "-",
       is_bpo1_approve: item?.is_bpo1_approve || false,
       is_bpo2_approve: item?.is_bpo2_approve || false,
-      status_cr: item?.status_cr || "DRAFT",
+      status_cr: item?.status_cr,
       created_at: item?.created_at,
       attachments: item?.attachments || [],
     }));
@@ -325,7 +324,7 @@ export default function CrApprovalTableUser({
 
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <Tooltip title="View Details">
+                      {/* <Tooltip title="View Details">
                         <IconButton
                           size="small"
                           onClick={() => onRowClick?.(row, index)}
@@ -333,7 +332,7 @@ export default function CrApprovalTableUser({
                         >
                           <FaEye />
                         </IconButton>
-                      </Tooltip>
+                      </Tooltip> */}
                       <Tooltip title="Edit CR">
                         <IconButton
                           size="small"
