@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { toast } from "sonner";
 import renderDescription from "@/utils/RenderDesc";
 import Dropdown from "@/components/Dropdown";
 
@@ -10,8 +9,6 @@ const optionsJenisRisiko = [
   { value: "sedang", name: "Sedang" },
   { value: "tinggi", name: "Tinggi" },
 ];
-
-const optionsAplikasi = [];
 
 function InputField({ label, required, readOnly = false, ...props }) {
   return (
@@ -82,8 +79,8 @@ export default function CRFormBpoBeranda({
     is_bpo2_approve: data?.is_bpo2_approve,
     nama_approval2: data?.nama_approval2 || "-",
     // CAB fields - always editable
-    tanggal_cab: data?.tanggal_cab || "",
-    rekomendasi_cab: data?.rekomendasi_cab || "",
+    cab_date: data?.cab_date || "",
+    cab_recomendation: data?.cab_recomendation || "",
   });
 
   // Check if form is approved and should be read-only
@@ -94,7 +91,7 @@ export default function CRFormBpoBeranda({
     // If form is approved, most fields are readonly except CAB fields
     if (isFormApproved) {
       // Only these CAB fields remain editable when approved
-      return !["tanggal_cab", "rekomendasi_cab"].includes(fieldName);
+      return !["cab_date", "cab_recomendation"].includes(fieldName);
     }
 
     const apiDataMapping = {
@@ -176,8 +173,6 @@ export default function CRFormBpoBeranda({
     const menit = String(date.getMinutes()).padStart(2, "0");
     return `${tgl} ${bln} ${thn} jam ${jam}:${menit}`;
   }
-
-  console.log(data);
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
@@ -365,11 +360,11 @@ export default function CRFormBpoBeranda({
 
             <InputField
               label="Rekomendasi CAB"
-              name="rekomendasi_cab"
-              value={form.rekomendasi_cab}
+              name="cab_recomendation"
+              value={form.cab_recomendation}
               onChange={handleChange}
               placeholder="Masukkan rekomendasi CAB"
-              readOnly={isReadOnly("rekomendasi_cab")}
+              readOnly={isReadOnly("cab_recomendation")}
             />
           </div>
 
@@ -488,11 +483,11 @@ export default function CRFormBpoBeranda({
             />
             <InputField
               label="Tanggal CAB"
-              name="tanggal_cab"
-              value={form.tanggal_cab}
+              name="cab_date"
+              value={form.cab_date}
               onChange={handleChange}
               placeholder="Masukkan tanggal CAB"
-              readOnly={isReadOnly("tanggal_cab")}
+              readOnly={isReadOnly("cab_date")}
             />
           </div>
         </div>

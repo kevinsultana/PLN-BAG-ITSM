@@ -75,15 +75,7 @@ export default function page() {
 
   const handleApproveFormCR = async () => {
     // List of required fields
-    const requiredFields = [
-      "risk_level",
-      "new_technology",
-      "data_technology",
-      "risk_mitigation",
-      "implementation_plan",
-      "rollback_plan",
-      "testing_plan_date",
-    ];
+    const requiredFields = ["cab_date", "cab_recomendation"];
 
     const emptyFields = requiredFields.filter(
       (key) => !form[key] || form[key].toString().trim() === ""
@@ -92,6 +84,7 @@ export default function page() {
       toast.error("Mohon lengkapi semua field yang wajib diisi.");
       return;
     }
+
     const toastId = toast.loading("Memproses penyetujuan CR...");
 
     try {

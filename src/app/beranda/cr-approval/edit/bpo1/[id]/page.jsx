@@ -164,7 +164,7 @@ export default function page() {
         <div className="flex flex-col py-6 px-14">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold mb-4">CR Approval EDIT BPO1</h1>
-            {data && data.is_bpo1_approve === false && (
+            {data && data.is_bpo1_approve !== "APPROVED" && (
               <div className="flex gap-4">
                 <div className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-xl flex items-center">
                   <button variant="contained" onClick={handleRejectFormCR}>
