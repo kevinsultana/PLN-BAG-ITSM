@@ -9,7 +9,7 @@ import {
   IconButton,
   Tooltip,
 } from "@mui/material";
-import { FaDownload } from "react-icons/fa";
+import { FaDownload, FaCheck, FaTimes } from "react-icons/fa";
 import { MdOutlineAttachment } from "react-icons/md";
 
 const statusColors = {
@@ -33,32 +33,44 @@ const StatusPill = ({ status }) => {
 };
 
 const ApprovalStatus = ({ isBpo1Approve, isBpo2Approve }) => {
-  const bpo1Status = isBpo1Approve ? "✓" : "○";
-  const bpo2Status = isBpo2Approve ? "✓" : "○";
+  const getBpoStatusConfig = (status) => {
+    switch (status) {
+      case "APPROVED":
+        return {
+          icon: <FaCheck size={14} />,
+          className: "bg-green-100 border-green-500 text-green-700",
+        };
+      case "REJECTED":
+        return {
+          icon: <FaTimes size={14} />,
+          className: "bg-red-100 border-red-500 text-red-700",
+        };
+      default:
+        return {
+          icon: "○",
+          className: "bg-gray-100 border-gray-300 text-gray-500",
+        };
+    }
+  };
+
+  const bpo1Config = getBpoStatusConfig(isBpo1Approve);
+  const bpo2Config = getBpoStatusConfig(isBpo2Approve);
 
   return (
     <div className="flex items-center gap-4 text-sm">
       <div className="flex items-center gap-2">
         <span
-          className={`inline-flex items-center justify-center w-8 h-8 rounded-full border-2 ${
-            isBpo1Approve
-              ? "bg-green-100 border-green-500 text-green-700"
-              : "bg-gray-100 border-gray-300 text-gray-500"
-          }`}
+          className={`inline-flex items-center justify-center w-8 h-8 rounded-full border-2 ${bpo1Config.className}`}
         >
-          {bpo1Status}
+          {bpo1Config.icon}
         </span>
         <span className="text-sm font-medium">BPO 1</span>
       </div>
       <div className="flex items-center gap-2">
         <span
-          className={`inline-flex items-center justify-center w-8 h-8 rounded-full border-2 ${
-            isBpo2Approve
-              ? "bg-green-100 border-green-500 text-green-700"
-              : "bg-gray-100 border-gray-300 text-gray-500"
-          }`}
+          className={`inline-flex items-center justify-center w-8 h-8 rounded-full border-2 ${bpo2Config.className}`}
         >
-          {bpo2Status}
+          {bpo2Config.icon}
         </span>
         <span className="text-sm font-medium">BPO 2</span>
       </div>
