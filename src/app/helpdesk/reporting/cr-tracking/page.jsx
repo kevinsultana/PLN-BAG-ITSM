@@ -55,7 +55,6 @@ export default function Page() {
           has_next: false,
         }
       );
-      console.log(res.data);
     } catch (error) {
       console.error("Error fetching CR tracking data:", error);
     } finally {

@@ -40,7 +40,6 @@ export default function EditApplicationPage() {
   }, [id]);
 
   const handleSave = async (form) => {
-    console.log(form);
     try {
       const newform = {
         application_id: form.application_id,

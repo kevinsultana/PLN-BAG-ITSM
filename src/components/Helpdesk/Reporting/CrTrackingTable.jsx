@@ -12,6 +12,7 @@ import {
   LinearProgress,
   Box,
 } from "@mui/material";
+import { formatRupiah } from "@/utils/renderRupiah";
 
 // Mapping status CR ke progress percentage (sama seperti di chart)
 const statusProgressMapping = {
@@ -124,7 +125,9 @@ export default function CrTrackingTable({ data }) {
                   </TableCell>
                   <TableCell>
                     <Typography variant="body2">
-                      {item.contractValue || "Unknown Value"}
+                      {item.contractValue && item.contractValue !== "-"
+                        ? formatRupiah(item.contractValue)
+                        : "Nilai tidak tersedia"}
                     </Typography>
                   </TableCell>
                 </TableRow>
