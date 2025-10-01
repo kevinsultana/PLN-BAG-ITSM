@@ -1,7 +1,7 @@
 "use client";
 import Dashboard from "@/components/Helpdesk/Home/Dashboard";
 import HelpdeskLayout from "@/components/Helpdesk/layout/HelpdeskLayout";
-import React, { useState } from "react";
+import React from "react";
 
 export default function page() {
   return (

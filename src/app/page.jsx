@@ -1,8 +1,6 @@
 "use client";
 import { ProxyUrl } from "@/api/BaseUrl";
 import { useAuth } from "@/context/AuthContext";
-// import axios from "axios";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
@@ -29,6 +27,8 @@ export default function page() {
       });
       await checkUserSession();
       toast.success("Login berhasil!");
+      // Refresh halaman setelah login berhasil untuk menghindari state lama
+      // window.location.reload();
     } catch (error) {
       setError("Login gagal. Periksa username/password.");
       console.error("Login failed:", error);
@@ -125,14 +125,6 @@ export default function page() {
           </button>
         </form>
       </div>
-      {/* <div className="flex gap-6">
-        <button className="bg-cyan-400 cursor-pointer p-4 text-white rounded-xl shadow hover:bg-cyan-500 transition">
-          <Link href="/beranda">Beranda side</Link>
-        </button>
-        <button className="bg-cyan-400 cursor-pointer p-4 text-white rounded-xl shadow hover:bg-cyan-500 transition">
-          <Link href="/helpdesk">Helpdesk Side</Link>
-        </button>
-      </div> */}
     </div>
   );
 }

@@ -1,6 +1,5 @@
 import { Toaster } from "sonner";
 import "./globals.css";
-import { TicketDataProvider } from "@/context/TicketDataContext";
 import { AuthProvider } from "@/context/AuthContext"; // Import AuthProvider yang baru
 
 export const metadata = {
@@ -13,9 +12,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={`antialiased `}>
         <Toaster richColors position="top-center" />
-        <AuthProvider>
-          <TicketDataProvider>{children}</TicketDataProvider>
-        </AuthProvider>
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );
