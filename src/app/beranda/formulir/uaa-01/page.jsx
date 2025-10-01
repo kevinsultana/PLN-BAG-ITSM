@@ -246,7 +246,6 @@ export default function Page() {
           style={{
             display: "flex",
             flexDirection: "column",
-            padding: "1.5rem 3.5rem",
           }}
         >
           <h1
