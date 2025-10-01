@@ -81,13 +81,11 @@ export default function Page() {
   };
 
   const handleCloseStatus = async () => {
-    // console.log("pres");
     const toastId = toast.loading("Memperbarui status tiket...");
     try {
       const res = await ProxyUrl.put(`/tickets/${tiketId}/status`, {
         status: "CLOSED",
       });
-      console.log(res.data);
       toast.success("Status tiket berhasil diperbarui", { duration: 3000 });
       getDataTiketById(tiketId);
     } catch (error) {

@@ -108,7 +108,7 @@ export default function Page() {
             {loadingDownload ? (
               <CircularProgress size={20} color="inherit" />
             ) : (
-              "Export"
+              "Exports"
             )}
           </button>
         </div>

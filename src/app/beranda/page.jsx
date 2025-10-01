@@ -45,7 +45,7 @@ export default function Page() {
           <h1 className="text-2xl font-bold mb-6">Beranda</h1>
           <HeroImg />
           <HomeContactUs />
-          {privilege.data.includes("user.ticket.read") && (
+          {privilege?.data?.includes("user.ticket.read") && (
             <ListTicketTable
               onRowClick={handleRowClick}
               dataTiket={dataTiket}

@@ -124,7 +124,7 @@ export default function CRFormIt({ data = {}, onSubmit, onCancel }) {
     if (onSubmit) {
       onSubmit(form);
     } else {
-      console.log("Form Submitted:", form);
+      // console.log("Form Submitted:", form);
       toast.success("Form Change Request (IT) berhasil dikirim.");
     }
   };

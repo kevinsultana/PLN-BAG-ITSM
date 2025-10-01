@@ -53,20 +53,6 @@ export default function page() {
     }
   }, [params.id]);
 
-  const handleSubmitFormCR = async (form) => {
-    console.log(form);
-    // try {
-    //   const res = await ProxyUrl.put(`/change-requests/${params.id}`, {
-    //     ...form,
-    //   });
-    //   if (res.status === 200) {
-    //     router.push("/beranda/cr-approval");
-    //   }
-    // } catch (error) {
-    //   console.log(error);
-    // }
-  };
-
   const handleRejectFormCR = async () => {
     const toastId = toast.loading("Memproses penolakan CR...");
     try {
@@ -76,7 +62,6 @@ export default function page() {
           decision: "REJECTED",
         }
       );
-      console.log(res.data);
       toast.success("CR berhasil ditolak");
       router.replace("/beranda/cr-approval");
     } catch (error) {
@@ -118,7 +103,6 @@ export default function page() {
             decision: "APPROVED",
           }
         );
-        console.log(resp.data);
       }
       toast.success("CR berhasil disetujui");
       router.replace("/beranda/cr-approval");

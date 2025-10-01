@@ -61,7 +61,6 @@ export default function PrivilegeUserTable({
       onClickDelete(row);
     } else {
       setRoles((prev) => prev.filter((r) => r.id !== row.id));
-      console.log("Delete role:", row);
     }
     handleCloseMenu();
   };

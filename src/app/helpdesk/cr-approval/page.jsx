@@ -31,7 +31,6 @@ export default function page() {
   };
 
   const handleRowClick = (row, index) => {
-    console.log("Row clicked:", row, index);
     // Add navigation to detail page or open modal
     router.push(`/helpdesk/cr-approval/details/${row.id}`);
   };

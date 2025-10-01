@@ -58,7 +58,7 @@ export default function CRFormBpo({ data = {}, onSubmit, onCancel }) {
     if (onSubmit) {
       onSubmit(form);
     } else {
-      console.log("Form Submitted:", form);
+      // console.log("Form Submitted:", form);
     }
   };
 

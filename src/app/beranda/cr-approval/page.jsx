@@ -32,7 +32,6 @@ export default function Page() {
   };
 
   const handleEditClick = (row) => {
-    console.log(row);
     if (row.is_bpo1_approve === false && user.data.role === "BPO 1") {
       router.push(`/beranda/cr-approval/edit/bpo1/${row.id}`);
     } else if (
