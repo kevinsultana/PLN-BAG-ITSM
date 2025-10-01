@@ -18,7 +18,7 @@ import { useAuth } from "@/context/AuthContext";
 import { HiOutlineDocumentCheck } from "react-icons/hi2";
 
 export default function SidebarAgent({ show }) {
-  const { privilege } = useAuth();
+  const { privilege, user } = useAuth();
 
   const pathname = usePathname();
   const [openDropdown, setOpenDropdown] = useState(() => {
@@ -73,18 +73,22 @@ export default function SidebarAgent({ show }) {
             </li>
           )}
 
-          <li>
-            <Link
-              href="/helpdesk/cr-approval"
-              className={getLinkClassName([
-                "/helpdesk/cr-approval",
-                "/helpdesk/cr-approval/[]",
-              ])}
-            >
-              <HiOutlineDocumentCheck />
-              CR Approval
-            </Link>
-          </li>
+          {(user?.data?.role === "BPO 1" ||
+            user?.data?.role === "BPO 2" ||
+            user?.data?.role === "Administrator") && (
+            <li>
+              <Link
+                href="/helpdesk/cr-approval"
+                className={getLinkClassName([
+                  "/helpdesk/cr-approval",
+                  "/helpdesk/cr-approval/[]",
+                ])}
+              >
+                <HiOutlineDocumentCheck />
+                CR Approval
+              </Link>
+            </li>
+          )}
 
           {/* Tiket Dropdown */}
           {privilege?.data?.some((p) => p.startsWith("ticket.")) && (
