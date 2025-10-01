@@ -9,7 +9,7 @@ import {
   FaWhatsapp,
 } from "react-icons/fa";
 
-export default function ContactUs() {
+export default function ContactUs({ data }) {
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">Hubungi Helpdesk</h1>
@@ -23,11 +23,11 @@ export default function ContactUs() {
           <div className="space-y-3 text-gray-700">
             <div className="flex items-center">
               <FaClock className="mr-2 text-gray-500" />
-              <span>Senin – Kamis: 08.00 – 16.30 WIB</span>
+              <span>Senin – Kamis: {data.hours_mon_thu} WIB</span>
             </div>
             <div className="flex items-center">
               <FaClock className="mr-2 text-gray-500" />
-              <span>Jumat: 08.00 – 17.00 WIB</span>
+              <span>Jumat: {data.hours_fri} WIB</span>
             </div>
             <div className="flex items-center">
               <FaCalendarAlt className="mr-2 text-red-500" />
@@ -51,11 +51,11 @@ export default function ContactUs() {
           {/* Melapor melalui Email */}
           <div className="mb-6">
             <a
-              href="mailto:servicedesk@bahteradiguna.co.id"
+              href={`mailto:${data.email}`}
               className="flex items-center text-blue-600 hover:underline mb-2"
             >
               <FaEnvelope className="mr-2" />
-              <span>servicedesk@bahteradiguna.co.id</span>
+              <span>{data.email}</span>
             </a>
             <div className="bg-gray-50 p-4 rounded-md">
               <h4 className="font-semibold text-gray-800 mb-2">
@@ -91,22 +91,13 @@ export default function ContactUs() {
           {/* Kontak Telepon */}
           <div className="space-y-3">
             <a
-              href="https://wa.me/6285121053911"
+              href={`https://wa.me/${data.whatsapp}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center text-green-600 hover:underline"
             >
               <FaWhatsapp className="mr-2 text-lg" />
-              <span>+62 85121053911</span>
-            </a>
-            <a
-              href="https://wa.me/6285121053911"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center text-green-600 hover:underline"
-            >
-              <FaWhatsapp className="mr-2 text-lg" />
-              <span>+62 85121053911</span>
+              <span>+{data.whatsapp}</span>
             </a>
           </div>
         </div>
