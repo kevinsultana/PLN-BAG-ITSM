@@ -83,13 +83,16 @@ export default function CRFormItBeranda({
     nama_approval2: data?.nama_approval2 || "-",
   });
 
-  // Check if form is approved and should be read-only
+  // Check if form is approved or rejected and should be read-only
   const isFormApproved = data?.is_bpo1_approve === "APPROVED";
+  const isFormRejected =
+    data?.is_bpo1_approve === "REJECTED" ||
+    data?.is_bpo2_approve === "REJECTED";
 
   // Helper function to check if field should be readonly
   const isReadOnly = (fieldName) => {
-    // If form is approved, all fields are readonly
-    if (isFormApproved) return true;
+    // If form is approved or rejected, all fields are readonly
+    if (isFormApproved || isFormRejected) return true;
 
     const apiDataMapping = {
       application_type: data?.application_type,
@@ -126,6 +129,8 @@ export default function CRFormItBeranda({
       }));
     }
   }, [data]);
+
+  console.log(data);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -200,6 +205,24 @@ export default function CRFormItBeranda({
             <span className="text-green-800 font-semibold">
               ✅ Formulir ini telah disetujui dan tidak dapat diubah
             </span>
+          </div>
+        </div>
+      )}
+
+      {isFormRejected && (
+        <div className="mb-6 p-4 bg-red-100 border border-red-400 rounded-lg">
+          <div className="flex flex-col items-center justify-center">
+            <span className="text-red-800 font-semibold mb-2">
+              ❌ Formulir ini telah ditolak dan tidak dapat diubah
+            </span>
+            <div className="text-sm text-red-700">
+              {data?.is_bpo1_approve === "REJECTED" && (
+                <span>• Ditolak oleh BPO1</span>
+              )}
+              {data?.is_bpo2_approve === "REJECTED" && (
+                <span>• Ditolak oleh BPO2</span>
+              )}
+            </div>
           </div>
         </div>
       )}
@@ -306,7 +329,7 @@ export default function CRFormItBeranda({
               dataMenus={optionsJenisRisiko}
               isRequired={true}
               initMenu="Pilih Jenis Risiko"
-              disabled={isFormApproved}
+              disabled={isFormApproved || isFormRejected}
             />
             <InputField
               label="Mitigasi Risiko"
@@ -315,7 +338,7 @@ export default function CRFormItBeranda({
               onChange={handleChange}
               placeholder="Mitigasi Risiko"
               required
-              readOnly={isFormApproved}
+              readOnly={isFormApproved || isFormRejected}
             />
             <InputField
               label="Estimasi Waktu Pengerjaan"
@@ -323,7 +346,7 @@ export default function CRFormItBeranda({
               value={form.estimated_duration}
               onChange={handleChange}
               placeholder="Estimasi Waktu Pengerjaan"
-              readOnly={isFormApproved}
+              readOnly={isFormApproved || isFormRejected}
             />
             <InputField
               label="Estimasi Biaya"
@@ -331,7 +354,7 @@ export default function CRFormItBeranda({
               value={form.estimated_cost}
               onChange={handleChange}
               placeholder="Rp. 0,-"
-              readOnly={isFormApproved}
+              readOnly={isFormApproved || isFormRejected}
             />
 
             <TextareaField
@@ -342,7 +365,7 @@ export default function CRFormItBeranda({
               placeholder="Tambahkan Rencana Testing"
               required
               rows={3}
-              readOnly={isFormApproved}
+              readOnly={isFormApproved || isFormRejected}
             />
           </div>
 
@@ -427,7 +450,7 @@ export default function CRFormItBeranda({
               onChange={handleChange}
               placeholder="Tambahkan Teknologi Baru"
               required
-              readOnly={isFormApproved}
+              readOnly={isFormApproved || isFormRejected}
             />
             <TextareaField
               label="Teknologi Data"
@@ -437,7 +460,7 @@ export default function CRFormItBeranda({
               placeholder="Tambahkan Dampak Implementasi"
               required
               rows={3}
-              readOnly={isFormApproved}
+              readOnly={isFormApproved || isFormRejected}
             />
             <TextareaField
               label="Plan Implementasi"
@@ -447,7 +470,7 @@ export default function CRFormItBeranda({
               placeholder="Tambahkan Rencana Implementasi"
               required
               rows={3}
-              readOnly={isFormApproved}
+              readOnly={isFormApproved || isFormRejected}
             />
             <TextareaField
               label="Rencana Rollback"
@@ -457,7 +480,7 @@ export default function CRFormItBeranda({
               placeholder="Tambahkan Rencana Rollback"
               required
               rows={3}
-              readOnly={isFormApproved}
+              readOnly={isFormApproved || isFormRejected}
             />
           </div>
         </div>
