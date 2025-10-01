@@ -27,8 +27,6 @@ export default function page() {
       });
       await checkUserSession();
       toast.success("Login berhasil!");
-      // Refresh halaman setelah login berhasil untuk menghindari state lama
-      // window.location.reload();
     } catch (error) {
       setError("Login gagal. Periksa username/password.");
       console.error("Login failed:", error);

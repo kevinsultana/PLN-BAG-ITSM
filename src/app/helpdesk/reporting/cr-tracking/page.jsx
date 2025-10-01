@@ -11,11 +11,10 @@ import CrTrackingTable from "@/components/Helpdesk/Reporting/CrTrackingTable";
 export default function Page() {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [loadingDownload, setLoadingDownload] = useState(false);
   const [data, setData] = useState([]);
   const [meta, setMeta] = useState({
     page: 1,
-    page_size: 10,
+    page_size: 5,
     total: 0,
     total_pages: 1,
     has_prev: false,
@@ -42,14 +41,14 @@ export default function Page() {
           from: filters.tanggal,
           to: filters.tanggalend,
           page: page,
-          page_size: 10,
+          page_size: 5,
         },
       });
       setData(res.data.data.items || []);
       setMeta(
         res.data.meta || {
           page: 1,
-          page_size: 10,
+          page_size: 5,
           total: 0,
           total_pages: 1,
           has_prev: false,
@@ -77,14 +76,14 @@ export default function Page() {
           from: newFilters.tanggal,
           to: newFilters.tanggalend,
           page: 1,
-          page_size: 10,
+          page_size: 5,
         },
       });
       setData(res.data.data.items || []);
       setMeta(
         res.data.meta || {
           page: 1,
-          page_size: 10,
+          page_size: 5,
           total: 0,
           total_pages: 1,
           has_prev: false,
@@ -106,7 +105,7 @@ export default function Page() {
           from: filters.tanggal,
           to: filters.tanggalend,
           page: newPage,
-          page_size: 10,
+          page_size: 5,
         },
       });
       setData(res.data.data.items || []);

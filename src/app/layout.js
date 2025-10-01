@@ -1,6 +1,6 @@
 import { Toaster } from "sonner";
 import "./globals.css";
-import { AuthProvider } from "@/context/AuthContext"; // Import AuthProvider yang baru
+import { AuthProvider } from "@/context/AuthContext";
 
 export const metadata = {
   title: "Dashboard ITSM",
