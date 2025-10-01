@@ -2,6 +2,7 @@
 import { ProxyUrl } from "@/api/BaseUrl";
 import CrApprovalTableUser from "@/components/Beranda/CRApproval/CrApprovalTableUser";
 import MainLayout from "@/components/Beranda/Layout/MainLayout";
+import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
@@ -9,6 +10,7 @@ export default function Page() {
   const router = useRouter();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
 
   const getDataCRApproval = async () => {
     try {
@@ -30,7 +32,13 @@ export default function Page() {
   };
 
   const handleEditClick = (row) => {
-    if (row.is_bpo1_approve === false) {
+    console.log(row);
+    if (row.is_bpo1_approve === "APPROVED" && user.data.role === "BPO 1") {
+      router.push(`/beranda/cr-approval/edit/bpo1/${row.id}`);
+    } else if (
+      row.is_bpo1_approve === "APPROVED" &&
+      user.data.role === "BPO 1"
+    ) {
       router.push(`/beranda/cr-approval/edit/bpo1/${row.id}`);
     } else {
       router.push(`/beranda/cr-approval/edit/bpo2/${row.id}`);

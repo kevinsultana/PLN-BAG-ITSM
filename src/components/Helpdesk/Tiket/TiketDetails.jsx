@@ -71,6 +71,26 @@ export default function TiketDetails({
   }
 
   const [assignedTo, setAssignedTo] = useState([]);
+  const [teamGroup, setTeamGroup] = useState([]);
+
+  const getDataTeamGroup = async () => {
+    try {
+      const res = await ProxyUrl.get("/team-groups/selections", {
+        params: {
+          application_id: data?.application?.id,
+        },
+      });
+      setTeamGroup(res.data.data.team_groups);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (data?.application?.id) {
+      getDataTeamGroup();
+    }
+  }, [data?.application?.id]);
 
   const getDataAssignedTo = async (id) => {
     try {
@@ -230,7 +250,7 @@ export default function TiketDetails({
             <Dropdown
               label="Team"
               value={updatedTiket?.team_group?.id || ""}
-              dataMenus={selections?.team_groups || []}
+              dataMenus={teamGroup || []}
               disabled={data?.status !== "OPEN"}
               handleChange={(e) =>
                 setUpdatedTiket((prev) => ({

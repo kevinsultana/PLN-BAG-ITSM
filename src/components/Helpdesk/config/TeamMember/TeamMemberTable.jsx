@@ -25,7 +25,7 @@ const columns = [
   { label: "No.", key: "no" },
   { label: "Nama", key: "name" },
   { label: "Deskripsi", key: "description" },
-  { label: "Email", key: "is_email" },
+  // { label: "Email", key: "is_email" },
   { label: "Jumlah Anggota", key: "team_count" },
 ];
 
@@ -192,7 +192,7 @@ export default function TeamMemberTable({
                 <TableCell>
                   <span dangerouslySetInnerHTML={{ __html: row.description }} />
                 </TableCell>
-                <TableCell>{row.is_email ? "Ya" : "Tidak"}</TableCell>
+                {/* <TableCell>{row.is_email ? "Ya" : "Tidak"}</TableCell> */}
                 <TableCell>{row.team_count}</TableCell>
                 {privilege.data.includes("config.team.member.update") ||
                 privilege.data.includes("config.team.member.delete") ? (

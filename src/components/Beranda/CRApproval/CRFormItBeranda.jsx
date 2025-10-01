@@ -83,8 +83,14 @@ export default function CRFormItBeranda({
     nama_approval2: data?.nama_approval2 || "-",
   });
 
+  // Check if form is approved and should be read-only
+  const isFormApproved = data?.is_bpo1_approve === "APPROVED";
+
   // Helper function to check if field should be readonly
   const isReadOnly = (fieldName) => {
+    // If form is approved, all fields are readonly
+    if (isFormApproved) return true;
+
     const apiDataMapping = {
       application_type: data?.application_type,
       database_name: data?.database_name,
@@ -188,6 +194,16 @@ export default function CRFormItBeranda({
         Process Owner sebelum diberikan kepada Service Desk / Help Desk)
       </p>
 
+      {isFormApproved && (
+        <div className="mb-6 p-4 bg-green-100 border border-green-400 rounded-lg">
+          <div className="flex items-center justify-center">
+            <span className="text-green-800 font-semibold">
+              ✅ Formulir ini telah disetujui dan tidak dapat diubah
+            </span>
+          </div>
+        </div>
+      )}
+
       <form className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
           {/* --- KOLOM KIRI (READONLY) --- */}
@@ -290,6 +306,7 @@ export default function CRFormItBeranda({
               dataMenus={optionsJenisRisiko}
               isRequired={true}
               initMenu="Pilih Jenis Risiko"
+              disabled={isFormApproved}
             />
             <InputField
               label="Mitigasi Risiko"
@@ -298,6 +315,7 @@ export default function CRFormItBeranda({
               onChange={handleChange}
               placeholder="Mitigasi Risiko"
               required
+              readOnly={isFormApproved}
             />
             <InputField
               label="Estimasi Waktu Pengerjaan"
@@ -305,6 +323,7 @@ export default function CRFormItBeranda({
               value={form.estimated_duration}
               onChange={handleChange}
               placeholder="Estimasi Waktu Pengerjaan"
+              readOnly={isFormApproved}
             />
             <InputField
               label="Estimasi Biaya"
@@ -312,6 +331,7 @@ export default function CRFormItBeranda({
               value={form.estimated_cost}
               onChange={handleChange}
               placeholder="Rp. 0,-"
+              readOnly={isFormApproved}
             />
 
             <TextareaField
@@ -322,6 +342,7 @@ export default function CRFormItBeranda({
               placeholder="Tambahkan Rencana Testing"
               required
               rows={3}
+              readOnly={isFormApproved}
             />
           </div>
 
@@ -406,6 +427,7 @@ export default function CRFormItBeranda({
               onChange={handleChange}
               placeholder="Tambahkan Teknologi Baru"
               required
+              readOnly={isFormApproved}
             />
             <TextareaField
               label="Teknologi Data"
@@ -415,6 +437,7 @@ export default function CRFormItBeranda({
               placeholder="Tambahkan Dampak Implementasi"
               required
               rows={3}
+              readOnly={isFormApproved}
             />
             <TextareaField
               label="Plan Implementasi"
@@ -424,6 +447,7 @@ export default function CRFormItBeranda({
               placeholder="Tambahkan Rencana Implementasi"
               required
               rows={3}
+              readOnly={isFormApproved}
             />
             <TextareaField
               label="Rencana Rollback"
@@ -433,6 +457,7 @@ export default function CRFormItBeranda({
               placeholder="Tambahkan Rencana Rollback"
               required
               rows={3}
+              readOnly={isFormApproved}
             />
           </div>
         </div>
@@ -457,7 +482,7 @@ export default function CRFormItBeranda({
               <h4 className="font-semibold text-base mb-4">Status Approval</h4>
               <div className="bg-gray-50 border rounded-lg p-6 min-h-[100px] flex items-center justify-center">
                 <span className="text-gray-500 text-sm">
-                  Status BPO1: {form.is_bpo1_approve}
+                  Status BPO1: {form.is_bpo1_approve || "Belum Disetujui"}
                 </span>
               </div>
             </div>
@@ -489,7 +514,7 @@ export default function CRFormItBeranda({
               <h4 className="font-semibold text-base mb-4">Status Approval</h4>
               <div className="bg-gray-50 border rounded-lg p-6 min-h-[100px] flex items-center justify-center">
                 <span className="text-gray-500 text-sm">
-                  Status BPO2: {form.is_bpo2_approve}
+                  Status BPO2: {form.is_bpo2_approve || "Belum Disetujui"}
                 </span>
               </div>
             </div>

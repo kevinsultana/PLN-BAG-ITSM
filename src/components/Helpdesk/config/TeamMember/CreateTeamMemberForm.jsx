@@ -24,11 +24,11 @@ export default function CreateTeamMemberForm({
     id: null,
     namaTeam: "",
     anggotaTeam: [],
-    // visibility: "",
     deskripsi: "",
     slaPolicy: "",
     email: false,
     autoAssign: false,
+    aplikasi_id: [],
   });
 
   const router = useRouter();
@@ -36,8 +36,7 @@ export default function CreateTeamMemberForm({
   const [errors, setErrors] = useState({});
 
   const [dataAnggotaTeamMember, setDataAnggotaTeamMember] = useState([]);
-
-  // const [dataVisibility, setDataVisibility] = useState([]);
+  const [dataAplikasi, setDataAplikasi] = useState([]);
 
   const getDataAnggota = async () => {
     try {
@@ -49,29 +48,34 @@ export default function CreateTeamMemberForm({
     }
   };
 
-  // const getDataVisibility = async () => {
-  //   try {
-  //     const res = await ProxyUrl.get("/visibilities");
-  //     const data = res.data.data;
-  //     setDataVisibility(data);
-  //   } catch (error) {
-  //     console.error("Error fetching visibility options:", error);
-  //   }
-  // };
+  const getDataAplikasi = async () => {
+    try {
+      const res = await ProxyUrl.get("/applications");
+      const data = res.data.data;
+      setDataAplikasi(data);
+    } catch (error) {
+      console.error("Error fetching applications:", error);
+    }
+  };
 
   useEffect(() => {
     getDataAnggota();
-    // getDataVisibility();
+    getDataAplikasi();
   }, []);
 
   useEffect(() => {
     if (data && Object.keys(data).length > 0) {
       setForm((prev) => {
+        // Extract application IDs from array of objects
+        const applicationIds = Array.isArray(data.applications)
+          ? data.applications.map((app) => app.id)
+          : [];
+
         const newForm = {
           id: data.id || null,
           namaTeam: data.name || "",
           anggotaTeam: data.teams || [],
-          // visibility: data.visibility_id || "",
+          aplikasi_id: applicationIds,
           deskripsi: data.description || "",
           slaPolicy: data.slaPolicy || "",
           email: Boolean(data.is_email),
@@ -104,11 +108,23 @@ export default function CreateTeamMemberForm({
     }));
   };
 
+  const handleAplikasiChange = (event) => {
+    const {
+      target: { value },
+    } = event;
+    setForm((prev) => ({
+      ...prev,
+      aplikasi_id: typeof value === "string" ? value.split(",") : value,
+    }));
+  };
+
   const validate = () => {
     const newErrors = {};
     if (!form.namaTeam.trim()) newErrors.namaTeam = true;
-    if (form.anggotaTeam.length === 0) newErrors.anggotaTeam = true;
-    // if (!form.visibility) newErrors.visibility = true;
+    if (!Array.isArray(form.anggotaTeam) || form.anggotaTeam.length === 0)
+      newErrors.anggotaTeam = true;
+    if (!Array.isArray(form.aplikasi_id) || form.aplikasi_id.length === 0)
+      newErrors.aplikasi = true;
     if (!form.deskripsi.trim()) newErrors.deskripsi = true;
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -130,7 +146,7 @@ export default function CreateTeamMemberForm({
       is_autoassign: form.autoAssign,
       is_email: form.email,
       teams: form.anggotaTeam, // array of ids
-      // visibility_id: form.visibility,
+      application_ids: form.aplikasi_id, // array of application ids
     };
 
     onSubmit(payload);
@@ -233,30 +249,73 @@ export default function CreateTeamMemberForm({
               </FormControl>
             </div>
 
-            {/* Visibility */}
-            {/* <div className="flex flex-col gap-2">
-          <label className="font-semibold text-sm">
-            Visibility<span className="text-red-500">*</span>
-          </label>
-          <FormControl fullWidth size="small">
-            <Select
-              name="visibility"
-              value={form.visibility}
-              onChange={handleChange}
-              displayEmpty
-              inputProps={{ "aria-label": "Without label" }}
-            >
-              <MenuItem value="">
-                <em>Pilih Visibility</em>
-              </MenuItem>
-              {dataVisibility.map((item, index) => (
-                <MenuItem key={index} value={item.ID}>
-                  {item.Name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </div> */}
+            <div className="flex flex-col gap-2">
+              <label className="font-semibold text-sm">
+                Aplikasi <span className="text-red-500">*</span>
+              </label>
+              <FormControl
+                fullWidth
+                size="small"
+                error={Boolean(errors.aplikasi)}
+              >
+                <Select
+                  multiple
+                  name="aplikasi_id"
+                  value={form.aplikasi_id}
+                  onChange={handleAplikasiChange}
+                  displayEmpty
+                  input={<OutlinedInput />}
+                  renderValue={(selected) => {
+                    if (!Array.isArray(selected) || selected.length === 0) {
+                      return (
+                        <span className="text-gray-400">Pilih Aplikasi</span>
+                      );
+                    }
+                    return (
+                      <div className="flex flex-wrap gap-2">
+                        {selected.map((value) => {
+                          const aplikasi = dataAplikasi.find(
+                            (app) => app.id === value
+                          );
+                          return (
+                            <Chip
+                              key={value}
+                              size="small"
+                              label={aplikasi?.name || `App-${value}`}
+                              onMouseDown={(e) => e.stopPropagation()}
+                              onDelete={() =>
+                                setForm((prev) => ({
+                                  ...prev,
+                                  aplikasi_id: prev.aplikasi_id.filter(
+                                    (v) => v !== value
+                                  ),
+                                }))
+                              }
+                            />
+                          );
+                        })}
+                      </div>
+                    );
+                  }}
+                >
+                  <MenuItem disabled value="">
+                    <em>Pilih aplikasi</em>
+                  </MenuItem>
+                  {Array.isArray(dataAplikasi) &&
+                    dataAplikasi.map((aplikasi) => (
+                      <MenuItem key={aplikasi.id} value={aplikasi.id}>
+                        <Checkbox
+                          checked={
+                            Array.isArray(form.aplikasi_id) &&
+                            form.aplikasi_id.indexOf(aplikasi.id) > -1
+                          }
+                        />
+                        <ListItemText primary={aplikasi.name} />
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
+            </div>
 
             {/* Deskripsi */}
             <div className="flex flex-col gap-2 col-span-2">

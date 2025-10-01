@@ -77,14 +77,26 @@ export default function CRFormBpoBeranda({
     // Digital Approval
     date_approval_bpo1: data?.date_approval_bpo1 || "",
     is_bpo1_approve: data?.is_bpo1_approve,
-    nama_approval1: data?.nama_approval1 || "-",
+    nama_approval1: data?.bpo1_object?.fullname || "-",
     date_approval_bpo2: data?.date_approval_bpo2 || "",
     is_bpo2_approve: data?.is_bpo2_approve,
     nama_approval2: data?.nama_approval2 || "-",
+    // CAB fields - always editable
+    tanggal_cab: data?.tanggal_cab || "",
+    rekomendasi_cab: data?.rekomendasi_cab || "",
   });
+
+  // Check if form is approved and should be read-only
+  const isFormApproved = data?.is_bpo1_approve === "APPROVED";
 
   // Helper function to check if field should be readonly
   const isReadOnly = (fieldName) => {
+    // If form is approved, most fields are readonly except CAB fields
+    if (isFormApproved) {
+      // Only these CAB fields remain editable when approved
+      return !["tanggal_cab", "rekomendasi_cab"].includes(fieldName);
+    }
+
     const apiDataMapping = {
       application_type: data?.application_type,
       database_name: data?.database_name,
@@ -165,6 +177,8 @@ export default function CRFormBpoBeranda({
     return `${tgl} ${bln} ${thn} jam ${jam}:${menit}`;
   }
 
+  console.log(data);
+
   return (
     <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
       <header className="flex justify-between items-start mb-4">
@@ -187,6 +201,16 @@ export default function CRFormBpoBeranda({
         (Formulir ini diisi oleh PIC IT dan BPO IT serta disetujui oleh Business
         Process Owner sebelum diberikan kepada Service Desk / Help Desk)
       </p>
+
+      {isFormApproved && (
+        <div className="mb-6 p-4 bg-green-100 border border-green-400 rounded-lg">
+          <div className="flex items-center justify-center">
+            <span className="text-green-800 font-semibold">
+              ✅ Formulir ini telah disetujui BPO1. Silakan lengkapi data CAB.
+            </span>
+          </div>
+        </div>
+      )}
 
       <form className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
@@ -229,12 +253,16 @@ export default function CRFormBpoBeranda({
             </div>
             <InputField
               label="Nama Divisi"
-              value={data?.division_name || "Accounting"}
+              value={
+                data?.division_name ||
+                data?.ticket?.division?.name ||
+                "Accounting"
+              }
               readOnly
             />
             <InputField
               label="Requester"
-              value={dataTicket?.fullname || "-"}
+              value={dataTicket?.fullname || data?.ticket?.user_id?.name || "-"}
               readOnly
             />
             <InputField
@@ -258,7 +286,11 @@ export default function CRFormBpoBeranda({
             </div>
             <InputField
               label="Nama Aplikasi"
-              value={dataTicket?.application?.name || "-"}
+              value={
+                dataTicket?.application?.name ||
+                data?.ticket?.application?.name ||
+                "-"
+              }
               readOnly
             />
             <div className="flex flex-col gap-2">
@@ -269,8 +301,10 @@ export default function CRFormBpoBeranda({
                 className="input read-only:bg-gray-100 read-only:cursor-not-allowed min-h-[80px] p-2"
                 style={{ whiteSpace: "pre-wrap" }}
               >
-                {renderDescription(data?.ticket?.application?.description) ||
-                  "-"}
+                {renderDescription(
+                  dataTicket?.application?.description ||
+                    data?.ticket?.application?.description
+                ) || "-"}
               </div>
             </div>
             <TextareaField
@@ -290,6 +324,7 @@ export default function CRFormBpoBeranda({
               dataMenus={optionsJenisRisiko}
               isRequired={true}
               initMenu="Pilih Jenis Risiko"
+              disabled={isReadOnly("risk_level")}
             />
             <InputField
               label="Mitigasi Risiko"
@@ -298,6 +333,7 @@ export default function CRFormBpoBeranda({
               onChange={handleChange}
               placeholder="Mitigasi Risiko"
               required
+              readOnly={isReadOnly("risk_mitigation")}
             />
             <InputField
               label="Estimasi Waktu Pengerjaan"
@@ -305,6 +341,7 @@ export default function CRFormBpoBeranda({
               value={form.estimated_duration}
               onChange={handleChange}
               placeholder="Estimasi Waktu Pengerjaan"
+              readOnly={isReadOnly("estimated_duration")}
             />
             <InputField
               label="Estimasi Biaya"
@@ -312,6 +349,7 @@ export default function CRFormBpoBeranda({
               value={form.estimated_cost}
               onChange={handleChange}
               placeholder="Rp. 0,-"
+              readOnly={isReadOnly("estimated_cost")}
             />
 
             <TextareaField
@@ -322,6 +360,16 @@ export default function CRFormBpoBeranda({
               placeholder="Tambahkan Rencana Testing"
               required
               rows={3}
+              readOnly={isReadOnly("testing_plan_date")}
+            />
+
+            <InputField
+              label="Rekomendasi CAB"
+              name="rekomendasi_cab"
+              value={form.rekomendasi_cab}
+              onChange={handleChange}
+              placeholder="Masukkan rekomendasi CAB"
+              readOnly={isReadOnly("rekomendasi_cab")}
             />
           </div>
 
@@ -406,6 +454,7 @@ export default function CRFormBpoBeranda({
               onChange={handleChange}
               placeholder="Tambahkan Teknologi Baru"
               required
+              readOnly={isReadOnly("new_technology")}
             />
             <TextareaField
               label="Teknologi Data"
@@ -415,6 +464,7 @@ export default function CRFormBpoBeranda({
               placeholder="Tambahkan Dampak Implementasi"
               required
               rows={3}
+              readOnly={isReadOnly("data_technology")}
             />
             <TextareaField
               label="Plan Implementasi"
@@ -424,6 +474,7 @@ export default function CRFormBpoBeranda({
               placeholder="Tambahkan Rencana Implementasi"
               required
               rows={3}
+              readOnly={isReadOnly("implementation_plan")}
             />
             <TextareaField
               label="Rencana Rollback"
@@ -433,6 +484,15 @@ export default function CRFormBpoBeranda({
               placeholder="Tambahkan Rencana Rollback"
               required
               rows={3}
+              readOnly={isReadOnly("rollback_plan")}
+            />
+            <InputField
+              label="Tanggal CAB"
+              name="tanggal_cab"
+              value={form.tanggal_cab}
+              onChange={handleChange}
+              placeholder="Masukkan tanggal CAB"
+              readOnly={isReadOnly("tanggal_cab")}
             />
           </div>
         </div>
@@ -457,7 +517,7 @@ export default function CRFormBpoBeranda({
               <h4 className="font-semibold text-base mb-4">Status Approval</h4>
               <div className="bg-gray-50 border rounded-lg p-6 min-h-[100px] flex items-center justify-center">
                 <span className="text-gray-500 text-sm">
-                  Status BPO1: {form.is_bpo1_approve}
+                  Status BPO1: {form.is_bpo1_approve || "Belum Disetujui"}
                 </span>
               </div>
             </div>
@@ -489,7 +549,7 @@ export default function CRFormBpoBeranda({
               <h4 className="font-semibold text-base mb-4">Status Approval</h4>
               <div className="bg-gray-50 border rounded-lg p-6 min-h-[100px] flex items-center justify-center">
                 <span className="text-gray-500 text-sm">
-                  Status BPO2: {form.is_bpo2_approve}
+                  Status BPO2: {form.is_bpo2_approve || "Belum Disetujui"}
                 </span>
               </div>
             </div>
