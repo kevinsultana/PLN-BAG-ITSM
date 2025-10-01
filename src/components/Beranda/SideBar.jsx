@@ -53,7 +53,7 @@ export default function SideBar({ show }) {
               Beranda
             </Link>
           </li>
-          {user?.data?.role === "BPO" && (
+          {(user?.data?.role === "BPO 1" || user?.data?.role === "BPO 2") && (
             <li>
               <Link
                 href="/beranda/cr-approval"
