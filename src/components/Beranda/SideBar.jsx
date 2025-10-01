@@ -14,7 +14,7 @@ import { useAuth } from "@/context/AuthContext";
 
 export default function SideBar({ show }) {
   const pathname = usePathname();
-  const { user } = useAuth();
+  const { user, privilege } = useAuth();
 
   const getLinkClassName = (paths) => {
     const isActive = Array.isArray(paths)
@@ -53,9 +53,7 @@ export default function SideBar({ show }) {
               Beranda
             </Link>
           </li>
-          {(user?.data?.role === "BPO 1" ||
-            user?.data?.role === "BPO 2" ||
-            user?.data?.role === "Administrator") && (
+          {privilege?.data?.includes("cr.approval.beranda.read") && (
             <li>
               <Link
                 href="/beranda/cr-approval"
