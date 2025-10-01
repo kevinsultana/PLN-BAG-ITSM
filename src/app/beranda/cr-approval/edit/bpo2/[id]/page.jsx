@@ -63,7 +63,6 @@ export default function page() {
           decision: "REJECTED",
         }
       );
-      console.log(res.data);
       toast.success("CR berhasil ditolak");
       router.replace("/beranda/cr-approval");
     } catch (error) {
@@ -98,7 +97,6 @@ export default function page() {
             decision: "APPROVED",
           }
         );
-        console.log(resp.data);
       }
       toast.success("CR berhasil disetujui");
       router.replace("/beranda/cr-approval");

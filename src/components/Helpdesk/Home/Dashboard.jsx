@@ -74,7 +74,17 @@ export default function Dashboard() {
     },
   ];
 
-  const ticketList = dataDashboard.list_ticket ?? [];
+  // Filter hanya tiket dengan priority Kritis dan Tinggi, batasi 5 teratas
+  const ticketList = useMemo(() => {
+    const allTickets = dataDashboard.list_ticket ?? [];
+    return allTickets
+      .filter(
+        (ticket) =>
+          ticket.priority?.level === "Kritis" ||
+          ticket.priority?.level === "Tinggi"
+      )
+      .slice(0, 5);
+  }, [dataDashboard.list_ticket]);
 
   const slaPerformance = [
     {
@@ -193,44 +203,57 @@ export default function Dashboard() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {ticketList.map((ticket, index) => {
-                  // Priority color mapping
-                  let priorityColor = "bg-gray-100 text-gray-700";
-                  if (ticket.priority?.level === "Kritis")
-                    priorityColor = "bg-red-100 text-red-700";
-                  else if (ticket.priority?.level === "Tinggi")
-                    priorityColor = "bg-orange-100 text-orange-700";
-                  else if (ticket.priority?.level === "Sedang")
-                    priorityColor = "bg-yellow-100 text-yellow-700";
-                  else if (ticket.priority?.level === "Rendah")
-                    priorityColor = "bg-blue-100 text-blue-700";
+                {ticketList.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={3} sx={{ textAlign: "center", py: 4 }}>
+                      <div className="flex flex-col items-center justify-center text-gray-500">
+                        <RiInformationLine className="text-4xl mb-2 text-gray-400" />
+                        <p className="text-lg font-medium">
+                          Tidak ada tiket dengan prioritas Tinggi dan Kritis
+                        </p>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  ticketList.map((ticket, index) => {
+                    // Priority color mapping
+                    let priorityColor = "bg-gray-100 text-gray-700";
+                    if (ticket.priority?.level === "Kritis")
+                      priorityColor = "bg-red-100 text-red-700";
+                    else if (ticket.priority?.level === "Tinggi")
+                      priorityColor = "bg-orange-100 text-orange-700";
+                    else if (ticket.priority?.level === "Sedang")
+                      priorityColor = "bg-yellow-100 text-yellow-700";
+                    else if (ticket.priority?.level === "Rendah")
+                      priorityColor = "bg-blue-100 text-blue-700";
 
-                  // Format SLA Deadline (created_at + SLA name)
-                  const createdDate = new Date(ticket.created_at);
-                  const formattedDate = createdDate.toLocaleString("id-ID", {
-                    weekday: "long",
-                    day: "2-digit",
-                    month: "long",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  });
-                  const slaDeadline = `${formattedDate} `;
+                    // Format SLA Deadline (created_at + SLA name)
+                    const createdDate = new Date(ticket.created_at);
+                    const formattedDate = createdDate.toLocaleString("id-ID", {
+                      weekday: "long",
+                      day: "2-digit",
+                      month: "long",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    });
+                    const slaDeadline = `${formattedDate} `;
 
-                  return (
-                    <TableRow key={ticket.id || index}>
-                      <TableCell>
-                        <span
-                          className={`inline-flex px-3 py-1 text-xs font-semibold leading-5 rounded-full ${priorityColor}`}
-                        >
-                          {ticket.priority?.level || "-"}
-                        </span>
-                      </TableCell>
-                      <TableCell>{ticket.subject}</TableCell>
-                      <TableCell>{slaDeadline}</TableCell>
-                    </TableRow>
-                  );
-                })}
+                    return (
+                      <TableRow key={ticket.id || index}>
+                        <TableCell>
+                          <span
+                            className={`inline-flex px-3 py-1 text-xs font-semibold leading-5 rounded-full ${priorityColor}`}
+                          >
+                            {ticket.priority?.level || "-"}
+                          </span>
+                        </TableCell>
+                        <TableCell>{ticket.subject}</TableCell>
+                        <TableCell>{slaDeadline}</TableCell>
+                      </TableRow>
+                    );
+                  })
+                )}
               </TableBody>
             </Table>
           </TableContainer>

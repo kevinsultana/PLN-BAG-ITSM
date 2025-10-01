@@ -119,19 +119,18 @@ export default function TiketDetails({
 
   return (
     <div key={data?.id} className="bg-white rounded-xl p-4">
-      <h1 className="text-black text-base font-bold">Detail Tiket</h1>
+      <h1 className="text-black text-base font-bold flex items-center gap-4">
+        Detail Tiket
+        {data?.change_request_status && (
+          <span className="text-gray-400 text-xs">
+            # {data?.change_request_status}
+          </span>
+        )}
+      </h1>
 
       <div className="flex items-center justify-between">
         <div className="py-4 flex items-center gap-2">
-          {isTicketTypeCR && (
-            <button
-              onClick={onClickCRForm}
-              className="px-3 py-1 flex items-center gap-2 bg-blue-400 rounded-lg cursor-pointer hover:bg-blue-500 transition-all duration-300"
-            >
-              <p className="text-sm text-white font-semibold">Apply To CRF</p>
-              <LuArrowRight className="text-2xl text-white" />
-            </button>
-          )}
+          {/* Kondisi 1: Status OPEN dan bukan tipe CR - tampilkan button Start */}
           {data?.status === "OPEN" && !isTicketTypeCR && (
             <button
               onClick={onClickStart}
@@ -141,6 +140,52 @@ export default function TiketDetails({
               <p className="text-sm text-white font-semibold">Start</p>
             </button>
           )}
+
+          {/* Kondisi 2: Status OPEN, tipe CR, dan change_request_status APPROVE BPO - tampilkan button Start */}
+          {data?.status === "OPEN" &&
+            isTicketTypeCR &&
+            data?.change_request_status === "APPROVE BPO" && (
+              <button
+                onClick={onClickStart}
+                className="px-3 py-1 flex items-center gap-2 bg-green-400 rounded-lg cursor-pointer hover:bg-green-500 transition-all duration-300"
+              >
+                <HiPlay className="text-2xl text-white" />
+                <p className="text-sm text-white font-semibold">Start</p>
+              </button>
+            )}
+
+          {/* Kondisi 3: Status OPEN dan tipe CR (belum approve BPO) - tampilkan button Apply To CRF */}
+          {data?.status === "OPEN" &&
+            isTicketTypeCR &&
+            data?.change_request_status !== "APPROVE BPO" && (
+              <button
+                onClick={onClickCRForm}
+                className="px-3 py-1 flex items-center gap-2 bg-blue-400 rounded-lg cursor-pointer hover:bg-blue-500 transition-all duration-300"
+              >
+                <p className="text-sm text-white font-semibold">Apply To CRF</p>
+                <LuArrowRight className="text-2xl text-white" />
+              </button>
+            )}
+
+          {/* Kondisi 4: Status ON HOLD - tampilkan button Start (disabled jika CR belum approve BPO) */}
+          {data?.status === "ON HOLD" && (
+            <button
+              onClick={onClickStart}
+              disabled={
+                isTicketTypeCR && data?.change_request_status !== "APPROVE BPO"
+              }
+              className={`px-3 py-1 flex items-center gap-2 rounded-lg transition-all duration-300 ${
+                isTicketTypeCR && data?.change_request_status !== "APPROVE BPO"
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-green-400 cursor-pointer hover:bg-green-500"
+              }`}
+            >
+              <HiPlay className="text-2xl text-white" />
+              <p className="text-sm text-white font-semibold">Start</p>
+            </button>
+          )}
+
+          {/* Button untuk status IN PROGRESS */}
           {data?.status === "IN PROGRESS" && (
             <>
               <button
@@ -158,15 +203,6 @@ export default function TiketDetails({
                 <p className="text-sm text-yellow-500 font-semibold">Pause</p>
               </button>
             </>
-          )}
-          {data?.status === "ON HOLD" && (
-            <button
-              onClick={onClickStart}
-              className="px-3 py-1 flex items-center gap-2 bg-green-400 rounded-lg cursor-pointer hover:bg-green-500 transition-all duration-300"
-            >
-              <HiPlay className="text-2xl text-white" />
-              <p className="text-sm text-white font-semibold">Start</p>
-            </button>
           )}
         </div>
 
@@ -401,7 +437,7 @@ export default function TiketDetails({
               </>
             )}
 
-            {data?.status === "OPEN" && (
+            {data?.status === "OPEN" && !data?.change_request_status && (
               <div>
                 <button
                   type="button"

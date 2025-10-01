@@ -46,6 +46,8 @@ export default function ApplicationTable({
     }));
   }, [data]);
 
+  console.log(data);
+
   const [applications, setApplications] = useState(mappedData);
   const [orderBy, setOrderBy] = useState("no");
   const [order, setOrder] = useState("asc");
@@ -190,13 +192,13 @@ export default function ApplicationTable({
               </TableRow>
             ) : (
               paginatedApplications.map((row) => (
-                <TableRow key={row.ID || row.no} hover>
+                <TableRow key={row.id || row.no} hover>
                   <TableCell>{row.no}</TableCell>
-                  <TableCell>{row.Name}</TableCell>
+                  <TableCell>{row.name}</TableCell>
                   <TableCell>
-                    {row.Description ? (
+                    {row.description ? (
                       <span
-                        dangerouslySetInnerHTML={{ __html: row.Description }}
+                        dangerouslySetInnerHTML={{ __html: row.description }}
                       />
                     ) : (
                       "-"
