@@ -48,8 +48,8 @@ export default function CrTrackingTable({ data }) {
       number: index + 1,
       applicationName: item.ticket?.subject || "Unknown Application",
       progress: statusProgressMapping[item.status_cr] || 0,
-      contractNumber: item.ticket?.contract_number || "Unknown Contract",
-      contractValue: item.ticket?.contract_value || "Unknown Value",
+      contractNumber: item.ticket?.contract_number || "-",
+      contractValue: item.ticket?.contract_value || "-",
     })) || [];
 
   return (

@@ -46,8 +46,6 @@ export default function ApplicationTable({
     }));
   }, [data]);
 
-  console.log(data);
-
   const [applications, setApplications] = useState(mappedData);
   const [orderBy, setOrderBy] = useState("no");
   const [order, setOrder] = useState("asc");

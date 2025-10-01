@@ -69,12 +69,10 @@ export default function BPOManagementTable({ data }) {
   };
 
   const handleEdit = (row) => {
-    console.log("Edit item:", row);
     handleCloseMenu();
   };
 
   const handleDelete = (row) => {
-    console.log("Delete item:", row);
     setBpoData((prev) => prev.filter((item) => item.id !== row.id));
     handleCloseMenu();
   };

@@ -1,6 +1,5 @@
 "use client";
-import React, { useState } from "react";
-import { RiArrowDownSLine, RiCalendarLine } from "react-icons/ri";
+import React from "react";
 import {
   BarChart,
   Bar,
@@ -9,26 +8,6 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import FilterModalTanggal from "./FilterModalTanggal";
-
-// Fallback data untuk testing
-const defaultData = [
-  { name: "Penambahan Fitur", value: 40, status: "APPROVE IT", count: 1 },
-  { name: "Integrasi Modul", value: 50, status: "APPROVE BPO", count: 1 },
-  {
-    name: "Approval Permintaan",
-    value: 65,
-    status: "CR Implementation",
-    count: 1,
-  },
-  {
-    name: "Docking & Maintenance",
-    value: 78,
-    status: "CR Implementation",
-    count: 1,
-  },
-  { name: "Report Dashboard", value: 100, status: "Closed", count: 1 },
-];
 
 const xAxisTicks = [0, 25, 50, 75, 100];
 
@@ -53,7 +32,6 @@ const statusProgressMapping = {
 const transformApiDataToChart = (apiData) => {
   // Jika ada data dari API, gunakan data API
   if (apiData && Array.isArray(apiData) && apiData.length > 0) {
-    // Group data by application name and calculate progress based on status_cr
     const groupedData = apiData.reduce((acc, item) => {
       const appName = item.ticket?.subject || "Unknown Application";
       const status = item.status_cr || "PLAN CR";
@@ -68,7 +46,6 @@ const transformApiDataToChart = (apiData) => {
           items: [item],
         };
       } else {
-        // If multiple CRs for same app, use the highest progress
         if (progress > acc[appName].value) {
           acc[appName].value = progress;
           acc[appName].status = status;
@@ -83,14 +60,7 @@ const transformApiDataToChart = (apiData) => {
     return Object.values(groupedData);
   }
 
-  // Jika tidak ada data API, gunakan dummy data dengan 5 entries
-  return [
-    { name: "ITSM Portal", value: 75, status: "CR IMPLEMENTATION", count: 3 },
-    { name: "Helpdesk System", value: 50, status: "APPROVE BPO", count: 2 },
-    { name: "Asset Management", value: 100, status: "CLOSED", count: 1 },
-    { name: "Monitoring Dashboard", value: 25, status: "APPROVE IT", count: 4 },
-    { name: "Reporting Module", value: 0, status: "PLAN CR", count: 2 },
-  ];
+  return [];
 };
 
 const CustomXAxisTick = (props) => {
