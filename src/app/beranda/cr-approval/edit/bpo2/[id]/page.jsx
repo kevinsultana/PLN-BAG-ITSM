@@ -192,20 +192,24 @@ export default function page() {
         <div className="flex flex-col">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold mb-4">CR Approval EDIT BPO2</h1>
-            <div className="flex gap-4">
-              <div className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-xl flex items-center">
-                <button variant="contained" onClick={handleRejectFormCR}>
-                  Reject
-                </button>
-                <IoCloseCircleOutline className="inline ml-2 text-lg" />
-              </div>
-              <div className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-xl flex items-center">
-                <button variant="contained" onClick={handleApproveFormCR}>
-                  Approve
-                </button>
-                <LuArrowRight className="inline ml-2 text-lg" />
-              </div>
-            </div>
+            {data &&
+              data.is_bpo2_approve !== "APPROVED" &&
+              data.is_bpo2_approve !== "REJECTED" && (
+                <div className="flex gap-4">
+                  <div className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-xl flex items-center">
+                    <button variant="contained" onClick={handleRejectFormCR}>
+                      Reject
+                    </button>
+                    <IoCloseCircleOutline className="inline ml-2 text-lg" />
+                  </div>
+                  <div className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-xl flex items-center">
+                    <button variant="contained" onClick={handleApproveFormCR}>
+                      Approve
+                    </button>
+                    <LuArrowRight className="inline ml-2 text-lg" />
+                  </div>
+                </div>
+              )}
           </div>
           <CRFormBpoBeranda
             data={data}
