@@ -21,7 +21,7 @@ export default function MainLayout({ children }) {
       <div className="flex flex-1">
         <SideBar show={showSideBar} />
         <div
-          className={`transition-all duration-300 ease-in-out w-full ${
+          className={`transition-all p-6 duration-300 ease-in-out w-full ${
             showSideBar ? "ml-0" : "ml-[-16%]"
           }`}
         >

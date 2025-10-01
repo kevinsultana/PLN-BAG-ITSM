@@ -73,9 +73,7 @@ export default function SidebarAgent({ show }) {
             </li>
           )}
 
-          {(user?.data?.role === "BPO 1" ||
-            user?.data?.role === "BPO 2" ||
-            user?.data?.role === "Administrator") && (
+          {privilege?.data?.includes("cr.approval.helpdesk.read") && (
             <li>
               <Link
                 href="/helpdesk/cr-approval"

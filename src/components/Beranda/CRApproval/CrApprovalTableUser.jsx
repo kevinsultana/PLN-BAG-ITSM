@@ -115,29 +115,41 @@ const AttachmentCell = ({ attachments }) => {
 };
 
 const ApprovalStatus = ({ isBpo1Approve, isBpo2Approve }) => {
-  const bpo1Status = isBpo1Approve ? "✓" : "○";
-  const bpo2Status = isBpo2Approve ? "✓" : "○";
+  // Function to get status display and styling
+  const getStatusDisplay = (approveStatus) => {
+    if (approveStatus === "APPROVED") {
+      return {
+        icon: "✓",
+        className: "bg-green-100 border-green-500 text-green-700",
+      };
+    } else if (approveStatus === "REJECTED") {
+      return {
+        icon: "✕",
+        className: "bg-red-100 border-red-500 text-red-700",
+      };
+    } else {
+      return {
+        icon: "○",
+        className: "bg-gray-100 border-gray-300 text-gray-500",
+      };
+    }
+  };
+
+  const bpo1Display = getStatusDisplay(isBpo1Approve);
+  const bpo2Display = getStatusDisplay(isBpo2Approve);
 
   return (
     <div className="flex items-center gap-2 text-sm">
       <span
-        className={`inline-flex items-center justify-center w-6 h-6 rounded-full border-2 ${
-          isBpo1Approve
-            ? "bg-green-100 border-green-500 text-green-700"
-            : "bg-gray-100 border-gray-300 text-gray-500"
-        }`}
+        className={`inline-flex items-center justify-center w-6 h-6 rounded-full border-2 ${bpo1Display.className}`}
       >
-        {bpo1Status}
+        {bpo1Display.icon}
       </span>
       <span className="text-xs text-gray-600">BPO1</span>
       <span
-        className={`inline-flex items-center justify-center w-6 h-6 rounded-full border-2 ${
-          isBpo2Approve
-            ? "bg-green-100 border-green-500 text-green-700"
-            : "bg-gray-100 border-gray-300 text-gray-500"
-        }`}
+        className={`inline-flex items-center justify-center w-6 h-6 rounded-full border-2 ${bpo2Display.className}`}
       >
-        {bpo2Status}
+        {bpo2Display.icon}
       </span>
       <span className="text-xs text-gray-600">BPO2</span>
     </div>

@@ -2,7 +2,14 @@
 import React, { useState, useRef, useEffect } from "react";
 import CKEditorWrapper from "@/components/CKEditorWrapper";
 import { toast } from "sonner";
-import { Checkbox, FormControlLabel } from "@mui/material";
+import {
+  Checkbox,
+  FormControlLabel,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from "@mui/material";
 
 export default function CreateAppDocumentForm({
   appList = [],
@@ -11,28 +18,21 @@ export default function CreateAppDocumentForm({
   onSubmit,
   submitLabel = "Save",
 }) {
-  // If there's an attachment from API, show it
-  const initialApiAttachment = data?.attachments?.[0]?.url || null;
-  const initialApiAttachmentName = initialApiAttachment
-    ? initialApiAttachment.split("/").pop()
-    : "";
+  // Handle multiple attachments from API
+  const initialApiAttachments = data?.attachments || [];
 
-  const [apiAttachment, setApiAttachment] = useState(
-    initialApiAttachment
-      ? { url: initialApiAttachment, name: initialApiAttachmentName }
-      : null
-  );
+  const [apiAttachments, setApiAttachments] = useState(initialApiAttachments);
 
   const [form, setForm] = useState({
     id: data?.id || "",
     title: data?.title || "",
     application_id: data?.application_id || "",
     description: data?.description || "",
-    file_url: apiAttachment?.url || null, // always null initially, handle display separately
+    file_urls: [], // Change to array for multiple files
     is_publish: data?.is_publish || false,
   });
 
-  const [fileObj, setFileObj] = useState(null); // for new file
+  const [fileObjs, setFileObjs] = useState([]); // for new files (array)
   const [errors, setErrors] = useState({});
   const fileInputRef = useRef(null);
 
@@ -45,21 +45,30 @@ export default function CreateAppDocumentForm({
   };
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
+    // Cek jika sudah ada lampiran
+    if (apiAttachments.length > 0 || fileObjs.length > 0) {
+      toast.error("Hanya dapat mengupload 1 lampiran", {
+        description: "Hapus lampiran yang sudah ada terlebih dahulu.",
+      });
+      return;
+    }
+
+    const file = e.target.files[0]; // Hanya ambil file pertama
     if (file) {
       if (file.size > 25 * 1024 * 1024) {
-        toast.error("Ukuran file melebihi batas", {
+        toast.error(`File ${file.name} melebihi batas`, {
           description: "Ukuran file maksimal adalah 25MB.",
         });
         return;
       }
-      setForm({ ...form, file_url: file });
-      setFileObj(file);
-      setApiAttachment(null); // remove API file if new file selected
+
+      setFileObjs([file]); // Set sebagai array dengan 1 file
+      setForm({ ...form, file_urls: [file] });
+      toast.success("File berhasil ditambahkan!");
     }
   };
 
-  // Paste handler for clipboard files/images (only first file)
+  // Paste handler for clipboard files/images
   useEffect(() => {
     const handlePaste = (e) => {
       if (
@@ -67,29 +76,51 @@ export default function CreateAppDocumentForm({
         e.clipboardData.files &&
         e.clipboardData.files.length > 0
       ) {
-        const file = e.clipboardData.files[0];
-        if (file.size > 5 * 1024 * 1024) {
-          toast.error("Ukuran file melebihi batas", {
+        // Cek jika sudah ada lampiran
+        if (apiAttachments.length > 0 || fileObjs.length > 0) {
+          toast.error("Hanya dapat mengupload 1 lampiran", {
+            description: "Hapus lampiran yang sudah ada terlebih dahulu.",
+          });
+          return;
+        }
+
+        const file = e.clipboardData.files[0]; // Hanya ambil file pertama
+        if (file.size > 25 * 1024 * 1024) {
+          toast.error(`File ${file.name} melebihi batas`, {
             description: "Ukuran file maksimal adalah 25MB.",
           });
           return;
         }
-        setForm({ ...form, file_url: file });
-        setFileObj(file);
-        setApiAttachment(null); // remove API file if new file pasted
+
+        setFileObjs([file]);
+        setForm({ ...form, file_urls: [file] });
         toast.success("File dari clipboard berhasil ditambahkan!");
       }
     };
     window.addEventListener("paste", handlePaste);
     return () => window.removeEventListener("paste", handlePaste);
-  }, [form]);
+  }, [form, fileObjs, apiAttachments]);
+
+  const removeApiAttachment = (attachmentId) => {
+    setApiAttachments((prev) => prev.filter((att) => att.id !== attachmentId));
+  };
+
+  const removeNewFile = () => {
+    setFileObjs([]);
+    setForm((prev) => ({
+      ...prev,
+      file_urls: [],
+    }));
+  };
 
   const validate = () => {
     const newErrors = {};
     if (!form.title.trim()) newErrors.title = true;
     if (!form.application_id) newErrors.application_id = true;
     if (!form.description.trim()) newErrors.description = true;
-    // if (!form.file_url) newErrors.file_url = true;
+    // Check if there is exactly one attachment (either API or new file)
+    const totalAttachments = apiAttachments.length + fileObjs.length;
+    if (totalAttachments === 0) newErrors.file_urls = true;
     // if (!form.is_publish) newErrors.is_publish = true;
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -98,20 +129,31 @@ export default function CreateAppDocumentForm({
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!validate()) {
+      const hasAttachmentError = errors.file_urls;
       toast.error("Lengkapi data di bawah ini", {
-        description: "Silahkan lengkapi semua field yang ditandai (*).",
+        description: hasAttachmentError
+          ? "Silahkan lengkapi semua field yang ditandai (*) dan tambahkan minimal satu lampiran."
+          : "Silahkan lengkapi semua field yang ditandai (*).",
       });
       return;
     }
     if (onSubmit) {
-      onSubmit(form);
+      // Prepare the form data with attachment IDs that should remain
+      const formData = {
+        ...form,
+        attachment_ids: apiAttachments.map((att) => att.id), // Only send IDs of remaining attachments
+        newFiles: fileObjs, // New files to upload
+        // Keep original data for reference
+        existingAttachments: apiAttachments,
+      };
+      onSubmit(formData);
     }
   };
 
   return (
     <div className="bg-white rounded-xl p-6 mt-4 border border-gray-200 shadow-sm">
       <h1 className="text-xl font-bold mb-6">
-        {data ? `Edit Dokumen Aplikasi ${data.title}` : "Buat Dokumen Aplikasi"}
+        {data ? `Edit Dokumen Aplikasi ` : "Buat Dokumen Aplikasi"}
       </h1>
       <form
         onSubmit={handleSubmit}
@@ -149,105 +191,159 @@ export default function CreateAppDocumentForm({
 
         {/* Aplikasi */}
         <div className="flex flex-col gap-2">
-          <label className="font-semibold text-sm">
-            Aplikasi<span className="text-red-500">*</span>
-          </label>
-          <select
-            name="application_id"
-            value={form.application_id}
-            onChange={handleChange}
-            className={`input ${errors.application_id ? "border-red-500" : ""}`}
+          <FormControl
+            fullWidth
+            error={errors.application_id}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                "&:hover fieldset": {
+                  borderColor: "#65C7D5",
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: "#65C7D5",
+                },
+              },
+              "& .MuiInputLabel-root.Mui-focused": {
+                color: "#65C7D5",
+              },
+            }}
           >
-            <option value="">Pilih Aplikasi</option>
-            {appList.map((item, index) => (
-              <option key={index} value={item.ID}>
-                {item.Name}
-              </option>
-            ))}
-          </select>
+            <InputLabel id="application-select-label">
+              Aplikasi<span style={{ color: "#ef4444" }}>*</span>
+            </InputLabel>
+            <Select
+              labelId="application-select-label"
+              name="application_id"
+              value={form.application_id}
+              label="Aplikasi*"
+              onChange={handleChange}
+            >
+              <MenuItem value="">
+                <em>Pilih Aplikasi</em>
+              </MenuItem>
+              {appList.map((item, index) => (
+                <MenuItem key={index} value={item.id}>
+                  {item.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </div>
 
         {/* Lampiran */}
         <div className="flex flex-col gap-2">
-          <label className="font-semibold text-sm mb-1">
-            Lampiran<span className="text-red-500">*</span>
-            <span className="text-xs text-gray-500 ml-2">(Maks 25MB)</span>
-          </label>
-          {/* If API attachment exists and no new file selected, show API file */}
-          {apiAttachment && !fileObj ? (
-            <div className="flex items-center justify-between border border-gray-200 rounded-lg px-4 py-2 bg-gray-50">
-              <span className="truncate">
-                <a
-                  href={apiAttachment.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 underline"
-                >
-                  {data.attachments[0].name}
-                </a>
+          <div className="flex justify-between items-center mb-1">
+            <label className="font-semibold text-sm">
+              Lampiran<span className="text-red-500">*</span>
+              <span className="text-xs text-gray-500 ml-2">
+                (Maks 25MB, hanya 1 file)
               </span>
-              <button
-                type="button"
-                onClick={() => {
-                  setApiAttachment(null);
-                  setForm({ ...form, file_url: null });
-                }}
-                className="px-2 py-1 rounded text-xs bg-red-100 text-red-600 hover:bg-red-200 ml-3"
-              >
-                Hapus
-              </button>
-            </div>
-          ) : (
-            <>
-              <div
-                className={`relative flex flex-col items-center justify-center border-2 border-dashed rounded-lg py-8 px-4 cursor-pointer bg-gray-50 transition focus:outline-none focus:ring-2 focus:ring-[#65C7D5] ${
-                  errors.file_url ? "border-red-500" : "border-gray-200"
-                }`}
-                tabIndex={0}
-                onClick={() => fileInputRef.current?.click()}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  const dropped = Array.from(e.dataTransfer.files || []);
-                  if (dropped.length)
-                    handleFileChange({ target: { files: [dropped[0]] } });
-                }}
-                onDragOver={(e) => e.preventDefault()}
-              >
-                <span className="text-gray-500 text-center select-none">
-                  Paste gambar di sini atau drag & drop file di sini
-                </span>
-                <input
-                  type="file"
-                  name="lampiran"
-                  ref={fileInputRef}
-                  style={{ display: "none" }}
-                  onChange={handleFileChange}
-                  accept="*/*"
-                />
-              </div>
-              <div className="text-sm text-gray-600 mt-2">
-                {fileObj ? (
-                  <div className="flex items-center justify-between py-1">
-                    <span>
-                      {fileObj.name}{" "}
-                      <span className="text-xs text-gray-400">
-                        ({(fileObj.size / 1024 / 1024).toFixed(2)} MB)
-                      </span>
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFileObj(null);
-                        setForm({ ...form, file_url: null });
-                      }}
-                      className="px-2 py-1 rounded text-xs bg-red-100 text-red-600 hover:bg-red-200 ml-3"
+            </label>
+            {(apiAttachments.length > 0 || fileObjs.length > 0) && (
+              <span className="text-xs text-white bg-blue-500 px-2 py-1 rounded">
+                1 file terlampir
+              </span>
+            )}
+          </div>
+
+          {/* Existing API Attachments */}
+          {apiAttachments.length > 0 && (
+            <div className="space-y-2 mb-3">
+              <span className="text-sm font-medium text-gray-700">
+                File yang sudah ada:
+              </span>
+              {apiAttachments.map((attachment) => (
+                <div
+                  key={attachment.id}
+                  className="flex items-center justify-between border border-gray-200 rounded-lg px-4 py-2 bg-blue-50"
+                >
+                  <span className="truncate">
+                    <a
+                      href={attachment.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 underline"
                     >
-                      Hapus
-                    </button>
-                  </div>
-                ) : null}
+                      {attachment.name}
+                    </a>
+                    <span className="text-xs text-gray-500 ml-2">
+                      ({(attachment.size / 1024 / 1024).toFixed(2)} MB)
+                    </span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => removeApiAttachment(attachment.id)}
+                    className="px-2 py-1 rounded text-xs bg-red-100 text-red-600 hover:bg-red-200 ml-3 flex-shrink-0"
+                  >
+                    Hapus
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* New File Display */}
+          {fileObjs.length > 0 && (
+            <div className="space-y-2 mb-3">
+              <span className="text-sm font-medium text-gray-700">
+                File baru:
+              </span>
+              <div className="flex items-center justify-between border border-gray-200 rounded-lg px-4 py-2 bg-green-50">
+                <span className="truncate">
+                  {fileObjs[0].name}
+                  <span className="text-xs text-gray-500 ml-2">
+                    ({(fileObjs[0].size / 1024 / 1024).toFixed(2)} MB)
+                  </span>
+                </span>
+                <button
+                  type="button"
+                  onClick={removeNewFile}
+                  className="px-2 py-1 rounded text-xs bg-red-100 text-red-600 hover:bg-red-200 ml-3 flex-shrink-0"
+                >
+                  Hapus
+                </button>
               </div>
-            </>
+            </div>
+          )}
+
+          {/* File Upload Area */}
+          {apiAttachments.length === 0 && fileObjs.length === 0 && (
+            <div
+              className={`relative flex flex-col items-center justify-center border-2 border-dashed rounded-lg py-8 px-4 cursor-pointer bg-gray-50 transition focus:outline-none focus:ring-2 focus:ring-[#65C7D5] ${
+                errors.file_urls ? "border-red-500" : "border-gray-200"
+              }`}
+              tabIndex={0}
+              onClick={() => fileInputRef.current?.click()}
+              onDrop={(e) => {
+                e.preventDefault();
+                const dropped = Array.from(e.dataTransfer.files || []);
+                if (dropped.length)
+                  handleFileChange({ target: { files: [dropped[0]] } });
+              }}
+              onDragOver={(e) => e.preventDefault()}
+            >
+              <span className="text-gray-500 text-center select-none">
+                Paste file di sini atau drag & drop file di sini
+                <br />
+                <span className="text-xs">Hanya dapat mengupload 1 file</span>
+              </span>
+              <input
+                type="file"
+                name="lampiran"
+                ref={fileInputRef}
+                style={{ display: "none" }}
+                onChange={handleFileChange}
+                accept="*/*"
+              />
+            </div>
+          )}
+
+          {/* Message when attachment exists */}
+          {(apiAttachments.length > 0 || fileObjs.length > 0) && (
+            <div className="text-center py-4 text-gray-500 text-sm bg-gray-100 rounded-lg">
+              ✓ Lampiran sudah ada. Hapus lampiran yang ada untuk mengupload
+              file baru.
+            </div>
           )}
         </div>
 

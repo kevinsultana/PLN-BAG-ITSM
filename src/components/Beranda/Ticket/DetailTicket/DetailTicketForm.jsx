@@ -99,10 +99,10 @@ export default function DetailTicketForm({
   }, [feedback]);
 
   return (
-    <div className="flex flex-col gap-6 bg-white">
+    <div className="flex flex-col gap-6 bg-white rounded-2xl shadow">
       <form
         onSubmit={handleSubmit}
-        className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white p-6 rounded shadow"
+        className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white p-6 rounded-2xl shadow"
       >
         <h2 className="md:col-span-2 text-lg font-semibold">Detail Tiket</h2>
 
