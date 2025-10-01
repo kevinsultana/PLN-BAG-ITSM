@@ -41,6 +41,49 @@ const getStatusColor = (status) => {
   }
 };
 
+// Component untuk menampilkan status approval BPO
+const ApprovalStatus = ({ isBpo1Approve, isBpo2Approve }) => {
+  // Function to get status display and styling
+  const getStatusDisplay = (approveStatus) => {
+    if (approveStatus === "APPROVED") {
+      return {
+        icon: "✓",
+        className: "bg-green-100 border-green-500 text-green-700",
+      };
+    } else if (approveStatus === "REJECTED") {
+      return {
+        icon: "✕",
+        className: "bg-red-100 border-red-500 text-red-700",
+      };
+    } else {
+      return {
+        icon: "○",
+        className: "bg-gray-100 border-gray-300 text-gray-500",
+      };
+    }
+  };
+
+  const bpo1Display = getStatusDisplay(isBpo1Approve);
+  const bpo2Display = getStatusDisplay(isBpo2Approve);
+
+  return (
+    <div className="flex items-center gap-2 text-sm">
+      <span
+        className={`inline-flex items-center justify-center w-6 h-6 rounded-full border-2 ${bpo1Display.className}`}
+      >
+        {bpo1Display.icon}
+      </span>
+      <span className="text-xs text-gray-600">BPO1</span>
+      <span
+        className={`inline-flex items-center justify-center w-6 h-6 rounded-full border-2 ${bpo2Display.className}`}
+      >
+        {bpo2Display.icon}
+      </span>
+      <span className="text-xs text-gray-600">BPO2</span>
+    </div>
+  );
+};
+
 export default function CrTrackingTable({ data }) {
   // Transform data untuk menghitung progress dari status
   const processedData =
@@ -70,6 +113,7 @@ export default function CrTrackingTable({ data }) {
               <TableCell sx={{ fontWeight: "bold" }}>No</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Nama</TableCell>
 
+              <TableCell sx={{ fontWeight: "bold" }}>BPO Approval</TableCell>
               <TableCell sx={{ fontWeight: "bold", minWidth: 200 }}>
                 Progress
               </TableCell>
@@ -95,6 +139,13 @@ export default function CrTrackingTable({ data }) {
                     <Typography variant="body2" sx={{ fontWeight: 500 }}>
                       {item.applicationName}
                     </Typography>
+                  </TableCell>
+
+                  <TableCell>
+                    <ApprovalStatus
+                      isBpo1Approve={item.is_bpo1_approve}
+                      isBpo2Approve={item.is_bpo2_approve}
+                    />
                   </TableCell>
 
                   <TableCell>
@@ -134,7 +185,7 @@ export default function CrTrackingTable({ data }) {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={6} align="center">
+                <TableCell colSpan={7} align="center">
                   <Typography
                     variant="body2"
                     color="textSecondary"

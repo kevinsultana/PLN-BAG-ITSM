@@ -2,7 +2,16 @@
 import { ProxyUrl } from "@/api/BaseUrl";
 import CRFormItBeranda from "@/components/Beranda/CRApproval/CRFormItBeranda";
 import MainLayout from "@/components/Beranda/Layout/MainLayout";
-import { Button, CircularProgress } from "@mui/material";
+import {
+  Button,
+  CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  TextField,
+} from "@mui/material";
 import { toast } from "sonner";
 import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -19,6 +28,12 @@ export default function page() {
   const [error, setError] = useState(null);
 
   const [form, setForm] = useState({});
+  const [confirmDialog, setConfirmDialog] = useState({
+    open: false,
+    type: "", // 'reject' atau 'approve'
+    loading: false,
+  });
+  const [feedbackDescription, setFeedbackDescription] = useState("");
 
   const fetchCRDetail = async () => {
     try {
@@ -53,25 +68,44 @@ export default function page() {
     }
   }, [params.id]);
 
-  const handleRejectFormCR = async () => {
+  const handleRejectFormCR = () => {
+    setConfirmDialog({
+      open: true,
+      type: "reject",
+      loading: false,
+    });
+  };
+
+  const executeRejectCR = async () => {
+    // Validasi alasan menolak
+    if (!feedbackDescription.trim()) {
+      toast.error("Alasan menolak harus diisi.");
+      return;
+    }
+
+    setConfirmDialog((prev) => ({ ...prev, loading: true }));
     const toastId = toast.loading("Memproses penolakan CR...");
     try {
       const res = await ProxyUrl.put(
         `/change-requests/${params.id}/approve/bpo`,
         {
           decision: "REJECTED",
+          feedback_description: feedbackDescription.trim(),
         }
       );
       toast.success("CR berhasil ditolak");
       router.replace("/beranda/cr-approval");
     } catch (error) {
       console.log(error);
+      toast.error("CR gagal ditolak, cek koneksi anda");
     } finally {
       toast.dismiss(toastId);
+      setConfirmDialog({ open: false, type: "", loading: false });
+      setFeedbackDescription(""); // Reset feedback description
     }
   };
 
-  const handleApproveFormCR = async () => {
+  const handleApproveFormCR = () => {
     // List of required fields
     const requiredFields = [
       "risk_level",
@@ -90,6 +124,16 @@ export default function page() {
       toast.error("Mohon lengkapi semua field yang wajib diisi.");
       return;
     }
+
+    setConfirmDialog({
+      open: true,
+      type: "approve",
+      loading: false,
+    });
+  };
+
+  const executeApproveCR = async () => {
+    setConfirmDialog((prev) => ({ ...prev, loading: true }));
     const toastId = toast.loading("Memproses penyetujuan CR...");
 
     try {
@@ -111,6 +155,14 @@ export default function page() {
       toast.error("CR gagal disetujui, cek koneksi anda");
     } finally {
       toast.dismiss(toastId);
+      setConfirmDialog({ open: false, type: "", loading: false });
+    }
+  };
+
+  const handleCloseConfirmDialog = () => {
+    if (!confirmDialog.loading) {
+      setConfirmDialog({ open: false, type: "", loading: false });
+      setFeedbackDescription(""); // Reset feedback description
     }
   };
 
@@ -173,6 +225,112 @@ export default function page() {
           />
         </div>
       </MainLayout>
+
+      {/* Modal Konfirmasi */}
+      <Dialog
+        open={confirmDialog.open}
+        onClose={handleCloseConfirmDialog}
+        aria-labelledby="confirm-dialog-title"
+        aria-describedby="confirm-dialog-description"
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle
+          id="confirm-dialog-title"
+          sx={{
+            backgroundColor:
+              confirmDialog.type === "reject" ? "#fee2e2" : "#dbeafe",
+            color: confirmDialog.type === "reject" ? "#991b1b" : "#1e40af",
+            fontWeight: "bold",
+          }}
+        >
+          {confirmDialog.type === "reject"
+            ? "⚠️ Konfirmasi Penolakan CR"
+            : "✅ Konfirmasi Persetujuan CR"}
+        </DialogTitle>
+        <DialogContent sx={{ mt: 2 }}>
+          <DialogContentText id="confirm-dialog-description">
+            {confirmDialog.type === "reject"
+              ? "Apakah Anda yakin ingin menolak Change Request ini? Tindakan ini tidak dapat dibatalkan."
+              : "Apakah Anda yakin ingin menyetujui Change Request ini? Pastikan semua data sudah benar dan lengkap."}
+          </DialogContentText>
+
+          {/* Field Alasan Menolak */}
+          {confirmDialog.type === "reject" && (
+            <TextField
+              fullWidth
+              multiline
+              rows={4}
+              label="Alasan Menolak"
+              placeholder="Jelaskan alasan mengapa CR ini ditolak..."
+              value={feedbackDescription}
+              onChange={(e) => setFeedbackDescription(e.target.value)}
+              disabled={confirmDialog.loading}
+              required
+              sx={{
+                mt: 2,
+                "& .MuiOutlinedInput-root": {
+                  "&:hover fieldset": {
+                    borderColor: "#dc2626",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "#dc2626",
+                  },
+                },
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: "#dc2626",
+                },
+              }}
+              helperText="Alasan ini akan dikirim sebagai feedback kepada pemohon CR"
+            />
+          )}
+        </DialogContent>
+        <DialogActions sx={{ p: 2, gap: 1 }}>
+          <Button
+            onClick={handleCloseConfirmDialog}
+            variant="outlined"
+            disabled={confirmDialog.loading}
+            sx={{
+              borderColor: "#6b7280",
+              color: "#6b7280",
+              "&:hover": {
+                borderColor: "#4b5563",
+                backgroundColor: "#f9fafb",
+              },
+            }}
+          >
+            Batal
+          </Button>
+          <Button
+            onClick={
+              confirmDialog.type === "reject"
+                ? executeRejectCR
+                : executeApproveCR
+            }
+            variant="contained"
+            disabled={confirmDialog.loading}
+            startIcon={
+              confirmDialog.loading ? <CircularProgress size={16} /> : null
+            }
+            sx={{
+              backgroundColor:
+                confirmDialog.type === "reject" ? "#dc2626" : "#2563eb",
+              "&:hover": {
+                backgroundColor:
+                  confirmDialog.type === "reject" ? "#b91c1c" : "#1d4ed8",
+              },
+            }}
+          >
+            {confirmDialog.loading
+              ? confirmDialog.type === "reject"
+                ? "Menolak..."
+                : "Menyetujui..."
+              : confirmDialog.type === "reject"
+              ? "Ya, Tolak"
+              : "Ya, Setujui"}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }
