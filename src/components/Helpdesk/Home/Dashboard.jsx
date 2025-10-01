@@ -18,11 +18,20 @@ import {
 } from "@mui/material";
 import { ProxyUrl } from "@/api/BaseUrl";
 
+const getTodayDate = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
 export default function Dashboard() {
   const [currentDate, setCurrentDate] = useState({
-    date_from: new Date().toISOString().split("T")[0],
-    date_to: new Date().toISOString().split("T")[0],
+    date_from: getTodayDate(),
+    date_to: getTodayDate(),
   });
+  console.log(currentDate);
 
   const [isModalTanggalOpen, setIsModalTanggalOpen] = useState(false);
   const [dataDashboard, setDataDashboard] = useState({});
