@@ -16,7 +16,7 @@ import {
   IconButton,
   Tooltip,
 } from "@mui/material";
-import { FaPlus, FaDownload, FaEye } from "react-icons/fa";
+import { FaPlus, FaDownload, FaEye, FaCheck, FaTimes } from "react-icons/fa";
 import { RiMore2Fill } from "react-icons/ri";
 import { MdOutlineAttachment } from "react-icons/md";
 
@@ -89,29 +89,41 @@ const AttachmentCell = ({ attachments }) => {
 };
 
 const ApprovalStatus = ({ isBpo1Approve, isBpo2Approve }) => {
-  const bpo1Status = isBpo1Approve ? "✓" : "○";
-  const bpo2Status = isBpo2Approve ? "✓" : "○";
+  const getBpoStatusConfig = (status) => {
+    switch (status) {
+      case "APPROVED":
+        return {
+          icon: <FaCheck size={12} />,
+          className: "bg-green-100 border-green-500 text-green-700",
+        };
+      case "REJECTED":
+        return {
+          icon: <FaTimes size={12} />,
+          className: "bg-red-100 border-red-500 text-red-700",
+        };
+      default:
+        return {
+          icon: "○",
+          className: "bg-gray-100 border-gray-300 text-gray-500",
+        };
+    }
+  };
+
+  const bpo1Config = getBpoStatusConfig(isBpo1Approve);
+  const bpo2Config = getBpoStatusConfig(isBpo2Approve);
 
   return (
     <div className="flex items-center gap-2 text-sm">
       <span
-        className={`inline-flex items-center justify-center w-6 h-6 rounded-full border-2 ${
-          isBpo1Approve
-            ? "bg-green-100 border-green-500 text-green-700"
-            : "bg-gray-100 border-gray-300 text-gray-500"
-        }`}
+        className={`inline-flex items-center justify-center w-6 h-6 rounded-full border-2 ${bpo1Config.className}`}
       >
-        {bpo1Status}
+        {bpo1Config.icon}
       </span>
       <span className="text-xs text-gray-600">BPO1</span>
       <span
-        className={`inline-flex items-center justify-center w-6 h-6 rounded-full border-2 ${
-          isBpo2Approve
-            ? "bg-green-100 border-green-500 text-green-700"
-            : "bg-gray-100 border-gray-300 text-gray-500"
-        }`}
+        className={`inline-flex items-center justify-center w-6 h-6 rounded-full border-2 ${bpo2Config.className}`}
       >
-        {bpo2Status}
+        {bpo2Config.icon}
       </span>
       <span className="text-xs text-gray-600">BPO2</span>
     </div>
@@ -159,8 +171,8 @@ export default function CrApprovalTable({
       software_version: item?.software_version || "-",
       implementation_scope: item?.implementation_scope || "-",
       additional_notes: item?.additional_notes || "-",
-      is_bpo1_approve: item?.is_bpo1_approve || false,
-      is_bpo2_approve: item?.is_bpo2_approve || false,
+      is_bpo1_approve: item?.is_bpo1_approve || null,
+      is_bpo2_approve: item?.is_bpo2_approve || null,
       status_cr: item?.status_cr || "DRAFT",
       created_at: item?.created_at,
       attachments: item?.attachments || [],
