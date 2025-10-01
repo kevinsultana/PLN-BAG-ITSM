@@ -25,6 +25,17 @@ const statusColors = {
   PENDING: { bg: "bg-yellow-100", text: "text-yellow-700", color: "warning" },
   APPROVED: { bg: "bg-green-100", text: "text-green-700", color: "success" },
   REJECTED: { bg: "bg-red-100", text: "text-red-700", color: "error" },
+  "Plan CR": { bg: "bg-sky-100", text: "text-sky-700", color: "info" },
+  "Approve IT": {
+    bg: "bg-amber-100",
+    text: "text-amber-700",
+    color: "warning",
+  },
+  "Approve BPO": {
+    bg: "bg-emerald-100",
+    text: "text-emerald-700",
+    color: "success",
+  },
 };
 
 const dataTypeColors = {
@@ -37,13 +48,28 @@ const dataTypeColors = {
 const StatusPill = ({ status }) => {
   const statusConfig = statusColors[status] || statusColors.DRAFT;
 
+  // Custom styling untuk status CR dengan warna khusus
+  const getCustomStyle = (status) => {
+    switch (status) {
+      case "PLAN CR":
+        return "bg-sky-100 text-sky-700 border-sky-200";
+      case "APPROVE IT":
+        return "bg-amber-100 text-amber-700 border-amber-200";
+      case "APPROVE BPO":
+        return "bg-emerald-100 text-emerald-700 border-emerald-200";
+      default:
+        return `${statusConfig.bg} ${statusConfig.text}`;
+    }
+  };
+
   return (
-    <Chip
-      label={status || "DRAFT"}
-      size="small"
-      color={statusConfig.color}
-      className={`${statusConfig.bg} ${statusConfig.text} font-medium`}
-    />
+    <span
+      className={`flex text-nowrap items-center px-3 py-1 rounded-full text-xs font-medium border ${getCustomStyle(
+        status
+      )}`}
+    >
+      {status || "DRAFT"}
+    </span>
   );
 };
 

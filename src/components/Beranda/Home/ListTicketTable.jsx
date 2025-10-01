@@ -19,21 +19,35 @@ import { LuTimerReset } from "react-icons/lu";
 import { MdOutlineTimerOff } from "react-icons/md";
 import { useAuth } from "@/context/AuthContext";
 
-// Mapping status ke ikon
+// Mapping status ke ikon dan warna background
 const statusIcon = (status) => {
   const s = (status || "").toString().toUpperCase();
   let icon = <HourglassTopIcon fontSize="small" />;
+  let bgColor = "bg-green-100 text-green-700"; // Default for OPEN
+  let textColor = "text-green-700";
 
-  if (s === "RESOLVED" || s === "DONE")
+  if (s === "RESOLVED" || s === "DONE") {
     icon = <TbClockCheck fontSize="small" />;
-  else if (s === "IN PROGRESS" || s === "ON PROGRESS")
+    bgColor = "bg-blue-100";
+    textColor = "text-blue-700";
+  } else if (s === "IN PROGRESS" || s === "ON PROGRESS") {
     icon = <TbProgressCheck fontSize="small" />;
-  else if (s === "WAITING" || s === "PENDING" || s === "ON HOLD")
+    bgColor = "bg-red-100";
+    textColor = "text-red-700";
+  } else if (s === "WAITING" || s === "PENDING" || s === "ON HOLD") {
     icon = <LuTimerReset fontSize="small" />;
-  else if (s === "CLOSED") icon = <MdOutlineTimerOff fontSize="small" />;
+    bgColor = "bg-orange-100";
+    textColor = "text-orange-700";
+  } else if (s === "CLOSED") {
+    icon = <MdOutlineTimerOff fontSize="small" />;
+    bgColor = "bg-gray-100";
+    textColor = "text-gray-700";
+  }
 
   return (
-    <span className="inline-flex items-center gap-2 rounded-full bg-gray-100 text-gray-700 px-3 py-1 text-sm">
+    <span
+      className={`inline-flex items-center gap-2 rounded-full ${bgColor} ${textColor} px-3 py-1 text-sm font-medium`}
+    >
       {icon} {status || "-"}
     </span>
   );
