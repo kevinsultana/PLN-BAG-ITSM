@@ -5,11 +5,19 @@ import { motion, AnimatePresence } from "framer-motion";
 import { RiCloseLine } from "react-icons/ri";
 import { FaCalendarAlt } from "react-icons/fa";
 
+const getTodayDate = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
 export default function FilterModal({ isOpen, onClose, onClickApply }) {
   const [selectedFilters, setSelectedFilters] = useState({
     kategori: "team",
-    tanggal: new Date().toISOString().split("T")[0],
-    tanggalend: new Date().toISOString().split("T")[0],
+    tanggal: getTodayDate(),
+    tanggalend: getTodayDate(),
   });
 
   const dataKategori = [
