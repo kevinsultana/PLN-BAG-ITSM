@@ -6,6 +6,7 @@ import FilterModalTanggal from "@/components/Helpdesk/Reporting/FilterModalTangg
 import { RiFilter2Line } from "react-icons/ri";
 import { ProxyUrl } from "@/api/BaseUrl";
 import CircularProgress from "@mui/material/CircularProgress";
+import CrTrackingTable from "@/components/Helpdesk/Reporting/CrTrackingTable";
 
 export default function Page() {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
@@ -167,6 +168,8 @@ export default function Page() {
           ) : (
             <>
               <CrTrackingChart data={data} />
+              <div className="h-6"></div>
+              <CrTrackingTable data={data} />
               {meta.total > 0 && (
                 <div className="mt-4 text-sm text-gray-600 text-center">
                   Menampilkan {(meta.page - 1) * meta.page_size + 1}-

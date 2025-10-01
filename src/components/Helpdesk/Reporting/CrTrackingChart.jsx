@@ -55,7 +55,7 @@ const transformApiDataToChart = (apiData) => {
   if (apiData && Array.isArray(apiData) && apiData.length > 0) {
     // Group data by application name and calculate progress based on status_cr
     const groupedData = apiData.reduce((acc, item) => {
-      const appName = item.ticket?.application?.name || "Unknown Application";
+      const appName = item.ticket?.subject || "Unknown Application";
       const status = item.status_cr || "PLAN CR";
       const progress = statusProgressMapping[status] || 0;
 
