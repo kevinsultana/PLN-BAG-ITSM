@@ -15,6 +15,7 @@ import {
   TableBody,
   TableContainer,
   Paper,
+  CircularProgress,
 } from "@mui/material";
 import { ProxyUrl } from "@/api/BaseUrl";
 
@@ -34,6 +35,8 @@ export default function Dashboard() {
 
   const [isModalTanggalOpen, setIsModalTanggalOpen] = useState(false);
   const [dataDashboard, setDataDashboard] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const lastFetchedDate = useRef("");
 
   const statusTotals = useMemo(() => {
@@ -124,11 +127,11 @@ export default function Dashboard() {
     },
   ];
 
-  const getData = async (dateRange) => {
+  const getData = async (dateRange, isRefresh = false) => {
     const dateKey = `${dateRange.date_from}_${dateRange.date_to}`;
 
     // Cegah duplicate API call dengan date yang sama
-    if (lastFetchedDate.current === dateKey) {
+    if (lastFetchedDate.current === dateKey && !isRefresh) {
       console.log("Skipping duplicate API call for same date range");
       return;
     }
@@ -137,6 +140,13 @@ export default function Dashboard() {
     console.log("Fetching dashboard data for:", dateRange);
 
     try {
+      // Set loading state berdasarkan apakah ini initial load atau refresh
+      if (loading) {
+        setLoading(true);
+      } else {
+        setRefreshing(true);
+      }
+
       const res = await ProxyUrl.get("/helpdesk/dashboard", {
         params: dateRange,
       });
@@ -145,20 +155,47 @@ export default function Dashboard() {
       console.log(error);
       // Reset lastFetchedDate jika ada error, biar bisa retry
       lastFetchedDate.current = "";
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
     }
   };
 
   useEffect(() => {
-    getData(currentDate);
+    const isInitialLoad = loading;
+    getData(currentDate, !isInitialLoad);
   }, [currentDate.date_from, currentDate.date_to]);
+
+  // Show loading on initial load
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-[400px]">
+        <CircularProgress size={40} />
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 mt-4 bg-gray-50 rounded-2xl">
+      {/* Refreshing indicator */}
+      {refreshing && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+          <div className="flex items-center gap-2 text-blue-700">
+            <CircularProgress size={20} sx={{ color: "#3b82f6" }} />
+            <span className="text-sm font-medium">
+              Memperbarui data dashboard...
+            </span>
+          </div>
+        </div>
+      )}
+
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-xl font-semibold text-gray-800">Dashboard</h1>
         <div
-          className="flex items-center bg-white border border-gray-200 rounded-lg px-4 py-2 text-gray-700 text-sm cursor-pointer relative"
-          onClick={() => setIsModalTanggalOpen(true)}
+          className={`flex items-center bg-white border border-gray-200 rounded-lg px-4 py-2 text-gray-700 text-sm cursor-pointer relative transition-opacity ${
+            refreshing ? "opacity-60" : "hover:bg-gray-50"
+          }`}
+          onClick={() => !refreshing && setIsModalTanggalOpen(true)}
         >
           <RiCalendarLine className="mr-2 text-gray-500" />
           <span>
@@ -186,7 +223,9 @@ export default function Dashboard() {
         {ticketSummary.map((item, index) => (
           <div
             key={index}
-            className={`flex flex-col p-6 rounded-lg shadow-md ${item.color} text-white`}
+            className={`flex flex-col p-6 rounded-lg shadow-md ${
+              item.color
+            } text-white transition-opacity ${refreshing ? "opacity-60" : ""}`}
           >
             <div className="flex justify-between items-center mb-2">
               <span className="text-lg font-medium">{item.status}</span>
@@ -199,7 +238,11 @@ export default function Dashboard() {
       {/* List Tiket & SLA Performance */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* List Tiket */}
-        <div className="lg:col-span-2 bg-white rounded-lg shadow-md p-6">
+        <div
+          className={`lg:col-span-2 bg-white rounded-lg shadow-md p-6 transition-opacity ${
+            refreshing ? "opacity-60" : ""
+          }`}
+        >
           <h2 className="text-xl font-semibold text-gray-800 mb-4">
             List Tiket
           </h2>
@@ -225,7 +268,13 @@ export default function Dashboard() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {ticketList.length === 0 ? (
+                {refreshing ? (
+                  <TableRow>
+                    <TableCell colSpan={3} sx={{ textAlign: "center", py: 4 }}>
+                      <CircularProgress size={24} />
+                    </TableCell>
+                  </TableRow>
+                ) : ticketList.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={3} sx={{ textAlign: "center", py: 4 }}>
                       <div className="flex flex-col items-center justify-center text-gray-500">
@@ -282,22 +331,32 @@ export default function Dashboard() {
         </div>
 
         {/* SLA Performance */}
-        <div className="lg:col-span-1 bg-white rounded-lg shadow-md p-6">
+        <div
+          className={`lg:col-span-1 bg-white rounded-lg shadow-md p-6 transition-opacity ${
+            refreshing ? "opacity-60" : ""
+          }`}
+        >
           <h2 className="text-xl font-semibold text-gray-800 mb-4">
             SLA Performance
           </h2>
           <div className="divide-y divide-gray-200">
-            {slaPerformance.map((item, index) => (
-              <div
-                key={index}
-                className="flex justify-between items-center py-3"
-              >
-                <span className="text-gray-700">{item.label}</span>
-                <span className="font-semibold text-gray-900">
-                  {item.value}
-                </span>
+            {refreshing ? (
+              <div className="flex justify-center py-8">
+                <CircularProgress size={24} />
               </div>
-            ))}
+            ) : (
+              slaPerformance.map((item, index) => (
+                <div
+                  key={index}
+                  className="flex justify-between items-center py-3"
+                >
+                  <span className="text-gray-700">{item.label}</span>
+                  <span className="font-semibold text-gray-900">
+                    {item.value}
+                  </span>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
