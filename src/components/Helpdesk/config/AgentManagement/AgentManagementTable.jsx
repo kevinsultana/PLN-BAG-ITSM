@@ -79,6 +79,11 @@ export default function AgentManagementTable({
     setAnchorEl(null);
     setActiveRow(null);
   };
+  useEffect(() => {
+    if (searchTerm) {
+      setPage(1);
+    }
+  }, [searchTerm]);
 
   useEffect(() => {
     setTicketStatus(mappedData);

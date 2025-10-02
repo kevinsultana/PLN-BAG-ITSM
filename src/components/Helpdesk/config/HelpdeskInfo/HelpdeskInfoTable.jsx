@@ -128,6 +128,13 @@ export default function HelpdeskInfoTable({ onClickNewInfo, data, loading }) {
     setHelpdeskInfo(mapApiToRows(data));
   }, [data]);
 
+  // Reset page ke 1 setiap kali searchTerm berubah
+  useEffect(() => {
+    if (searchTerm) {
+      setPage(1);
+    }
+  }, [searchTerm]);
+
   const sortedAndFilteredInfo = useMemo(() => {
     let filteredList = helpdeskInfo.filter((info) =>
       Object.values(info).some((value) =>

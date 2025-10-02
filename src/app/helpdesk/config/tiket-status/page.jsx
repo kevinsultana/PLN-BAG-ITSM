@@ -21,6 +21,7 @@ export default function Page() {
   const [editCode, setEditCode] = useState("");
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteRow, setDeleteRow] = useState(null);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleNewTiketStats = () => {
@@ -28,11 +29,14 @@ export default function Page() {
   };
 
   const getData = async () => {
+    setLoading(true);
     try {
       const response = await ProxyUrl.get("/ticket-statuses");
       setData(response.data);
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -74,7 +78,7 @@ export default function Page() {
           onClickNewTiketStats={handleNewTiketStats}
           onClickEdit={handleEdit}
           onClickDelete={handleDelete}
-          loading={!data.data}
+          loading={loading}
         />
       </HelpdeskLayout>
 

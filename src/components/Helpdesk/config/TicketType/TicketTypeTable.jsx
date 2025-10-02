@@ -82,6 +82,13 @@ export default function TicketTypeTable({
     setActiveRow(null);
   };
 
+  // Reset page ke 1 setiap kali searchTerm berubah
+  useEffect(() => {
+    if (searchTerm) {
+      setPage(1);
+    }
+  }, [searchTerm]);
+
   useEffect(() => {
     setTicketTypes(mappedData);
   }, [mappedData]);
@@ -183,7 +190,7 @@ export default function TicketTypeTable({
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={columns.length} align="center">
+                <TableCell colSpan={4} align="center">
                   <CircularProgress />
                 </TableCell>
               </TableRow>
