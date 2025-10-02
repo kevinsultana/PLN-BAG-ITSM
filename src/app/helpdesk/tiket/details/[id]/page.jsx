@@ -6,6 +6,7 @@ import TiketDetails from "@/components/Helpdesk/Tiket/TiketDetails";
 import { ProxyUrl } from "@/api/BaseUrl";
 import { toast } from "sonner";
 import { BACKEND_URL } from "@/api/API";
+import { CircularProgress } from "@mui/material";
 
 export default function Page() {
   const params = useParams();
@@ -14,15 +15,20 @@ export default function Page() {
   const [dataFeedback, setDataFeedback] = useState([]);
   const [dataSelection, setDataSelection] = useState({});
 
+  const [loading, setLoading] = useState(false);
+
   const router = useRouter();
 
   const getDataTicket = async () => {
+    setLoading(true);
     try {
       const res = await ProxyUrl.get(`/tickets/${ticketNo}`);
       const data = res.data.data || {};
       setData(data);
     } catch (error) {
       console.error("Error fetching ticket data:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -139,19 +145,25 @@ export default function Page() {
         <div className="flex items-center mb-6 gap-4">
           <h1 className="text-2xl font-bold ">Tiket {data?.subject}</h1>
         </div>
-        <TiketDetails
-          data={data}
-          feedback={dataFeedback}
-          selections={dataSelection}
-          onClickStart={() => handleClickStart("IN PROGRESS")}
-          onClickPause={() => handleClickStart("ON HOLD")}
-          onClickEnd={() => handleClickStart("RESOLVED")}
-          onClickSubmitFeedback={handleSubmitFeedback}
-          onClickUpdateTiket={handleUpdateTiket}
-          onClickCRForm={() =>
-            router.push(`/helpdesk/tiket/cr-form/agent/${data?.id}`)
-          }
-        />
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <CircularProgress />{" "}
+          </div>
+        ) : (
+          <TiketDetails
+            data={data}
+            feedback={dataFeedback}
+            selections={dataSelection}
+            onClickStart={() => handleClickStart("IN PROGRESS")}
+            onClickPause={() => handleClickStart("ON HOLD")}
+            onClickEnd={() => handleClickStart("RESOLVED")}
+            onClickSubmitFeedback={handleSubmitFeedback}
+            onClickUpdateTiket={handleUpdateTiket}
+            onClickCRForm={() =>
+              router.push(`/helpdesk/tiket/cr-form/agent/${data?.id}`)
+            }
+          />
+        )}
       </HelpdeskLayout>
     </div>
   );
