@@ -139,19 +139,23 @@ const ApprovalStatus = ({ isBpo1Approve, isBpo2Approve }) => {
   const bpo2Display = getStatusDisplay(isBpo2Approve);
 
   return (
-    <div className="flex items-center gap-2 text-sm">
-      <span
-        className={`inline-flex items-center justify-center w-6 h-6 rounded-full border-2 ${bpo1Display.className}`}
-      >
-        {bpo1Display.icon}
-      </span>
-      <span className="text-xs text-gray-600">BPO1</span>
-      <span
-        className={`inline-flex items-center justify-center w-6 h-6 rounded-full border-2 ${bpo2Display.className}`}
-      >
-        {bpo2Display.icon}
-      </span>
-      <span className="text-xs text-gray-600">BPO2</span>
+    <div className="flex flex-col items-center gap-2 text-sm">
+      <div className="flex items-center gap-2">
+        <span
+          className={`inline-flex items-center justify-center w-6 h-6 rounded-full border-2 ${bpo1Display.className}`}
+        >
+          {bpo1Display.icon}
+        </span>
+        <span className="text-xs text-gray-600">BPO1</span>
+      </div>
+      <div className="flex items-center gap-2">
+        <span
+          className={`inline-flex items-center justify-center w-6 h-6 rounded-full border-2 ${bpo2Display.className}`}
+        >
+          {bpo2Display.icon}
+        </span>
+        <span className="text-xs text-gray-600">BPO2</span>
+      </div>
     </div>
   );
 };
@@ -257,6 +261,7 @@ export default function CrApprovalTableUser({
 
               <TableCell
                 sortDirection={orderBy === "division_name" ? order : false}
+                style={{ width: 300 }}
               >
                 <TableSortLabel
                   active={orderBy === "division_name"}

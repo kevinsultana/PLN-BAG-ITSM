@@ -10,6 +10,7 @@ import {
   Paper,
   TableSortLabel,
   Pagination,
+  CircularProgress,
 } from "@mui/material";
 import HourglassTopIcon from "@mui/icons-material/HourglassTop";
 import Link from "next/link";
@@ -67,6 +68,7 @@ export default function ListTicketTable({
   dataTiket = [],
   dataMetaTiket = {},
   onPageChange,
+  loading = false,
 }) {
   const [orderBy, setOrderBy] = useState("ticket_id");
   const [order, setOrder] = useState("asc");
@@ -158,37 +160,67 @@ export default function ListTicketTable({
           </TableHead>
 
           <TableBody>
-            {paginatedTickets.map((row, index) => (
-              <TableRow
-                onClick={() => onRowClick?.(row.raw, index)}
-                key={index}
-                className="hover:bg-gray-100 cursor-pointer"
-              >
-                <TableCell className="border border-gray-200">
-                  {((dataMetaTiket.page || 1) - 1) *
-                    (dataMetaTiket.page_size || 5) +
-                    index +
-                    1}
-                </TableCell>
-                <TableCell className="border border-gray-200 ">
-                  {row.ticket_code ? row.ticket_code : "-"}
-                </TableCell>
-                <TableCell className="border border-gray-200">
-                  {row.ticket_detail}
-                </TableCell>
-                <TableCell className="border border-gray-200">
-                  {row.created_by}
-                </TableCell>
-                <TableCell className="border border-gray-200">
-                  {row.created_date}
-                </TableCell>
-                <TableCell className="border border-gray-200">
-                  <div className="flex items-center gap-2">
-                    {statusIcon(row.status)}
+            {loading ? (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length + 1}
+                  align="center"
+                  sx={{ py: 6 }}
+                >
+                  <div className="flex flex-col items-center gap-2">
+                    <CircularProgress size={40} sx={{ color: "#65C7D5" }} />
+                    <span className="text-gray-600 text-sm">
+                      Loading tickets...
+                    </span>
                   </div>
                 </TableCell>
               </TableRow>
-            ))}
+            ) : paginatedTickets.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length + 1}
+                  align="center"
+                  sx={{ py: 6 }}
+                >
+                  <div className="text-gray-500">
+                    <p className="text-lg font-medium">Tidak ada tiket</p>
+                    <p className="text-sm">Belum ada tiket yang tersedia</p>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : (
+              paginatedTickets.map((row, index) => (
+                <TableRow
+                  onClick={() => onRowClick?.(row.raw, index)}
+                  key={index}
+                  className="hover:bg-gray-100 cursor-pointer"
+                >
+                  <TableCell className="border border-gray-200">
+                    {((dataMetaTiket.page || 1) - 1) *
+                      (dataMetaTiket.page_size || 5) +
+                      index +
+                      1}
+                  </TableCell>
+                  <TableCell className="border border-gray-200 ">
+                    {row.ticket_code ? row.ticket_code : "-"}
+                  </TableCell>
+                  <TableCell className="border border-gray-200">
+                    {row.ticket_detail}
+                  </TableCell>
+                  <TableCell className="border border-gray-200">
+                    {row.created_by}
+                  </TableCell>
+                  <TableCell className="border border-gray-200">
+                    {row.created_date}
+                  </TableCell>
+                  <TableCell className="border border-gray-200">
+                    <div className="flex items-center gap-2">
+                      {statusIcon(row.status)}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
 

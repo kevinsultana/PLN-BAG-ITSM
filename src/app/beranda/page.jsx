@@ -12,6 +12,7 @@ import { useAuth } from "@/context/AuthContext";
 export default function Page() {
   const [dataTiket, setDataTiket] = useState([]);
   const [dataMetaTiket, setDataMetaTiket] = useState([]);
+  const [loading, setLoading] = useState(false);
   const { privilege } = useAuth();
 
   const router = useRouter();
@@ -22,11 +23,14 @@ export default function Page() {
 
   const getDataTiket = async (page = 1) => {
     try {
+      setLoading(true);
       const res = await ProxyUrl.get(`/tickets?page=${page}&page_size=5`);
       setDataTiket(res.data.data);
       setDataMetaTiket(res.data.meta);
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -51,6 +55,7 @@ export default function Page() {
               dataTiket={dataTiket}
               dataMetaTiket={dataMetaTiket}
               onPageChange={handlePageChange}
+              loading={loading}
             />
           )}
         </div>
