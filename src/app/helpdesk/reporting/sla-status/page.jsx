@@ -2,6 +2,7 @@
 import { ProxyUrl } from "@/api/BaseUrl";
 import HelpdeskLayout from "@/components/Helpdesk/layout/HelpdeskLayout";
 import SlaTicketAnalysisTable from "@/components/Helpdesk/Reporting/SlaTicketAnalysisTable";
+import { CircularProgress } from "@mui/material";
 import React, { useEffect, useState } from "react";
 
 export default function Page() {
@@ -30,7 +31,7 @@ export default function Page() {
         <h1 className="text-2xl font-bold">Reporting</h1>
         {loading ? (
           <div className="flex justify-center items-center h-64">
-            <div className="loader border-t-transparent  animate-spin rounded-full border-8 border-t-8 border-blue-200 h-16 w-16"></div>
+            <CircularProgress />
           </div>
         ) : (
           <SlaTicketAnalysisTable
