@@ -15,6 +15,7 @@ export default function Page() {
   const [data, setData] = useState([]);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleNewSLAPolicy = () => {
@@ -47,11 +48,14 @@ export default function Page() {
   };
 
   const getData = async () => {
+    setLoading(true);
     try {
       const res = await ProxyUrl.get("/sla-policies");
       setData(res.data.data);
     } catch (error) {
       console.error("Error fetching SLA policies:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -68,7 +72,7 @@ export default function Page() {
           onClickNewSLAPolicy={handleNewSLAPolicy}
           onClickDelete={handleDeleteSLAPolicy}
           onClickEdit={handleEditSLAPolicy}
-          loading={!data.length}
+          loading={loading}
         />
         <Dialog
           open={deleteModalOpen}

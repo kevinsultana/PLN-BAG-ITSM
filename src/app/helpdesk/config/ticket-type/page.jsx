@@ -16,6 +16,7 @@ export default function page() {
   const [data, setData] = useState([]);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteRow, setDeleteRow] = useState(null);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleNewTicketType = () => {
@@ -23,11 +24,14 @@ export default function page() {
   };
 
   const getData = async () => {
+    setLoading(true);
     try {
       const response = await ProxyUrl.get("/ticket-types");
       setData(response.data);
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -60,7 +64,7 @@ export default function page() {
           onClickNewTicketType={handleNewTicketType}
           onClickEdit={handleEdit}
           onClickDelete={handleDelete}
-          loading={!data.data}
+          loading={loading}
         />
       </HelpdeskLayout>
 

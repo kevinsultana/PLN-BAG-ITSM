@@ -17,6 +17,8 @@ export default function NavbarAgent({ onClick }) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
   const notifRef = useRef(null);
+  const hasFetchedNotificationsRef = useRef(false);
+  const wsRef = useRef(null);
   const router = useRouter();
 
   const [dataNotifications, setDataNotifications] = useState([]);
@@ -35,36 +37,89 @@ export default function NavbarAgent({ onClick }) {
   };
 
   useEffect(() => {
-    getNotifications();
+    if (!hasFetchedNotificationsRef.current) {
+      hasFetchedNotificationsRef.current = true;
+      getNotifications();
+    }
   }, []);
 
   const api = BACKEND_URL;
-  const wsUrl =
-    api.replace(/^http/, api.startsWith("https") ? "ws" : "ws") +
-    "/notifications/stream";
+  const wsUrl = (() => {
+    if (!api) return null;
+    // Proper WebSocket URL conversion
+    let wsProtocol = api.startsWith("https") ? "wss" : "ws";
+    return api.replace(/^https?/, wsProtocol) + "/notifications/stream";
+  })();
 
-  const notificationWebSocket = () => {
-    const ws = new WebSocket(wsUrl);
-    ws.onmessage = (event) => {
-      const newNotification = JSON.parse(event.data);
-      setDataNotifications((prev) => [newNotification, ...prev]);
-      toast.success(newNotification.title, {
-        description: newNotification.message,
-      });
-    };
+  const connectWebSocket = () => {
+    // Skip WebSocket connection jika URL tidak valid atau di server-side
+    if (!wsUrl || typeof window === "undefined") return;
 
-    ws.onerror = (error) => {
-      console.error("WebSocket error:", error);
-    };
-    ws.onclose = () => {
-      console.log("WebSocket connection closed. Reconnecting...");
-      setTimeout(notificationWebSocket, 5000); // Coba reconnect setelah 5 detik
-    };
+    // Tutup WebSocket existing jika ada
+    if (wsRef.current) {
+      wsRef.current.close();
+      wsRef.current = null;
+    }
+
+    try {
+      const ws = new WebSocket(wsUrl);
+      wsRef.current = ws;
+
+      ws.onopen = () => {
+        console.log("WebSocket connected successfully");
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const newNotification = JSON.parse(event.data);
+          setDataNotifications((prev) => [newNotification, ...prev]);
+          toast.success(newNotification.title, {
+            description: newNotification.message,
+          });
+        } catch (parseError) {
+          console.error("Error parsing WebSocket message:", parseError);
+        }
+      };
+
+      ws.onerror = (error) => {
+        console.warn("WebSocket connection failed:", error);
+        // Tidak perlu log detail error karena bisa sensitive
+      };
+
+      ws.onclose = (event) => {
+        console.log(`WebSocket closed: ${event.code} - ${event.reason}`);
+        wsRef.current = null;
+
+        // Hanya reconnect jika closure bukan karena intentional close (code 1000)
+        if (event.code !== 1000) {
+          console.log("Attempting to reconnect WebSocket in 10 seconds...");
+          setTimeout(() => {
+            // Cek apakah component masih mounted sebelum reconnect
+            if (wsRef.current === null) {
+              connectWebSocket();
+            }
+          }, 10000);
+        }
+      };
+    } catch (error) {
+      console.error("Failed to create WebSocket connection:", error);
+    }
   };
 
   useEffect(() => {
-    notificationWebSocket();
-  }, []);
+    // Hanya connect WebSocket jika user sudah login
+    if (user) {
+      connectWebSocket();
+    }
+
+    // Cleanup function untuk menutup WebSocket saat component unmount
+    return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
+        wsRef.current = null;
+      }
+    };
+  }, [user]); // Depend on user untuk reconnect saat login/logout
 
   // Group notifications from API by date (YYYY-MM-DD)
   const groupedNotifications = dataNotifications.reduce((acc, notif) => {
@@ -100,7 +155,13 @@ export default function NavbarAgent({ onClick }) {
   const handleAuthAction = async () => {
     if (user) {
       setLogoutLoading(true);
-      // toast.loading("Logging out...");
+
+      // Tutup WebSocket connection sebelum logout
+      if (wsRef.current) {
+        wsRef.current.close();
+        wsRef.current = null;
+      }
+
       try {
         await logout();
         toast.success("Berhasil logout!");

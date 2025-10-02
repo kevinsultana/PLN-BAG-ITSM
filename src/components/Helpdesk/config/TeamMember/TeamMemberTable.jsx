@@ -61,6 +61,13 @@ export default function TeamMemberTable({
     setTeamMembers(data);
   }, [data]);
 
+  // Reset page ke 1 setiap kali searchTerm berubah
+  useEffect(() => {
+    if (searchTerm) {
+      setPage(1);
+    }
+  }, [searchTerm]);
+
   // Sorting handler
   const handleSort = (columnKey) => {
     if (orderBy === columnKey) {

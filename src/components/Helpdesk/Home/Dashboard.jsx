@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
   RiCalendarLine,
   RiInformationLine,
@@ -31,10 +31,10 @@ export default function Dashboard() {
     date_from: getTodayDate(),
     date_to: getTodayDate(),
   });
-  console.log(currentDate);
 
   const [isModalTanggalOpen, setIsModalTanggalOpen] = useState(false);
   const [dataDashboard, setDataDashboard] = useState({});
+  const lastFetchedDate = useRef("");
 
   const statusTotals = useMemo(() => {
     const list = dataDashboard?.ticket_status_total ?? [];
@@ -125,6 +125,17 @@ export default function Dashboard() {
   ];
 
   const getData = async (dateRange) => {
+    const dateKey = `${dateRange.date_from}_${dateRange.date_to}`;
+
+    // Cegah duplicate API call dengan date yang sama
+    if (lastFetchedDate.current === dateKey) {
+      console.log("Skipping duplicate API call for same date range");
+      return;
+    }
+
+    lastFetchedDate.current = dateKey;
+    console.log("Fetching dashboard data for:", dateRange);
+
     try {
       const res = await ProxyUrl.get("/helpdesk/dashboard", {
         params: dateRange,
@@ -132,12 +143,14 @@ export default function Dashboard() {
       setDataDashboard(res.data.data);
     } catch (error) {
       console.log(error);
+      // Reset lastFetchedDate jika ada error, biar bisa retry
+      lastFetchedDate.current = "";
     }
   };
 
   useEffect(() => {
     getData(currentDate);
-  }, [currentDate]);
+  }, [currentDate.date_from, currentDate.date_to]);
 
   return (
     <div className="p-4 mt-4 bg-gray-50 rounded-2xl">

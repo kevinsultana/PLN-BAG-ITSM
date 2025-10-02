@@ -65,7 +65,9 @@ export default function EditApplicationPage() {
       <HelpdeskLayout>
         <h1 className="text-2xl font-bold mb-6">Konfigurasi</h1>
         {loading ? (
-          <CircularProgress />
+          <div className="h-64 flex items-center justify-center">
+            <CircularProgress />
+          </div>
         ) : (
           <CreateAppDocumentForm
             appList={appList}

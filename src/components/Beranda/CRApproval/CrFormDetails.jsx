@@ -99,7 +99,7 @@ export default function CrFormDetails({ data = {} }) {
   return (
     <div className="space-y-6">
       {/* Status Card */}
-      <Card>
+      <Card style={{ borderRadius: "12px" }}>
         <CardContent>
           <Typography variant="h6" className="mb-4 font-bold">
             Status Approval
@@ -133,7 +133,7 @@ export default function CrFormDetails({ data = {} }) {
       </Card>
 
       {/* Main Form Card */}
-      <Card>
+      <Card style={{ borderRadius: "12px" }}>
         <CardContent className="p-6">
           <div className="bg-white rounded-lg">
             <header className="flex justify-between items-start mb-4">

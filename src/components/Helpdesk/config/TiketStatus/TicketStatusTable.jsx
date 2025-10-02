@@ -83,6 +83,12 @@ export default function TicketStatusTable({
   };
 
   useEffect(() => {
+    if (searchTerm) {
+      setPage(1);
+    }
+  }, [searchTerm]);
+
+  useEffect(() => {
     setTicketStatus(mappedData);
   }, [mappedData]);
 

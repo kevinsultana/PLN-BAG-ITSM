@@ -81,6 +81,13 @@ export default function ApplicationTable({
     setActiveRow(null);
   };
 
+  // Reset page ke 1 setiap kali searchTerm berubah
+  useEffect(() => {
+    if (searchTerm) {
+      setPage(1);
+    }
+  }, [searchTerm]);
+
   useEffect(() => {
     setApplications(mappedData);
   }, [mappedData]);
@@ -184,7 +191,7 @@ export default function ApplicationTable({
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={columns.length} align="center">
+                <TableCell colSpan={4} align="center">
                   <CircularProgress />
                 </TableCell>
               </TableRow>

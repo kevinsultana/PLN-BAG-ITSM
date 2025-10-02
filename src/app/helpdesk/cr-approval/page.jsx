@@ -3,20 +3,27 @@ import { ProxyUrl } from "@/api/BaseUrl";
 import CrApprovalTable from "@/components/Helpdesk/CRApproval/CrApprovalTable";
 import HelpdeskLayout from "@/components/Helpdesk/layout/HelpdeskLayout";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 export default function page() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const hasFetchedRef = useRef(false);
 
   const router = useRouter();
 
   const getDataCRApproval = async () => {
+    if (hasFetchedRef.current) {
+      console.log("Skipping duplicate CR Approval API call");
+      return;
+    }
+
+    hasFetchedRef.current = true;
+
     try {
       setLoading(true);
       const res = await ProxyUrl.get("/change-requests");
 
-      // Handle different API response structures
       if (res.data.data) {
         setData(res.data.data);
       } else {
@@ -25,13 +32,13 @@ export default function page() {
     } catch (error) {
       console.log(error);
       setData([]);
+      hasFetchedRef.current = false;
     } finally {
       setLoading(false);
     }
   };
 
   const handleRowClick = (row, index) => {
-    // Add navigation to detail page or open modal
     router.push(`/helpdesk/cr-approval/details/${row.id}`);
   };
 

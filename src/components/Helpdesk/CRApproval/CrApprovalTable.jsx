@@ -111,19 +111,23 @@ const ApprovalStatus = ({ isBpo1Approve, isBpo2Approve }) => {
   const bpo2Config = getBpoStatusConfig(isBpo2Approve);
 
   return (
-    <div className="flex items-center gap-2 text-sm">
-      <span
-        className={`inline-flex items-center justify-center w-6 h-6 rounded-full border-2 ${bpo1Config.className}`}
-      >
-        {bpo1Config.icon}
-      </span>
-      <span className="text-xs text-gray-600">BPO1</span>
-      <span
-        className={`inline-flex items-center justify-center w-6 h-6 rounded-full border-2 ${bpo2Config.className}`}
-      >
-        {bpo2Config.icon}
-      </span>
-      <span className="text-xs text-gray-600">BPO2</span>
+    <div className="flex flex-col items-center gap-2 text-sm">
+      <div className="flex items-center gap-2">
+        <span
+          className={`inline-flex items-center justify-center w-6 h-6 rounded-full border-2 ${bpo1Config.className}`}
+        >
+          {bpo1Config.icon}
+        </span>
+        <span className="text-xs text-gray-600">BPO1</span>
+      </div>
+      <div className="flex items-center gap-2">
+        <span
+          className={`inline-flex items-center justify-center w-6 h-6 rounded-full border-2 ${bpo2Config.className}`}
+        >
+          {bpo2Config.icon}
+        </span>
+        <span className="text-xs text-gray-600">BPO2</span>
+      </div>
     </div>
   );
 };
@@ -303,11 +307,11 @@ export default function CrApprovalTable({
                     {(page - 1) * rowsPerPage + index + 1}
                   </TableCell>
 
-                  <TableCell className="text-gray-800">
+                  <TableCell className="text-gray-800 max-w-64">
                     {row.division_name}
                   </TableCell>
 
-                  <TableCell className="text-gray-800 max-w-xs">
+                  <TableCell className="text-gray-800 max-w-64">
                     <div className="truncate" title={row.change_description}>
                       {row.change_description}
                     </div>

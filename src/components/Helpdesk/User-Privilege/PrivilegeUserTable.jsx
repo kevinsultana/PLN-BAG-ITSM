@@ -44,6 +44,12 @@ export default function PrivilegeUserTable({
   const [anchorEl, setAnchorEl] = useState(null);
   const [activeRow, setActiveRow] = useState(null);
 
+  useEffect(() => {
+    if (searchTerm) {
+      setPage(1);
+    }
+  }, [searchTerm]);
+
   const handleOpenMenu = (event, row) => {
     setAnchorEl(event.currentTarget);
     setActiveRow(row);

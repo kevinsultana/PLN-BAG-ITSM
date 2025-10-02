@@ -84,6 +84,13 @@ export default function SlaPolicyTable({
     setActiveRow(null);
   };
 
+  // Reset page ke 1 setiap kali searchTerm berubah
+  useEffect(() => {
+    if (searchTerm) {
+      setPage(1);
+    }
+  }, [searchTerm]);
+
   useEffect(() => {
     setSlaPolicies(mappedData);
   }, [mappedData]);
