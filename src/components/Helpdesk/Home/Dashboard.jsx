@@ -16,7 +16,6 @@ import {
   TableContainer,
   Paper,
   CircularProgress,
-  Skeleton,
 } from "@mui/material";
 import { ProxyUrl } from "@/api/BaseUrl";
 
@@ -167,46 +166,13 @@ export default function Dashboard() {
     getData(currentDate, !isInitialLoad);
   }, [currentDate.date_from, currentDate.date_to]);
 
-  // Loading Skeleton Components
-  const LoadingSkeleton = () => (
-    <div className="p-4 mt-4 bg-gray-50 rounded-2xl">
-      <div className="flex justify-between items-center mb-8">
-        <Skeleton variant="text" width={200} height={32} />
-        <Skeleton
-          variant="rectangular"
-          width={250}
-          height={40}
-          className="rounded-lg"
-        />
-      </div>
-
-      {/* Loading Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
-        {[...Array(5)].map((_, index) => (
-          <Skeleton
-            key={index}
-            variant="rectangular"
-            height={120}
-            className="rounded-lg"
-          />
-        ))}
-      </div>
-
-      {/* Loading Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <Skeleton variant="rectangular" height={400} className="rounded-lg" />
-        </div>
-        <div className="lg:col-span-1">
-          <Skeleton variant="rectangular" height={400} className="rounded-lg" />
-        </div>
-      </div>
-    </div>
-  );
-
-  // Show loading skeleton on initial load
+  // Show loading on initial load
   if (loading) {
-    return <LoadingSkeleton />;
+    return (
+      <div className="flex justify-center items-center min-h-[400px]">
+        <CircularProgress size={40} />
+      </div>
+    );
   }
 
   return (
@@ -303,24 +269,11 @@ export default function Dashboard() {
               </TableHead>
               <TableBody>
                 {refreshing ? (
-                  [...Array(3)].map((_, index) => (
-                    <TableRow key={index}>
-                      <TableCell>
-                        <Skeleton
-                          variant="rectangular"
-                          width={80}
-                          height={24}
-                          className="rounded-full"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Skeleton variant="text" width="80%" height={20} />
-                      </TableCell>
-                      <TableCell>
-                        <Skeleton variant="text" width="90%" height={20} />
-                      </TableCell>
-                    </TableRow>
-                  ))
+                  <TableRow>
+                    <TableCell colSpan={3} sx={{ textAlign: "center", py: 4 }}>
+                      <CircularProgress size={24} />
+                    </TableCell>
+                  </TableRow>
                 ) : ticketList.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={3} sx={{ textAlign: "center", py: 4 }}>
@@ -387,27 +340,23 @@ export default function Dashboard() {
             SLA Performance
           </h2>
           <div className="divide-y divide-gray-200">
-            {refreshing
-              ? [...Array(5)].map((_, index) => (
-                  <div
-                    key={index}
-                    className="flex justify-between items-center py-3"
-                  >
-                    <Skeleton variant="text" width="60%" height={20} />
-                    <Skeleton variant="text" width="30%" height={20} />
-                  </div>
-                ))
-              : slaPerformance.map((item, index) => (
-                  <div
-                    key={index}
-                    className="flex justify-between items-center py-3"
-                  >
-                    <span className="text-gray-700">{item.label}</span>
-                    <span className="font-semibold text-gray-900">
-                      {item.value}
-                    </span>
-                  </div>
-                ))}
+            {refreshing ? (
+              <div className="flex justify-center py-8">
+                <CircularProgress size={24} />
+              </div>
+            ) : (
+              slaPerformance.map((item, index) => (
+                <div
+                  key={index}
+                  className="flex justify-between items-center py-3"
+                >
+                  <span className="text-gray-700">{item.label}</span>
+                  <span className="font-semibold text-gray-900">
+                    {item.value}
+                  </span>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
