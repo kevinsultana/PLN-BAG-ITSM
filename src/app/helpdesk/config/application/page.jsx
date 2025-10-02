@@ -15,17 +15,21 @@ export default function Page() {
   const [data, setData] = useState([]);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleNewApplication = () => {
     router.push("/helpdesk/config/application/new");
   };
 
   const getData = async () => {
+    setLoading(true);
     try {
       const response = await ProxyUrl.get("/applications");
       setData(response.data.data);
     } catch (error) {
       console.error("Error fetching applications:", error);
+    } finally {
+      setLoading(false);
     }
   };
   const handleDeleteApplication = (row) => {
@@ -36,7 +40,7 @@ export default function Page() {
   const confirmDeleteApplication = async () => {
     if (!selectedRow) return;
     try {
-      await ProxyUrl.delete(`/applications/${selectedRow.ID}`);
+      await ProxyUrl.delete(`/applications/${selectedRow.id}`);
       setDeleteModalOpen(false);
       setSelectedRow(null);
       getData();
@@ -48,7 +52,7 @@ export default function Page() {
   };
 
   const handleEditApplication = (row) => {
-    router.push(`/helpdesk/config/application/edit/${row.ID}`);
+    router.push(`/helpdesk/config/application/edit/${row.id}`);
   };
 
   useEffect(() => {
@@ -64,7 +68,7 @@ export default function Page() {
           onClickNewApps={handleNewApplication}
           onClickDelete={handleDeleteApplication}
           onClickEdit={handleEditApplication}
-          loading={!data.length}
+          loading={loading}
         />
         <Dialog
           open={deleteModalOpen}
