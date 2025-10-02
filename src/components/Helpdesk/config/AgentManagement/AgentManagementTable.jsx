@@ -89,6 +89,13 @@ export default function AgentManagementTable({
     setTicketStatus(mappedData);
   }, [mappedData]);
 
+  // Reset page ke 1 setiap kali searchTerm berubah
+  useEffect(() => {
+    if (searchTerm) {
+      setPage(1);
+    }
+  }, [searchTerm]);
+
   const sortedAndFilteredStatus = useMemo(() => {
     let filteredList = ticketStatus.filter((status) =>
       Object.values(status).some((value) =>
