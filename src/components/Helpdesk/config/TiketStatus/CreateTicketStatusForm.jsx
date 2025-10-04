@@ -26,9 +26,17 @@ export default function CreateTicketStatusForm({
 
   const handleChange = (e) => {
     const { name, value, checked, type } = e.target;
+    let processedValue = value;
+
+    // Validasi khusus untuk field code
+    if (name === "code") {
+      // Konversi ke huruf kapital dan batasi maksimal 4 karakter
+      processedValue = value.toUpperCase().slice(0, 4);
+    }
+
     setForm({
       ...form,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: type === "checkbox" ? checked : processedValue,
     });
   };
 
@@ -39,7 +47,16 @@ export default function CreateTicketStatusForm({
   const validate = () => {
     const newErrors = {};
     if (!form.name.trim()) newErrors.name = true;
-    if (!form.code.trim()) newErrors.code = true;
+
+    // Validasi code: harus ada, 4 karakter, dan huruf kapital
+    if (!form.code.trim()) {
+      newErrors.code = "Code tidak boleh kosong";
+    } else if (form.code.length !== 4) {
+      newErrors.code = "Code harus terdiri dari 4 karakter";
+    } else if (!/^[A-Z]{4}$/.test(form.code)) {
+      newErrors.code = "Code harus berupa 4 huruf kapital";
+    }
+
     if (!form.description.trim()) newErrors.description = true;
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -108,8 +125,12 @@ export default function CreateTicketStatusForm({
             value={form.code}
             onChange={handleChange}
             className={`input ${errors.code ? "border-red-500" : ""}`}
-            placeholder="Code"
+            placeholder="Code (4 huruf kapital)"
+            maxLength={4}
           />
+          {errors.code && typeof errors.code === "string" && (
+            <span className="text-red-500 text-xs">{errors.code}</span>
+          )}
         </div>
 
         {/* Status */}

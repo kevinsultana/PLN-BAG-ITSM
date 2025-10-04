@@ -2,6 +2,7 @@ import { ProxyUrl } from "@/api/BaseUrl";
 import CKEditorWrapper from "@/components/CKEditorWrapper";
 import Dropdown from "@/components/Dropdown";
 import PriorityDropdown from "@/components/PriorityDropdown";
+import { useAuth } from "@/context/AuthContext";
 import renderDescription from "@/utils/RenderDesc";
 import { FormControl, MenuItem, Select } from "@mui/material";
 import React, { useState, useEffect } from "react";
@@ -47,9 +48,14 @@ export default function TiketDetails({
   onClickCRForm,
 }) {
   const status = ["OPEN", "IN PROGRESS", "ON HOLD", "RESOLVED", "CLOSED"];
+  const { user } = useAuth();
 
   const [feedbackTiket, setFeedbackTiket] = useState("");
   const [updatedTiket, setUpdatedTiket] = useState(data || {});
+
+  // Check if current user is Agent Level 2 and ticket status is OPEN
+  const isAgentLevel2OnOpen =
+    data?.status === "OPEN" && user?.data?.role === "Agent Level 2";
 
   useEffect(() => {
     setUpdatedTiket(data || {});
@@ -287,7 +293,7 @@ export default function TiketDetails({
               label="Team"
               value={updatedTiket?.team_group?.id || ""}
               dataMenus={teamGroup || []}
-              disabled={data?.status !== "OPEN"}
+              disabled={data?.status !== "OPEN" || isAgentLevel2OnOpen}
               handleChange={(e) =>
                 setUpdatedTiket((prev) => ({
                   ...prev,
@@ -313,7 +319,7 @@ export default function TiketDetails({
                     }))
                   }
                   displayEmpty
-                  disabled={data?.status !== "OPEN"}
+                  disabled={data?.status !== "OPEN" || isAgentLevel2OnOpen}
                   sx={{ backgroundColor: "white", borderRadius: 2 }}
                 >
                   <MenuItem value="">
@@ -332,7 +338,7 @@ export default function TiketDetails({
               label="Priority"
               value={updatedTiket?.priority?.id || ""}
               dataPriorities={selections?.priorities || []}
-              disabled={data?.status !== "OPEN"}
+              disabled={data?.status !== "OPEN" || isAgentLevel2OnOpen}
               onChange={(e) =>
                 setUpdatedTiket((prev) => ({
                   ...prev,
@@ -347,7 +353,7 @@ export default function TiketDetails({
               label="Tipe"
               value={updatedTiket?.ticket_type?.id || ""}
               dataMenus={selections?.ticket_types || []}
-              disabled={data?.status !== "OPEN"}
+              disabled={data?.status !== "OPEN" || isAgentLevel2OnOpen}
               handleChange={(e) =>
                 setUpdatedTiket((prev) => ({
                   ...prev,
@@ -362,7 +368,7 @@ export default function TiketDetails({
               label="SLA Policy"
               value={updatedTiket?.sla_policy?.id || ""}
               dataMenus={selections?.sla_policies || []}
-              disabled={data?.status !== "OPEN"}
+              disabled={data?.status !== "OPEN" || isAgentLevel2OnOpen}
               handleChange={(e) =>
                 setUpdatedTiket((prev) => ({
                   ...prev,
@@ -386,7 +392,7 @@ export default function TiketDetails({
                       name: bpo.division_name,
                     })) || []
                   }
-                  disabled={data?.status !== "OPEN"}
+                  disabled={data?.status !== "OPEN" || isAgentLevel2OnOpen}
                   handleChange={(e) =>
                     setUpdatedTiket((prev) => ({
                       ...prev,
@@ -410,6 +416,7 @@ export default function TiketDetails({
                         contract_number: e.target.value,
                       }))
                     }
+                    readOnly={isAgentLevel2OnOpen}
                     required
                   />
                 </div>
@@ -431,26 +438,29 @@ export default function TiketDetails({
                         contract_value: Number(e.target.value),
                       }))
                     }
+                    readOnly={isAgentLevel2OnOpen}
                     required
                   />
                 </div>
               </>
             )}
 
-            {data?.status === "OPEN" && !data?.change_request_status && (
-              <div>
-                <button
-                  type="button"
-                  className="bg-sky-500 cursor-pointer p-2 text-white w-full rounded-full mt-6"
-                  onClick={() => {
-                    const payload = mapUpdatedTiketToPayload(updatedTiket);
-                    onClickUpdateTiket(payload);
-                  }}
-                >
-                  Update Tiket
-                </button>
-              </div>
-            )}
+            {data?.status === "OPEN" &&
+              !data?.change_request_status &&
+              !isAgentLevel2OnOpen && (
+                <div>
+                  <button
+                    type="button"
+                    className="bg-sky-500 cursor-pointer p-2 text-white w-full rounded-full mt-6"
+                    onClick={() => {
+                      const payload = mapUpdatedTiketToPayload(updatedTiket);
+                      onClickUpdateTiket(payload);
+                    }}
+                  >
+                    Update Tiket
+                  </button>
+                </div>
+              )}
           </div>
 
           <div className="flex flex-col gap-4">
