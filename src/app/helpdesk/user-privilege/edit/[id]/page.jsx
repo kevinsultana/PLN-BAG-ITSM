@@ -78,12 +78,12 @@ export default function EditPrivilegeUserPage() {
         loading: "Saving...",
         success: (res) => {
           setSaving(false);
-          return "Privileges saved successfully!";
+          return "Hak akses Berhasil disimpan.";
         },
         error: (error) => {
           setSaving(false);
           console.log(error);
-          return "Failed to save privileges.";
+          return "Gagal menyimpan hak akses.";
         },
       }
     );

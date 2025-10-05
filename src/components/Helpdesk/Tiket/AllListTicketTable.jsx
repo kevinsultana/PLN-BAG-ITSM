@@ -314,6 +314,7 @@ export default function AllListTicketTable({
                 </TableSortLabel>
               </TableCell>
 
+              <TableCell>Tanggal Dibuat</TableCell>
               <TableCell>Status</TableCell>
             </TableRow>
           </TableHead>
@@ -362,6 +363,15 @@ export default function AllListTicketTable({
                   </TableCell>
                   <TableCell className="text-gray-800">
                     {formatSLA(row.created_at, row.sla_policy)}
+                  </TableCell>
+                  <TableCell className="text-gray-800">
+                    {row.created_at
+                      ? new Date(row.created_at).toLocaleDateString("id-ID", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                        })
+                      : "-"}
                   </TableCell>
                   <TableCell>
                     <StatusPill status={row.status} />

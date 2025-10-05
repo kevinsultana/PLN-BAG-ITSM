@@ -22,7 +22,6 @@ export default function Page() {
         <CreateTicketStatusForm
           onSubmit={handleCreate}
           onCancel={() => router.back()}
-          submitLabel="Save"
         />
       </HelpdeskLayout>
     </div>

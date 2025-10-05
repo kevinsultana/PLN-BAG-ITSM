@@ -104,7 +104,14 @@ export default function ListTicketTable({
       ticket_detail: item.subject,
       created_by: item.requester?.name || item.fullname || item.email,
       created_date: item.created_at
-        ? new Date(item.created_at).toLocaleString("id-ID")
+        ? new Date(item.created_at).toLocaleString("id-ID", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false, // Format 24 jam
+          })
         : "",
       status: item.status,
       ticket_code: item.ticket_code || "-",

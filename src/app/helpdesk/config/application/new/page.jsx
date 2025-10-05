@@ -32,7 +32,7 @@ export default function Page() {
         <CreateApplicationForm
           onSubmit={handleSubmit}
           onCancel={handleCancel}
-          submitLabel="Save"
+          submitLabel="Simpan"
         />
       </HelpdeskLayout>
     </div>

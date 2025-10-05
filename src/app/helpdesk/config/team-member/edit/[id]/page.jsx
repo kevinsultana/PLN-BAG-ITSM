@@ -50,6 +50,7 @@ export default function Page() {
           onSubmit={handleSubmit}
           onCancel={() => router.back()}
           loading={loading}
+          submitLabel="Ubah"
         />
       </HelpdeskLayout>
     </div>
