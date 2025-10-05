@@ -10,6 +10,7 @@ export default function Page() {
   const [slaData, setSlaData] = useState({ items: [], summary: {} });
   const [loading, setLoading] = useState(false);
   const [loadingDownload, setLoadingDownload] = useState(false);
+  const { user } = useAuth();
 
   const getData = async () => {
     setLoading(true);
@@ -26,8 +27,6 @@ export default function Page() {
   useEffect(() => {
     getData();
   }, []);
-  const { user } = useAuth();
-  console.log(user.data.role === "Lead Agent");
 
   return (
     <div className="bg-slate-100 h-full">

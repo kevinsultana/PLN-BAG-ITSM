@@ -7,11 +7,14 @@ import { RiFilter2Line } from "react-icons/ri";
 import { ProxyUrl } from "@/api/BaseUrl";
 import CircularProgress from "@mui/material/CircularProgress";
 import CrTrackingTable from "@/components/Helpdesk/Reporting/CrTrackingTable";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Page() {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadingDownload, setLoadingDownload] = useState(false);
+  const { user } = useAuth();
+
   const [data, setData] = useState([]);
   const [meta, setMeta] = useState({
     page: 1,

@@ -6,11 +6,14 @@ import FilterModal from "@/components/Helpdesk/Reporting/FilterModal";
 import { RiFilter2Line } from "react-icons/ri";
 import { ProxyUrl } from "@/api/BaseUrl";
 import CircularProgress from "@mui/material/CircularProgress";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Page() {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadingDownload, setLoadingDownload] = useState(false);
+  const { user } = useAuth();
+
   const [data, setData] = useState([]);
   const [filters, setFilters] = useState({
     kategori: "team",
