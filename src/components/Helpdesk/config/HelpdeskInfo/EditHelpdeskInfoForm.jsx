@@ -224,13 +224,13 @@ export default function EditHelpdeskInfoForm({ data, onSubmit, onCancel }) {
                 );
             }}
           >
-            Cancel
+            Batal
           </button>
           <button
             type="submit"
             className="px-6 py-2 rounded-lg text-white bg-[#65C7D5] hover:bg-[#4FB3C1] transition"
           >
-            Save
+            Ubah
           </button>
         </div>
       </form>

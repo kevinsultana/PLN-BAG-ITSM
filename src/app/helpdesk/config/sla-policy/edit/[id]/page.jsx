@@ -58,7 +58,7 @@ export default function EditSlaPolicyPage() {
             data={data}
             onSubmit={handleSave}
             onCancel={() => router.back()}
-            submitLabel="Update"
+            submitLabel="Ubah"
           />
         )}
       </HelpdeskLayout>

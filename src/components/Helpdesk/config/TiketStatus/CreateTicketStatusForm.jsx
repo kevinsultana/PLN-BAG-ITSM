@@ -8,7 +8,7 @@ export default function CreateTicketStatusForm({
   data = {},
   onSubmit,
   onCancel,
-  submitLabel = "Save",
+  submitLabel = "Simpan",
 }) {
   const [form, setForm] = useState({
     name: data.name || data.Name || "",
@@ -161,7 +161,7 @@ export default function CreateTicketStatusForm({
             className="px-6 py-2 rounded-lg text-gray-700 bg-gray-200 hover:bg-gray-300 transition"
             onClick={onCancel}
           >
-            Cancel
+            Batal
           </button>
           <button
             type="submit"

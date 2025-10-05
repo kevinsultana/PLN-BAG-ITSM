@@ -31,7 +31,7 @@ export default function Page() {
         <h1 className="text-2xl font-bold">Konfigurasi</h1>
         <CreateTicketTypeForm
           onSubmit={handleCreate}
-          submitLabel="Save"
+          submitLabel="Simpan"
           onCancel={() => router.back()}
         />
       </HelpdeskLayout>

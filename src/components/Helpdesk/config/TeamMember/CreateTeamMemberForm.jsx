@@ -19,6 +19,7 @@ export default function CreateTeamMemberForm({
   data = {},
   onCancel,
   loading = false,
+  submitLabel = "Simpan",
 }) {
   const [form, setForm] = useState({
     id: null,
@@ -363,13 +364,13 @@ export default function CreateTeamMemberForm({
                 className="px-6 py-2 rounded-lg text-gray-700 bg-gray-200 hover:bg-gray-300 transition"
                 onClick={onCancel}
               >
-                Cancel
+                Batal
               </button>
               <button
                 type="submit"
                 className="px-6 py-2 rounded-lg text-white bg-[#65C7D5] hover:bg-[#4FB3C1] transition"
               >
-                Save
+                {submitLabel}
               </button>
             </div>
           </form>

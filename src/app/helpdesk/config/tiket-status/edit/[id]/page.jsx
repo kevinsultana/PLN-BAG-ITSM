@@ -57,7 +57,7 @@ export default function EditTicketStatusPage() {
             data={data}
             onSubmit={handleSave}
             onCancel={() => router.back()}
-            submitLabel="Update"
+            submitLabel="Ubah"
           />
         )}
       </HelpdeskLayout>

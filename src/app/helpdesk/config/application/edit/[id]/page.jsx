@@ -56,7 +56,7 @@ export default function EditApplicationPage() {
             data={data}
             onSubmit={handleSave}
             onCancel={() => router.back()}
-            submitLabel="Update"
+            submitLabel="Ubah"
           />
         )}
       </HelpdeskLayout>

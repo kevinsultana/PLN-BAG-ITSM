@@ -25,6 +25,7 @@ export default function Page() {
         <CreateSlaPolicyForm
           onCancel={() => router.back()}
           onSubmit={handleSubmit}
+          submitLabel="Simpan"
         />
       </HelpdeskLayout>
     </div>
