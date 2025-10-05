@@ -11,6 +11,7 @@ import CrTrackingTable from "@/components/Helpdesk/Reporting/CrTrackingTable";
 export default function Page() {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loadingDownload, setLoadingDownload] = useState(false);
   const [data, setData] = useState([]);
   const [meta, setMeta] = useState({
     page: 1,
@@ -121,6 +122,19 @@ export default function Page() {
       <HelpdeskLayout>
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Reporting</h1>
+          {user.data.role === "Lead Agent" && (
+            <button
+              onClick={() => {}}
+              disabled={loadingDownload}
+              className="flex items-center min-w-20 justify-center gap-2 px-4 py-2.5 bg-[#65C7D5] text-white rounded-2xl text-sm hover:opacity-90 cursor-pointer"
+            >
+              {loadingDownload ? (
+                <CircularProgress size={20} color="inherit" />
+              ) : (
+                "Exports"
+              )}
+            </button>
+          )}
         </div>
 
         <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
