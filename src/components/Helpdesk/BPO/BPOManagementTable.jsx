@@ -15,6 +15,7 @@ import {
   IconButton,
   Menu,
   MenuItem,
+  CircularProgress,
 } from "@mui/material";
 import { FaPlus } from "react-icons/fa";
 import { RiSearchLine, RiMore2Fill } from "react-icons/ri";
@@ -30,7 +31,7 @@ const columns = [
   { label: "Aksi", key: "aksi", disableSorting: true },
 ];
 
-export default function BPOManagementTable({ data }) {
+export default function BPOManagementTable({ data, loading }) {
   // Always map API data to table format
   const mappedBpoData = Array.isArray(data)
     ? data.map((item, idx) => ({
@@ -167,21 +168,31 @@ export default function BPOManagementTable({ data }) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {paginatedData.map((row) => (
-              <TableRow key={row.no} hover>
-                <TableCell style={{ width: "5%" }}>{row.no}</TableCell>
-                <TableCell style={{ width: "20%" }}>
-                  {row.namaManager}
-                </TableCell>
-                {/* <TableCell style={{ width: "15%" }}>{row.namaBPO}</TableCell> */}
-                <TableCell style={{ width: "55%" }}>{row.divisi}</TableCell>
-                <TableCell style={{ width: "5%" }}>
-                  <IconButton onClick={(e) => handleOpenMenuWithEvent(e, row)}>
-                    <RiMore2Fill />
-                  </IconButton>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={columns.length} align="center">
+                  <CircularProgress />
                 </TableCell>
               </TableRow>
-            ))}
+            ) : (
+              paginatedData.map((row) => (
+                <TableRow key={row.no} hover>
+                  <TableCell style={{ width: "5%" }}>{row.no}</TableCell>
+                  <TableCell style={{ width: "20%" }}>
+                    {row.namaManager}
+                  </TableCell>
+                  {/* <TableCell style={{ width: "15%" }}>{row.namaBPO}</TableCell> */}
+                  <TableCell style={{ width: "55%" }}>{row.divisi}</TableCell>
+                  <TableCell style={{ width: "5%" }}>
+                    <IconButton
+                      onClick={(e) => handleOpenMenuWithEvent(e, row)}
+                    >
+                      <RiMore2Fill />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
         {/* MUI Menu for row actions */}
