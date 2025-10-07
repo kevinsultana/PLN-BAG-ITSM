@@ -164,8 +164,8 @@ export default function NavbarAgent({ onClick }) {
 
       try {
         await logout();
-        toast.success("Berhasil logout!");
-        router.replace("/");
+        // toast.success("Berhasil logout!");
+        // router.replace("/");
       } catch (err) {
         toast.error("Logout gagal!");
       } finally {

@@ -40,13 +40,14 @@ export function AuthProvider({ children }) {
   };
 
   const logout = async () => {
-    try {
-      await fetch("/api/sso/logout", { method: "POST" });
-    } catch (error) {
-      console.error("Gagal saat mencoba logout dari server:", error);
-    } finally {
-      await checkUserSession();
-    }
+    window.location.href = `${BACKEND_URL}/auth/logout-sso`;
+    // try {
+    //   await fetch("/api/sso/logout-sso", { method: "GET" });
+    // } catch (error) {
+    //   console.error("Gagal saat mencoba logout dari server:", error);
+    // } finally {
+    //   await checkUserSession();
+    // }
   };
 
   const getPrivilege = async () => {

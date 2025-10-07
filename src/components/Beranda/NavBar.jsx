@@ -110,8 +110,8 @@ export default function NavBar({ onClick }) {
       // toast.loading("Logging out...");
       try {
         await logout();
-        toast.success("Berhasil logout!");
-        router.replace("/");
+        // toast.success("Berhasil logout!");
+        // router.replace("/");
       } catch (err) {
         toast.error("Logout gagal!");
       } finally {

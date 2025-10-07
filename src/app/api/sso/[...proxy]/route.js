@@ -9,8 +9,8 @@ async function handler(req) {
   let proxyPath = pathname.replace("/api/sso", "");
 
   // Jika path /logout, arahkan ke /auth/logout
-  if (proxyPath === "/logout") {
-    proxyPath = "/auth/logout";
+  if (proxyPath === "/logout-sso") {
+    proxyPath = "/auth/logout-sso";
   }
 
   const proxyUrl = `${SSO_API_URL}${proxyPath}${search}`;
